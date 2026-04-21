@@ -1170,8 +1170,9 @@
 </div>
  
 <script>
-  const API_BASE = 'http://localhost:3001';
- 
+  const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3001'
+  : 'https://dinobot-app.onrender.com';
   function getAccessToken() { return localStorage.getItem('accessToken'); }
   function authHeaders(extra = {}) {
     const token = getAccessToken();
