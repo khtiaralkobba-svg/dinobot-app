@@ -6,6 +6,28 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  #chat-fab {
+  display: none;
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  z-index: 600;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(160deg, #071828, #061422);
+  border: 1px solid var(--border-bright);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255,107,26,0.4);
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+@media (max-width: 1024px) {
+  #chat-fab { display: flex; }
+}
   @media (max-width: 1024px) {
   #chat-fab { display: flex !important; }
 }
@@ -3687,5 +3709,8 @@ function openCartFromAnywhere() {
     }
   }
 </script>
+<button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
+  🤖
+</button>
 </body>
 </html>
