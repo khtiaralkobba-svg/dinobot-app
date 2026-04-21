@@ -1,5 +1,5 @@
 const orderService = require('../services/orderService');
-const socket = require('../socket');          // ← new
+require('../Socket')      
  
 async function createOrder(req, res) {
   try {
