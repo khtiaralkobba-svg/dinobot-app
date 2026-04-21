@@ -440,6 +440,142 @@
   .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
   .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes typingDot { 0%,80%,100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+  /* ══════════════════════════════════════════════════════════
+     RESPONSIVE / MOBILE
+  ══════════════════════════════════════════════════════════ */
+  @media (max-width: 1024px) {
+    nav { padding: 0 24px; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-visual { display: none; }
+    .hero-title { font-size: clamp(48px, 8vw, 96px); }
+    .stats-bar { padding: 0 24px 60px; }
+    .section { padding: 60px 24px; }
+    .features-grid { grid-template-columns: 1fr; gap: 8px; }
+    #dashboard { padding: 80px 24px 60px; }
+    #student { padding: 80px 24px 60px; }
+    .dashboard-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .dash-title { font-size: 48px; }
+    .kitch-board { grid-template-columns: 1fr; gap: 12px; }
+    .kitch-robot-bar { grid-template-columns: auto 1fr auto; overflow-x: auto; }
+    .tracking-wrap { grid-template-columns: 1fr; }
+    .analytics-grid { grid-template-columns: 1fr; gap: 8px; }
+    .analytics-breakdown { grid-template-columns: 1fr; }
+    .shift-grid { grid-template-columns: 1fr; }
+    .shift-summary-bar { grid-template-columns: 1fr 1fr; gap: 4px; }
+    .staff-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .cc-layer { padding: 20px 16px; }
+    .staff-row { grid-template-columns: 1fr 1fr; }
+    .shift-history-row { grid-template-columns: 60px 1fr 80px 80px 80px 80px; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 16px; height: 56px; }
+    .logo-text { font-size: 18px; }
+    .nav-links a { padding: 6px 10px; font-size: 11px; letter-spacing: 1px; }
+    .hero { padding: 80px 16px 40px; }
+    .hero-title { font-size: clamp(40px, 12vw, 72px); }
+    .hero-sub { font-size: 15px; }
+    .stats-bar { grid-template-columns: 1fr; padding: 0 16px 40px; }
+    .section { padding: 40px 16px; }
+    .section-title { font-size: 36px; }
+    #dashboard { padding: 70px 16px 40px; }
+    #student > div { padding: 70px 16px 40px !important; }
+    .dash-title { font-size: 36px; }
+    .step-bar { gap: 0; }
+    .step-label { font-size: 7px; letter-spacing: 1px; }
+    .step-dot { width: 32px; height: 32px; font-size: 10px; }
+    .table-grid { grid-template-columns: repeat(4, 1fr); }
+    .menu-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .menu-item { padding: 12px; }
+    .menu-item-emoji { font-size: 24px; }
+    .kitch-board { grid-template-columns: 1fr; }
+    .order-ticket { padding: 12px; }
+    .ticket-timer { font-size: 20px; }
+    .ticket-id { font-size: 18px; }
+    .analytics-grid { grid-template-columns: 1fr; }
+    .shift-summary-bar { grid-template-columns: 1fr 1fr; }
+    .shift-grid { grid-template-columns: 1fr; }
+    .shift-history-row { grid-template-columns: 50px 1fr 70px 70px; }
+    .shift-history-row .shift-history-cell:nth-child(5),
+    .shift-history-row .shift-history-cell:nth-child(6) { display: none; }
+    .staff-row { grid-template-columns: 1fr; }
+    .staff-cell { padding: 6px 10px; font-size: 9px; }
+    .cc-layer { padding: 16px 12px; }
+    .estop-btn { font-size: 22px; letter-spacing: 4px; padding: 18px 16px; }
+    .kitch-robot-bar { display: flex; flex-wrap: wrap; gap: 0; }
+    .krb-cell { padding: 10px 14px; }
+    .confirm-card { max-width: 100%; }
+    #robot-chat-panel { width: calc(100vw - 32px) !important; right: 16px !important; bottom: 16px !important; }
+    .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
+    .dpad-btn { width: 44px; height: 44px; font-size: 16px; }
+    .auth-role-pills { flex-direction: column; }
+    .features-grid { grid-template-columns: 1fr; }
+    .tracking-wrap { grid-template-columns: 1fr; }
+    .track-map-wrap { padding-bottom: 60%; }
+    .op-section-title { font-size: 9px; }
+    .telem-box { padding: 12px; }
+    #map-container { min-height: 220px !important; }
+    .analytics-breakdown { grid-template-columns: 1fr; }
+    .staff-form-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { font-size: 38px; }
+    .hero-sub { font-size: 14px; }
+    .btn { padding: 10px 20px; font-size: 12px; }
+    .student-btn { padding: 12px 20px; font-size: 15px; }
+    .menu-grid { grid-template-columns: 1fr; }
+    .table-grid { grid-template-columns: repeat(3, 1fr); }
+    .step-label { display: none; }
+    .step-dot { width: 28px; height: 28px; font-size: 9px; }
+    nav ul { gap: 4px; }
+    .nav-links a { padding: 5px 8px; font-size: 10px; }
+    .logo-text { display: none; }
+    .shift-summary-bar { grid-template-columns: 1fr 1fr; }
+    .shift-card { padding: 12px 14px; }
+    .shift-card-name { font-size: 15px; }
+    .shift-time-val { font-size: 14px; }
+    .kitch-col-head { padding: 8px 10px; }
+    .kitch-col-title { font-size: 8px; letter-spacing: 2px; }
+    .order-ticket { padding: 10px; gap: 8px; }
+    #robot-chat-panel { width: calc(100vw - 16px) !important; right: 8px !important; bottom: 8px !important; max-height: 80vh !important; }
+    .cc-layer { padding: 14px 10px; }
+    .analytics-card { padding: 16px; }
+    .ac-value { font-size: 32px; }
+    .confirm-card { padding: 20px; }
+    .cart-bubble { padding: 8px 14px; font-size: 12px; }
+    .shift-history-row { grid-template-columns: 50px 1fr 70px; }
+    .shift-history-row .shift-history-cell:nth-child(4),
+    .shift-history-row .shift-history-cell:nth-child(5),
+    .shift-history-row .shift-history-cell:nth-child(6) { display: none; }
+    .staff-row { display: flex; flex-wrap: wrap; padding: 8px; }
+    .tracking-wrap > div:last-child { display: none; }
+    .auth-box { padding: 0 4px; }
+    .form-input { font-size: 12px; padding: 10px 12px; }
+    .btn-login { font-size: 16px; }
+  }
+
+  /* Scrollable horizontal panels on small screens */
+  @media (max-width: 768px) {
+    .kitch-robot-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .cart-table { display: block; overflow-x: auto; }
+    #control-center, #kitchen-center { overflow-x: hidden; }
+    .cc-layer-operational > div { overflow-x: auto; }
+  }
+
+  /* Touch improvements */
+  @media (hover: none) and (pointer: coarse) {
+    .table-btn { min-height: 70px; }
+    .dpad-btn { width: 56px; height: 56px; }
+    .ticket-action { padding: 14px; font-size: 12px; }
+    .cart-qty-btn { width: 36px; height: 36px; }
+    .add-to-cart-btn { width: 40px; height: 40px; font-size: 20px; }
+    .staff-action-btn { padding: 10px 14px; }
+    .chat-add-btn { padding: 10px 18px; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
   @keyframes neonDraw { to { stroke-dashoffset: 0; } }
  
   /* ══════════════════════════════════════════════════════════
