@@ -3729,9 +3729,12 @@ function openCartFromAnywhere() {
     }
   }
 </script>
-<button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
-  🤖
-</button>
-<div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:48px; width:400px; max-height:600px; z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);"></div>
+<!-- ROBOT CHAT PANEL -->
+  <div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:48px; width:400px; max-height:600px; z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);">
+    ... (keep all the inner content exactly as-is)
+  </div>
+
+<button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">🤖</button>
+</body>
 </body>
 </html>
