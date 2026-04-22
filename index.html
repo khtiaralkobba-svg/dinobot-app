@@ -5,8 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-<<style>
+<style>
   :root {
+    --orange: #FF6B1A;
+    --orange-bright: #FF8C3A;
+    --orange-glow: rgba(255, 107, 26, 0.4);
+    --black: #020b1a;
+    --dark: #041020;
+    --darker: #03091a;
+    --panel: #061422;
+    --border: rgba(255, 107, 26, 0.18);
+    --border-bright: rgba(255, 107, 26, 0.55);
+    --text: #dce8f8;
+    --text-dim: rgba(180, 210, 245, 0.5);
+    --hex-size: 60px;
+  }
   #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
@@ -693,7 +706,6 @@
     #chat-fab { display: flex !important; }
   }
 </style>
-</style>
 </head>
 <body>
  
@@ -862,23 +874,10 @@
     </div>
   </div>
 </div>
- 
-<div class="cart-bubble" id="cart-bubble" onclick="openCartFromAnywhere()">
-  <button id="chat-fab" onclick="toggleRobotChat()" style="
-  position:fixed; bottom:32px; left:32px; z-index:500;
-  width:52px; height:52px;
-  background:linear-gradient(160deg,#071828,#061422);
-  border:1px solid var(--border-bright);
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  display:none; align-items:center; justify-content:center;
-  font-size:22px; cursor:pointer;
-  box-shadow:0 0 30px rgba(255,107,26,0.3);
-  transition:all 0.2s;
-">🤖</button>
+ <div class="cart-bubble" id="cart-bubble" onclick="openCartFromAnywhere()">
   <span>VIEW CART</span>
   <span class="cart-bubble-count" id="cart-bubble-count">0</span>
 </div>
- 
 <!-- DASHBOARD PAGE -->
 <div id="dashboard" class="page">
   <div style="position: relative; z-index: 2; padding: 100px 48px 80px;">
