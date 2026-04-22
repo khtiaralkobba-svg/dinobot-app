@@ -420,15 +420,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 .staff-btn-delete  { color:#ef4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.06); }
 .staff-btn-delete:hover  { background:rgba(239,68,68,0.15); }
   /* ── ROBOT CHAT ─────────────────────────────────────────── */
-  @media (max-width: 768px) {
-  #robot-chat-panel {
-    width: calc(100vw - 32px) !important;
-    right: 16px !important;
-    left: 16px !important;
-    bottom: 16px !important;
-    max-height: 75vh !important;
-  }
-}
   .chat-msg { display: flex; flex-direction: column; gap: 4px; animation: fadeInUp 0.3s ease; }
   .chat-msg-bot  { align-items: flex-start; }
   .chat-msg-user { align-items: flex-end; }
@@ -3729,10 +3720,9 @@ function openCartFromAnywhere() {
     }
   }
 </script>
-<!-- ROBOT CHAT PANEL -->
-<div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:20px; width:min(400px, calc(100vw - 40px)); max-height:min(600px, 80vh); z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);"></div>
+<button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
+  🤖
+</button>
 
-<button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">🤖</button>
-</body>
 </body>
 </html>
