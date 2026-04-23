@@ -504,23 +504,22 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     .kitch-robot-bar { display: flex; flex-wrap: wrap; gap: 0; }
     .krb-cell { padding: 10px 14px; }
     .confirm-card { max-width: 100%; }
-#robot-chat-panel { 
-  position: fixed !important;
-  bottom: 0 !important; 
-  left: 0 !important;
-  right: 0 !important;
-  width: 100vw !important; 
-  max-height: 85dvh !important;
-  display: flex !important;
-  flex-direction: column !important;
-  clip-path: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-radius: 0 !important;
-  z-index: 999999 !important;
-}
-  .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
+@media (max-width: 768px) {
+  #robot-chat-panel {
+    width: 100vw !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    max-height: 80vh !important;
+    clip-path: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+  }
+  #robot-chat-messages {
+    max-height: calc(80vh - 160px) !important;
+  }
+}    .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
     .dpad-btn { width: 44px; height: 44px; font-size: 16px; }
     .auth-role-pills { flex-direction: column; }
     .features-grid { grid-template-columns: 1fr; }
@@ -828,182 +827,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         </div>
       </div>
     </div>
-     <!-- ROBOT CHAT PANEL -->
-     <div id="robot-chat-panel" style="
-  display:none;
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  width:100%;
-  max-height:85vh;
-  z-index:9999;
-  flex-direction:column;
-  background:linear-gradient(160deg,#071828,#061422);
-  border-top:1px solid var(--border-bright);
-  box-shadow:0 0 60px rgba(255,107,26,0.2);
-">
-
-  <!-- HEADER -->
-  <div style="
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 20px;
-    border-bottom:1px solid var(--border);
-    background:rgba(5,22,65,0.5);
-  ">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:20px;">🤖</span>
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--orange);">
-          DINOBOT AI
-        </div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#4ADE80;">
-          ● ONLINE
-        </div>
-      </div>
-    </div>
-
-    <button onclick="toggleRobotChat()" style="
-      background:none;
-      border:1px solid var(--border);
-      color:var(--text-dim);
-      font-family:'Share Tech Mono',monospace;
-      font-size:10px;
-      padding:4px 10px;
-      cursor:pointer;
-    ">
-      CLOSE
-    </button>
-  </div>
-
-  <!-- MESSAGES -->
-  <div id="robot-chat-messages" style="
-    flex:1;
-    overflow-y:auto;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  ">
-  </div>
-
-  <!-- INPUT -->
-  <div style="
-    padding:12px 16px;
-    border-top:1px solid var(--border);
-    display:flex;
-    gap:8px;
-  ">
-    <input
-      id="robot-chat-input"
-      type="text"
-      placeholder="Ask me anything about the menu…"
-      style="
-        flex:1;
-        background:rgba(5,20,60,0.6);
-        border:1px solid var(--border);
-        color:var(--text);
-        padding:10px 14px;
-        font-family:'Share Tech Mono',monospace;
-        font-size:12px;
-        outline:none;
-      "
-      onkeydown="if(event.key==='Enter')sendRobotMessage()"
-    >
-
-    <button onclick="sendRobotMessage()" style="
-      padding:10px 18px;
-      background:var(--orange);
-      color:#000;
-      border:none;
-      font-family:'Bebas Neue',sans-serif;
-      font-size:16px;
-      letter-spacing:2px;
-      cursor:pointer;
-    ">
-      SEND
-    </button>
-  </div>
-
-  <!-- FOOTER -->
-  <div style="
-    padding:6px 16px 10px;
-    font-family:'Share Tech Mono',monospace;
-    font-size:8px;
-    letter-spacing:2px;
-    color:var(--text-dim);
-    text-align:center;
-  ">
-    Powered by Groq · Add items directly from chat
-  </div>
- 
-<!-- STUDENT ORDER PAGE -->
-<div id="student" class="page">
-  <div style="max-width:1100px; margin:0 auto; padding:100px 48px 80px; position:relative; z-index:2;">
-    <div class="step-bar" id="step-bar">
-      <div class="step-item active" id="si-1" onclick="goStep(1)"><div class="step-dot" id="sd-1">1</div><span class="step-label">Table</span></div>
-      <div class="step-item" id="si-2" onclick="goStep(2)"><div class="step-dot" id="sd-2">2</div><span class="step-label">Menu</span></div>
-      <div class="step-item" id="si-3" onclick="goStep(3)"><div class="step-dot" id="sd-3">3</div><span class="step-label">Cart</span></div>
-      <div class="step-item" id="si-4" onclick="goStep(4)"><div class="step-dot" id="sd-4">4</div><span class="step-label">Confirm</span></div>
-      <div class="step-item" id="si-5" onclick="goStep(5)"><div class="step-dot" id="sd-5">5</div><span class="step-label">Track</span></div>
-    </div>
-    <div class="step-panel active" id="step-1">
-      <div class="student-section-title">⬡ Select Your Table</div>
-      <p style="color:var(--text-dim); font-size:13px; margin-bottom:28px; line-height:1.6;">Find your table number on the placard and tap it below.</p>
-      <div class="table-grid" id="table-grid"></div>
-      <div style="margin-top:32px; display:flex; justify-content:flex-end;">
-        <button class="student-btn" id="btn-step1-next" onclick="goStep(2)" disabled>CHOOSE A TABLE →</button>
-      </div>
-    </div>
-    <div class="step-panel" id="step-2">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
-        <div class="student-section-title" style="margin:0;">⬡ Browse Menu</div>
-        <div class="menu-cats" id="menu-cats" style="margin:0;"></div>
-      </div>
-      <div class="menu-grid" id="menu-grid"></div>
-      <div style="margin-top:32px; display:flex; justify-content:space-between;">
-        <button class="student-btn-ghost" onclick="goStep(1)">← Back</button>
-        <button class="student-btn" id="btn-step2-next" onclick="goStep(3)" disabled>VIEW CART →</button>
-      </div>
-    </div>
-    <div class="step-panel" id="step-3">
-      <div class="student-section-title">⬡ Your Cart</div>
-      <div id="cart-contents"></div>
-      <div style="margin-top:32px; display:flex; justify-content:space-between;">
-        <button class="student-btn-ghost" onclick="goStep(2)">← Back to Menu</button>
-        <button class="student-btn" id="btn-step3-next" onclick="goStep(4)">REVIEW ORDER →</button>
-      </div>
-    </div>
-    <div class="step-panel" id="step-4">
-      <div class="student-section-title">⬡ Order Summary</div>
-      <div class="confirm-card" id="confirm-card"></div>
-      <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:center;">
-        <button class="student-btn-ghost" onclick="goStep(3)">← Edit Cart</button>
-        <button class="student-btn" id="btn-place-order" onclick="placeOrder()">PLACE ORDER →</button>
-      </div>
-    </div>
-    <div class="step-panel" id="step-5">
-      <div class="student-section-title">⬡ Your Orders</div>
-      <div style="display:grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;">
-        <div>
-          <div id="order-list-container" class="order-list"></div>
-          <button class="student-btn" style="width:100%; font-size:14px; padding:12px;" onclick="startNewOrder()">⬡ Place New Order</button>
-        </div>
-        <div id="track-detail">
-          <div style="padding:48px 0; text-align:center; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--text-dim);">
-            ⬡ SELECT AN ORDER TO VIEW STATUS
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="cart-bubble" id="cart-bubble" onclick="openCartFromAnywhere()">
-  <span>VIEW CART</span>
-  <span class="cart-bubble-count" id="cart-bubble-count">0</span>
-</div>
+    
 <!-- DASHBOARD PAGE -->
 <div id="dashboard" class="page">
   <div style="position: relative; z-index: 2; padding: 100px 48px 80px;">
@@ -3576,63 +3400,41 @@ Item IDs for MENU_CARDS: m1=Beef Burger, m2=Chicken Wrap, m3=Margherita Pizza, m
   }
 
   function addRobotMessage(role, text, menuCardIds = []) {
-  const messages = document.getElementById('robot-chat-messages');
-  if (!messages) return;
+    const messages = document.getElementById('robot-chat-messages');
+    if (!messages) return;
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'chat-msg chat-msg-' + (role === 'bot' ? 'bot' : 'user');
-
-  // ✅ FIXED MESSAGE STRUCTURE
-  if (role === 'bot') {
-    const row = document.createElement('div');
-    row.style.display = 'flex';
-    row.style.gap = '10px';
-    row.style.alignItems = 'flex-start';
-
-    const icon = document.createElement('div');
-    icon.style.flexShrink = '0';
-    icon.textContent = '🤖';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-msg chat-msg-' + (role === 'bot' ? 'bot' : 'user');
 
     const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble chat-bubble-bot';
-    bubble.textContent = text;
-
-    row.appendChild(icon);
-    row.appendChild(bubble);
-    wrapper.appendChild(row);
-
-  } else {
-    const bubble = document.createElement('div');
-    bubble.className = 'chat-bubble chat-bubble-user';
+    bubble.className = 'chat-bubble chat-bubble-' + (role === 'bot' ? 'bot' : 'user');
     bubble.textContent = text;
     wrapper.appendChild(bubble);
-  }
 
-  // Render menu cards if any
-  if (menuCardIds.length > 0) {
-    menuCardIds.forEach(id => {
-      const item = MENU_ITEMS.find(m => m.id === id);
-      if (!item) return;
-
-      const card = document.createElement('div');
-      card.className = 'chat-menu-card';
-      card.innerHTML = `
-        <div class="chat-menu-card-info">
-          <span style="font-size:22px;">${item.emoji}</span>
-          <div>
-            <div class="chat-menu-card-name">${item.name}</div>
-            <div class="chat-menu-card-price">$${item.price.toFixed(2)} · ${item.cat}</div>
+    // Render menu cards if any
+    if (menuCardIds.length > 0) {
+      menuCardIds.forEach(id => {
+        const item = MENU_ITEMS.find(m => m.id === id);
+        if (!item) return;
+        const card = document.createElement('div');
+        card.className = 'chat-menu-card';
+        card.innerHTML = `
+          <div class="chat-menu-card-info">
+            <span style="font-size:22px;">${item.emoji}</span>
+            <div>
+              <div class="chat-menu-card-name">${item.name}</div>
+              <div class="chat-menu-card-price">$${item.price.toFixed(2)} · ${item.cat}</div>
+            </div>
           </div>
-        </div>
-        <button class="chat-add-btn" id="chat-add-${id}" onclick="chatAddToCart('${id}', this)">+ ADD</button>
-      `;
-      wrapper.appendChild(card);
-    });
-  }
+          <button class="chat-add-btn" id="chat-add-${id}" onclick="chatAddToCart('${id}', this)">+ ADD</button>
+        `;
+        wrapper.appendChild(card);
+      });
+    }
 
-  messages.appendChild(wrapper);
-  messages.scrollTop = messages.scrollHeight;
-}
+    messages.appendChild(wrapper);
+    messages.scrollTop = messages.scrollHeight;
+  }
 function openCartFromAnywhere() {
     // Try to auto-detect table from chat history first
     if (!selectedTable) {
@@ -3806,6 +3608,113 @@ function openCartFromAnywhere() {
     }
   }
 </script>
+<!-- ROBOT CHAT PANEL -->
+    <div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:48px; width:400px; max-height:600px; z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(5,22,65,0.5);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:20px;">🤖</span>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--orange);">DINOBOT AI</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#4ADE80;" id="robot-status-label">● ONLINE</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);" id="chat-table-indicator"></span>
+          <button onclick="toggleRobotChat()" style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);">CLOSE</button>
+        </div>
+      </div>
+      <div id="robot-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;max-height:420px;"></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
+        <input id="robot-chat-input" type="text" placeholder="Ask me anything about the menu…" style="flex:1;background:rgba(5,20,60,0.6);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);" onkeydown="if(event.key==='Enter')sendRobotMessage()">
+        <button onclick="sendRobotMessage()" style="padding:10px 18px;background:var(--orange);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;">SEND</button>
+      </div>
+      <div style="padding:6px 16px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--text-dim);text-align:center;">Powered by Groq · Add items directly from chat</div>
+    </div>
+  </section>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num" id="counter-1">0</div><div class="stat-label">Orders Delivered Today</div></div>
+    <div class="stat-card"><div class="stat-num" id="counter-2">0</div><div class="stat-label">Avg Delivery (min)</div></div>
+    <div class="stat-card"><div class="stat-num" id="counter-3">0</div><div class="stat-label">Tables Served</div></div>
+  </div>
+  <hr class="divider">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag">// How It Works</div>
+      <h2 class="section-title">THREE ROLES. <span>ONE SYSTEM.</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-hex">🎓</div><div class="feature-num">ROLE_01</div><div class="feature-title">Student</div><div class="feature-desc">Browse the digital menu, select your table number, and place your order. Track status live and get notified the moment your robot arrives.</div></div>
+      <div class="feature-card"><div class="feature-hex">👨‍🍳</div><div class="feature-num">ROLE_02</div><div class="feature-title">Kitchen Staff</div><div class="feature-desc">View and manage incoming orders by table. Update status through Received → Preparing → Ready, then confirm tray placement on the robot.</div></div>
+      <div class="feature-card"><div class="feature-hex">🤖</div><div class="feature-num">ROLE_03</div><div class="feature-title">Robot Manager</div><div class="feature-desc">Monitor robot fleet status, battery and tasks. Manually control robots directionally, dispatch to tables, or recall units to dock.</div></div>
+    </div>
+  </section>
+</div>
+ 
+<!-- STUDENT ORDER PAGE -->
+<div id="student" class="page">
+  <div style="max-width:1100px; margin:0 auto; padding:100px 48px 80px; position:relative; z-index:2;">
+    <div class="step-bar" id="step-bar">
+      <div class="step-item active" id="si-1" onclick="goStep(1)"><div class="step-dot" id="sd-1">1</div><span class="step-label">Table</span></div>
+      <div class="step-item" id="si-2" onclick="goStep(2)"><div class="step-dot" id="sd-2">2</div><span class="step-label">Menu</span></div>
+      <div class="step-item" id="si-3" onclick="goStep(3)"><div class="step-dot" id="sd-3">3</div><span class="step-label">Cart</span></div>
+      <div class="step-item" id="si-4" onclick="goStep(4)"><div class="step-dot" id="sd-4">4</div><span class="step-label">Confirm</span></div>
+      <div class="step-item" id="si-5" onclick="goStep(5)"><div class="step-dot" id="sd-5">5</div><span class="step-label">Track</span></div>
+    </div>
+    <div class="step-panel active" id="step-1">
+      <div class="student-section-title">⬡ Select Your Table</div>
+      <p style="color:var(--text-dim); font-size:13px; margin-bottom:28px; line-height:1.6;">Find your table number on the placard and tap it below.</p>
+      <div class="table-grid" id="table-grid"></div>
+      <div style="margin-top:32px; display:flex; justify-content:flex-end;">
+        <button class="student-btn" id="btn-step1-next" onclick="goStep(2)" disabled>CHOOSE A TABLE →</button>
+      </div>
+    </div>
+    <div class="step-panel" id="step-2">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div class="student-section-title" style="margin:0;">⬡ Browse Menu</div>
+        <div class="menu-cats" id="menu-cats" style="margin:0;"></div>
+      </div>
+      <div class="menu-grid" id="menu-grid"></div>
+      <div style="margin-top:32px; display:flex; justify-content:space-between;">
+        <button class="student-btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="student-btn" id="btn-step2-next" onclick="goStep(3)" disabled>VIEW CART →</button>
+      </div>
+    </div>
+    <div class="step-panel" id="step-3">
+      <div class="student-section-title">⬡ Your Cart</div>
+      <div id="cart-contents"></div>
+      <div style="margin-top:32px; display:flex; justify-content:space-between;">
+        <button class="student-btn-ghost" onclick="goStep(2)">← Back to Menu</button>
+        <button class="student-btn" id="btn-step3-next" onclick="goStep(4)">REVIEW ORDER →</button>
+      </div>
+    </div>
+    <div class="step-panel" id="step-4">
+      <div class="student-section-title">⬡ Order Summary</div>
+      <div class="confirm-card" id="confirm-card"></div>
+      <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:center;">
+        <button class="student-btn-ghost" onclick="goStep(3)">← Edit Cart</button>
+        <button class="student-btn" id="btn-place-order" onclick="placeOrder()">PLACE ORDER →</button>
+      </div>
+    </div>
+    <div class="step-panel" id="step-5">
+      <div class="student-section-title">⬡ Your Orders</div>
+      <div style="display:grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;">
+        <div>
+          <div id="order-list-container" class="order-list"></div>
+          <button class="student-btn" style="width:100%; font-size:14px; padding:12px;" onclick="startNewOrder()">⬡ Place New Order</button>
+        </div>
+        <div id="track-detail">
+          <div style="padding:48px 0; text-align:center; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--text-dim);">
+            ⬡ SELECT AN ORDER TO VIEW STATUS
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cart-bubble" id="cart-bubble" onclick="openCartFromAnywhere()">
+  <span>VIEW CART</span>
+  <span class="cart-bubble-count" id="cart-bubble-count">0</span>
+</div>
 <button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
   🤖
 </button>
