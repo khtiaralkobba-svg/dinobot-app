@@ -820,13 +820,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
        </div>
       </div>
     </div>
-    </div>
   </section>
 </div>
 
 <!-- DASHBOARD PAGE -->
-    
-<!-- DASHBOARD PAGE -->
+<div id="dashboard" class="page">
 <div id="dashboard" class="page">
   <div style="position: relative; z-index: 2; padding: 100px 48px 80px;">
     <div class="dashboard-header">
@@ -2528,14 +2526,15 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
   let sessionOrders = [];
   let activeTrackingRef = null;
  
-  (function buildTables(){
+  function buildTables(){
     const grid=document.getElementById('table-grid'); if(!grid) return;
     for(let i=1;i<=8;i++){
       const btn=document.createElement('button'); btn.className='table-btn'; btn.id='tbtn-'+i;
       btn.innerHTML=`<span class="t-num">${i}</span><span class="t-label">TABLE</span>`;
       btn.onclick=()=>selectStudentTable(i); grid.appendChild(btn);
     }
-  })();
+  }
+  document.addEventListener('DOMContentLoaded', buildTables);
  
   function selectStudentTable(n){
     selectedTable=n;
