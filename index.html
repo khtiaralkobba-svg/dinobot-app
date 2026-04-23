@@ -504,20 +504,25 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     .kitch-robot-bar { display: flex; flex-wrap: wrap; gap: 0; }
     .krb-cell { padding: 10px 14px; }
     .confirm-card { max-width: 100%; }
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   #robot-chat-panel {
-    width: 100vw !important;
-    right: 0 !important;
-    left: 0 !important;
+    position: fixed !important;
     bottom: 0 !important;
-    max-height: 80vh !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 70vh !important;
     clip-path: none !important;
     border-left: none !important;
     border-right: none !important;
     border-bottom: none !important;
+    border-top: 1px solid var(--border-bright) !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
   }
   #robot-chat-messages {
-    max-height: calc(80vh - 160px) !important;
+    max-height: calc(70vh - 140px) !important;
   }
 }    .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
     .dpad-btn { width: 44px; height: 44px; font-size: 16px; }
@@ -550,19 +555,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     .shift-time-val { font-size: 14px; }
     .kitch-col-head { padding: 8px 10px; }
     .kitch-col-title { font-size: 8px; letter-spacing: 2px; }
-    .order-ticket { padding: 10px; gap: 8px; }
-    #robot-chat-panel { 
-  width: 100vw !important; 
-  right: 0 !important; 
-  left: 0 !important;
-  bottom: 0 !important; 
-  max-height: 85vh !important;
-  clip-path: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-radius: 0 !important;
-}
+    .order-ticket { padding: 10px; gap: 8px; }  
     .cc-layer { padding: 14px 10px; }
     .analytics-card { padding: 16px; }
     .ac-value { font-size: 32px; }
@@ -3608,48 +3601,7 @@ function openCartFromAnywhere() {
     }
   }
 </script>
-<!-- ROBOT CHAT PANEL -->
-    <div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:48px; width:400px; max-height:600px; z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(5,22,65,0.5);">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:20px;">🤖</span>
-          <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--orange);">DINOBOT AI</div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#4ADE80;" id="robot-status-label">● ONLINE</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);" id="chat-table-indicator"></span>
-          <button onclick="toggleRobotChat()" style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);">CLOSE</button>
-        </div>
-      </div>
-      <div id="robot-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;max-height:420px;"></div>
-      <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
-        <input id="robot-chat-input" type="text" placeholder="Ask me anything about the menu…" style="flex:1;background:rgba(5,20,60,0.6);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);" onkeydown="if(event.key==='Enter')sendRobotMessage()">
-        <button onclick="sendRobotMessage()" style="padding:10px 18px;background:var(--orange);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;">SEND</button>
-      </div>
-      <div style="padding:6px 16px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--text-dim);text-align:center;">Powered by Groq · Add items directly from chat</div>
-    </div>
-  </section>
-  <div class="stats-bar">
-    <div class="stat-card"><div class="stat-num" id="counter-1">0</div><div class="stat-label">Orders Delivered Today</div></div>
-    <div class="stat-card"><div class="stat-num" id="counter-2">0</div><div class="stat-label">Avg Delivery (min)</div></div>
-    <div class="stat-card"><div class="stat-num" id="counter-3">0</div><div class="stat-label">Tables Served</div></div>
-  </div>
-  <hr class="divider">
-  <section class="section">
-    <div class="section-header">
-      <div class="section-tag">// How It Works</div>
-      <h2 class="section-title">THREE ROLES. <span>ONE SYSTEM.</span></h2>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card"><div class="feature-hex">🎓</div><div class="feature-num">ROLE_01</div><div class="feature-title">Student</div><div class="feature-desc">Browse the digital menu, select your table number, and place your order. Track status live and get notified the moment your robot arrives.</div></div>
-      <div class="feature-card"><div class="feature-hex">👨‍🍳</div><div class="feature-num">ROLE_02</div><div class="feature-title">Kitchen Staff</div><div class="feature-desc">View and manage incoming orders by table. Update status through Received → Preparing → Ready, then confirm tray placement on the robot.</div></div>
-      <div class="feature-card"><div class="feature-hex">🤖</div><div class="feature-num">ROLE_03</div><div class="feature-title">Robot Manager</div><div class="feature-desc">Monitor robot fleet status, battery and tasks. Manually control robots directionally, dispatch to tables, or recall units to dock.</div></div>
-    </div>
-  </section>
-</div>
- 
+
 <!-- STUDENT ORDER PAGE -->
 <div id="student" class="page">
   <div style="max-width:1100px; margin:0 auto; padding:100px 48px 80px; position:relative; z-index:2;">
@@ -3715,8 +3667,31 @@ function openCartFromAnywhere() {
   <span>VIEW CART</span>
   <span class="cart-bubble-count" id="cart-bubble-count">0</span>
 </div>
+<!-- ROBOT CHAT PANEL -->
+<div id="robot-chat-panel" style="display:none; position:fixed; bottom:32px; right:48px; width:400px; max-height:600px; z-index:9999; flex-direction:column; background:linear-gradient(160deg,#071828,#061422); border:1px solid var(--border-bright); clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%); box-shadow:0 0 60px rgba(255,107,26,0.2);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(5,22,65,0.5);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">🤖</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--orange);">DINOBOT AI</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#4ADE80;" id="robot-status-label">● ONLINE</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);" id="chat-table-indicator"></span>
+      <button onclick="toggleRobotChat()" style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);">CLOSE</button>
+    </div>
+  </div>
+  <div id="robot-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;max-height:420px;"></div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;">
+    <input id="robot-chat-input" type="text" placeholder="Ask me anything about the menu…" style="flex:1;background:rgba(5,20,60,0.6);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);" onkeydown="if(event.key==='Enter')sendRobotMessage()">
+    <button onclick="sendRobotMessage()" style="padding:10px 18px;background:var(--orange);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;">SEND</button>
+  </div>
+  <div style="padding:6px 16px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--text-dim);text-align:center;">Powered by Groq · Add items directly from chat</div>
+</div>
+
 <button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
   🤖
 </button>
 </body>
-</html>
+</html><
