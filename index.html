@@ -505,17 +505,22 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     .krb-cell { padding: 10px 14px; }
     .confirm-card { max-width: 100%; }
 #robot-chat-panel { 
-  width: 100vw !important; 
-  right: 0 !important; 
-  left: 0 !important;
+  position: fixed !important;
   bottom: 0 !important; 
-  max-height: 85vh !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important; 
+  max-height: 85dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
   clip-path: none !important;
   border-left: none !important;
   border-right: none !important;
   border-bottom: none !important;
   border-radius: 0 !important;
-}    .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
+  z-index: 999999 !important;
+}
+  .cart-bubble { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 13px; }
     .dpad-btn { width: 44px; height: 44px; font-size: 16px; }
     .auth-role-pills { flex-direction: column; }
     .features-grid { grid-template-columns: 1fr; }
