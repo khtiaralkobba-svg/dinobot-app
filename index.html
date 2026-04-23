@@ -1172,6 +1172,15 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
  
 <script>
+  function speak(text) {
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = 'en-US';
+  speech.rate = 0.95;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+}
+
+let announcedOrders = new Set();
   const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3001'
   : 'https://dinobot-app.onrender.com';
@@ -2316,47 +2325,35 @@ function getKitchenPrediction(ref) {
       analytics.slowestPrep     = null;
       analytics.waitTimes       = [];
 
-      orders.forEach(order => {
-        // Count ALL orders toward total — no skipping
-        analytics.totalOrders++;
+     orders.forEach(order => {
 
-        // Cancelled
-        if (order.status === 'cancelled') {
-          analytics.cancelledOrders++;
-          return;
-        }
+  // 🔊 ADD IT RIGHT HERE
+  if (order.status === 'new' && !announcedOrders.has(order.order_ref)) {
+    announcedOrders.add(order.order_ref);
+    speak(`New order ${order.order_ref} for table ${order.table_number}`);
+  }
 
-        // Completed = ready and beyond
-        if (['ready','dispatched','delivering','delivered'].includes(order.status)) {
-          analytics.completedOrders++;
-        }
+  // Count ALL orders toward total — no skipping
+  analytics.totalOrders++;
 
-        // Dispatches
-        if (['dispatched','delivering','delivered'].includes(order.status)) {
-          analytics.dispatches++;
-        }
+  // Cancelled
+  if (order.status === 'cancelled') {
+    analytics.cancelledOrders++;
+    return;
+  }
 
-        // Prep time
-        if (order.prep_started_at) {
-          const prepStart = new Date(order.prep_started_at).getTime();
-          const prepEnd   = order.updated_at
-            ? new Date(order.updated_at).getTime()
-            : Date.now();
-          const mins = (prepEnd - prepStart) / 60000;
-          if (mins > 0 && mins < 180) {
-            analytics.prepTimes.push(mins);
-            if (mins > 15) analytics.lateOrders++;
-            if (analytics.fastestPrep === null || mins < analytics.fastestPrep) analytics.fastestPrep = mins;
-            if (analytics.slowestPrep === null || mins > analytics.slowestPrep) analytics.slowestPrep = mins;
-          }
-        }
+  // Completed = ready and beyond
+  if (['ready','dispatched','delivering','delivered'].includes(order.status)) {
+    analytics.completedOrders++;
+  }
 
-        // Wait time — placed_at to prep_started_at
-        if (order.placed_at && order.prep_started_at) {
-          const waitMins = (new Date(order.prep_started_at).getTime() - new Date(order.placed_at).getTime()) / 60000;
-          if (waitMins >= 0 && waitMins < 60) analytics.waitTimes.push(waitMins);
-        }
-      });
+  // Dispatches
+  if (['dispatched','delivering','delivered'].includes(order.status)) {
+    analytics.dispatches++;
+  }
+
+  // ... rest of your code stays EXACTLY the same
+});
 
       updateAnalyticsUI();
     } catch (err) {
