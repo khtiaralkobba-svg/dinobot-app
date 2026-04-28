@@ -1,106 +1,108 @@
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+require('dotenv').config();
+const express    = require('express');
+const http       = require('http');
+const { Server } = require('socket.io');
+const cors       = require('cors');
+const path       = require('path');
 
-let orders = [];
-let nextId = 1;
-
-const server = http.createServer((req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const pathname = url.pathname;
-
-  // Serve index.html
-  if (req.method === "GET" && pathname === "/") {
-    const filePath = path.join(__dirname, "index.html");
-
-    if (fs.existsSync(filePath)) {
-      const html = fs.readFileSync(filePath);
-      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      res.end(html);
-    } else {
-      res.writeHead(404);
-      res.end("index.html not found");
-    }
-    return;
-  }
-
-  // Get all orders
-  if (req.method === "GET" && pathname === "/api/orders") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(orders));
-    return;
-  }
-
-  // Create order
-  if (req.method === "POST" && pathname === "/api/orders") {
-    let body = "";
-
-    req.on("data", chunk => {
-      body += chunk.toString();
-    });
-
-    req.on("end", () => {
-      try {
-        const data = JSON.parse(body);
-
-        const newOrder = {
-          id: nextId++,
-          table: data.table,
-          items: data.items,
-          status: "new",
-          createdAt: new Date()
-        };
-
-        orders.push(newOrder);
-
-        res.writeHead(201, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(newOrder));
-      } catch (err) {
-        res.writeHead(400);
-        res.end("Invalid JSON");
-      }
-    });
-
-    return;
-  }
-
-  // Update order status
-  if (req.method === "PATCH" && pathname.startsWith("/api/orders/")) {
-    const id = parseInt(pathname.split("/")[3]);
-
-    let body = "";
-    req.on("data", chunk => {
-      body += chunk.toString();
-    });
-
-    req.on("end", () => {
-      try {
-        const data = JSON.parse(body);
-        const order = orders.find(o => o.id === id);
-
-        if (!order) {
-          res.writeHead(404);
-          res.end("Order not found");
-          return;
-        }
-
-        order.status = data.status;
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(order));
-      } catch (err) {
-        res.writeHead(400);
-        res.end("Invalid JSON");
-      }
-    });
-
-    return;
-  }
-
-  res.writeHead(404);
-  res.end("Not Found");
+const app    = express();
+const server = http.createServer(app);
+const io     = new Server(server, {
+  cors: { origin: '*', methods: ['GET','POST','PATCH','DELETE'] }
 });
 
-server.listen(3000, () => {
-  console.log("🚀 Dinobot running at http://localhost:3000");
+// ── Middleware ────────────────────────────────────────────────────────────────
+app.use(cors({
+  origin: '*',
+  methods: ['GET','POST','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
+}));
+app.use(express.json());
+
+// ── Serve index.html ──────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ── Health check ──────────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date() });
+});
+
+// ── Auth routes ───────────────────────────────────────────────────────────────
+const {
+  login,
+  logout,
+  me,
+  registerStaff,
+  getStaff,
+  updateStaffStatus,
+  deleteStaff
+} = require('./controllers/authController');
+
+app.post  ('/api/auth/login',            login);
+app.post  ('/api/auth/logout',           logout);
+app.get   ('/api/auth/me',               me);
+app.post  ('/api/auth/register',         registerStaff);
+app.get   ('/api/auth/staff',            getStaff);
+app.patch ('/api/auth/staff/:id/status', updateStaffStatus);
+app.delete('/api/auth/staff/:id',        deleteStaff);
+
+// ── Orders routes ─────────────────────────────────────────────────────────────
+const ordersRouter = require('./routes/orders');
+app.use('/api/orders', ordersRouter);
+
+// ── Groq AI chat ──────────────────────────────────────────────────────────────
+app.post('/api/groq', async (req, res) => {
+  try {
+    const { message, system } = req.body;
+
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(500).json({ error: 'GROQ_API_KEY not configured on server' });
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model:       'llama3-8b-8192',
+        messages:    [{ role: 'system', content: system }, ...message],
+        max_tokens:  500,
+        temperature: 0.8
+      })
+    });
+
+    const data  = await response.json();
+    const reply = data.choices?.[0]?.message?.content || 'Sorry, try again!';
+    return res.json({ reply });
+  } catch (err) {
+    console.error('Groq error:', err);
+    return res.status(500).json({ error: 'Groq API failed' });
+  }
+});
+
+// ── Socket.io ─────────────────────────────────────────────────────────────────
+io.on('connection', socket => {
+  console.log('[socket] connected:', socket.id);
+
+  socket.on('join', room => {
+    socket.join(room);
+    console.log(`[socket] ${socket.id} joined: ${room}`);
+  });
+
+  socket.on('disconnect', reason => {
+    console.log('[socket] disconnected:', socket.id, reason);
+  });
+});
+
+app.set('io', io);
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 3001;
+
+server.listen(PORT, () => {
+  console.log(`🚀 Dinobot running at http://localhost:${PORT}`);
 });
