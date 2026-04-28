@@ -3670,11 +3670,11 @@ function openCartFromAnywhere() {
     if (statusEl) statusEl.textContent = '● THINKING...';
 
     try {
-  const response = await fetch('/api/groq', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+  const response = await fetch(API_BASE + '/api/groq', {
+  method: 'POST',
+  headers: authHeaders({
+    'Content-Type': 'application/json'
+  }),
     body: JSON.stringify({
       message: robotChatHistory, // send full chat
       system: buildRobotSystemPrompt()
