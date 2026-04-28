@@ -49,7 +49,7 @@ app.patch ('/api/auth/staff/:id/status', updateStaffStatus);
 app.delete('/api/auth/staff/:id',        deleteStaff);
 
 // ── Orders routes ─────────────────────────────────────────────────────────────
-const ordersRouter = require('./routes/orders');
+const ordersRouter = require('./routes/orderRoutes');
 app.use('/api/orders', ordersRouter);
 
 // ── Groq AI chat ──────────────────────────────────────────────────────────────
