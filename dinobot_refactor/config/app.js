@@ -10,14 +10,24 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const jwt = {
-  secret: process.env.JWT_SECRET || 'change_me_now',
-  expiresIn: process.env.JWT_EXPIRES_IN || '15m'
-};
+// ✅ No hardcoded secrets — will throw early if missing in production
+if (nodeEnv === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET env var is required in production');
+}
 
 module.exports = {
   port,
   nodeEnv,
   allowedOrigins,
-  jwt
+  jwt: {
+    secret: process.env.JWT_SECRET,         // ❌ no fallback
+    expiresIn: process.env.JWT_EXPIRES_IN || '8h'
+  },
+  supabase: {
+    url:        process.env.SUPABASE_URL,
+    serviceKey: process.env.SUPABASE_SERVICE_KEY
+  },
+  groq: {
+    apiKey: process.env.GROQ_API_KEY
+  }
 };
