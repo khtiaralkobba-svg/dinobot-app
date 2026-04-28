@@ -75,7 +75,13 @@ app.post('/api/groq', async (req, res) => {
       })
     });
 
-    const data  = await response.json();
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Groq API error:', JSON.stringify(data));
+      return res.status(500).json({ reply: 'Sorry, try again!', error: data });
+    }
+
     const reply = data.choices?.[0]?.message?.content || 'Sorry, try again!';
     return res.json({ reply });
   } catch (err) {
