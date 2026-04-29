@@ -1817,11 +1817,43 @@ if (window.speechSynthesis) {
     _alertCheckInterval = setInterval(runAlertEngine, 5000);
     runAlertEngine();
   }
-  function startAlertEngine() {
-    if (_alertCheckInterval) clearInterval(_alertCheckInterval);
-    _alertCheckInterval = setInterval(runAlertEngine, 5000);
-    runAlertEngine();
-}
+
+  function startKitchenRobotPolling() {
+    if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
+    window._kitchenRobotPoll = setInterval(async () => {
+        try {
+            const res  = await fetch('http://localhost:5000/status');
+            const data = await res.json();
+            const stateLabels = {
+                'MOVING_TO_TABLE': '● EN ROUTE',
+                'DELIVERING':      '● DELIVERING',
+                'RETURNING':       '● RETURNING',
+                'IDLE':            '● DOCKED'
+            };
+            const kitchState = document.getElementById('kitch-robot-state');
+            const kitchDest  = document.getElementById('kitch-robot-dest');
+            const kitchBat   = document.getElementById('kitch-robot-bat');
+            const kitchEta   = document.getElementById('kitch-robot-eta');
+            if (kitchState) kitchState.textContent = stateLabels[data.state] || '● ' + data.state;
+            if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
+            if (kitchBat)   kitchBat.textContent   = data.battery + '%';
+            if (kitchEta) {
+                if (data.state === 'IDLE')            kitchEta.textContent = '—';
+                else if (data.state === 'DELIVERING') kitchEta.textContent = 'Arrived';
+                else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
+                else                                   kitchEta.textContent = '~2 min';
+            }
+            const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            if (isRobotBusy !== robotBusy) {
+                robotBusy = isRobotBusy;
+                setAllDispatchButtons(!isRobotBusy);
+                if (!isRobotBusy) showToast('⬡ Robot back at dock — ready for next order');
+            }
+        } catch {
+            // Python not running — silent fail
+        }
+    }, 1000);
+  }
 
 function startKitchenRobotPolling() {
     if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
