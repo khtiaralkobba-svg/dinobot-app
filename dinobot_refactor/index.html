@@ -2465,6 +2465,8 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     setRobotState('RETURNING TO DOCK','Dock','#60A5FA');
     document.getElementById('speed-val').textContent='95 cm/s'; document.getElementById('speed-bar').style.width='90%';
     addActivity('dot-robot','UNIT-01 recalled to <strong>Dock</strong>'); showToast('⬡ UNIT-01 recalling to dock');
+    // ── Tell real robot to return ──
+    fetch('http://localhost:5000/recall', { method: 'POST' }).catch(() => {});
   }
  
   function pauseUnit() {
@@ -2477,24 +2479,97 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
  
   function toggleEStop() {
     eStopActive=!eStopActive;
-    const btn=document.getElementById('estop-btn'); const warning=document.getElementById('estop-warning');
+    const btn=document.getElementById('estop-btn'); 
+    const warning=document.getElementById('estop-warning');
     if (eStopActive) {
-      btn.classList.add('active'); btn.innerHTML='<span>🛑</span> EMERGENCY STOP ENGAGED — CLICK TO RELEASE <span>🛑</span>';
-      warning.classList.add('show'); setRobotState('EMERGENCY STOP','—','#ef4444');
-      document.getElementById('speed-val').textContent='0 cm/s'; document.getElementById('speed-bar').style.width='0%';
-      addActivity('dot-system','🛑 <strong>EMERGENCY STOP</strong> activated');
+        btn.classList.add('active'); 
+        btn.innerHTML='<span>🛑</span> EMERGENCY STOP ENGAGED — CLICK TO RELEASE <span>🛑</span>';
+        warning.classList.add('show'); 
+        setRobotState('EMERGENCY STOP','—','#ef4444');
+        document.getElementById('speed-val').textContent='0 cm/s'; 
+        document.getElementById('speed-bar').style.width='0%';
+        addActivity('dot-system','🛑 <strong>EMERGENCY STOP</strong> activated');
+        // ── Stop real robot ──
+        fetch('http://localhost:5000/stop', { method: 'POST' }).catch(() => {});
     } else {
-      btn.classList.remove('active'); btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
-      warning.classList.remove('show'); setRobotState('DOCKED — STANDBY','—','#4ADE80');
-      addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
+        btn.classList.remove('active'); 
+        btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
+        warning.classList.remove('show'); 
+        setRobotState('DOCKED — STANDBY','—','#4ADE80');
+        addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
     }
-  }
+}
  
   function initMap() {
-    const container=document.getElementById('map-container'); const canvas=document.getElementById('liveMap'); if (!canvas||!container) return;
-    canvas.width=container.offsetWidth||500; canvas.height=container.offsetHeight||350;
-    if (mapAnimFrame) cancelAnimationFrame(mapAnimFrame); animateMap();
-  }
+    const container=document.getElementById('map-container'); 
+    const canvas=document.getElementById('liveMap'); 
+    if (!canvas||!container) return;
+    canvas.width=container.offsetWidth||500; 
+    canvas.height=container.offsetHeight||350;
+    if (mapAnimFrame) cancelAnimationFrame(mapAnimFrame); 
+    animateMap();
+
+    // ── Poll real robot position every 500ms ──
+    if (window._robotPollInterval) clearInterval(window._robotPollInterval);
+    window._robotPollInterval = setInterval(async () => {
+        try {
+            const res = await fetch('http://localhost:5000/status');
+            const data = await res.json();
+
+            // Update robot position on map
+            robotX = data.x / 1100;
+            robotY = data.y / 380;
+            robotAngle = data.theta;
+            targetX = robotX;
+            targetY = robotY;
+
+            // Update telemetry bars
+            document.getElementById('bat-bar').style.width = data.battery + '%';
+            document.getElementById('bat-pct').textContent = data.battery + '%';
+            document.getElementById('speed-val').textContent = data.speed + ' cm/s';
+            document.getElementById('speed-bar').style.width = Math.min(data.speed, 100) + '%';
+            document.getElementById('load-val').textContent = data.state === 'IDLE' ? 'Empty' : 'Loaded';
+            document.getElementById('load-bar').style.width = data.state === 'IDLE' ? '0%' : '80%';
+
+            // Update state badge
+            const stateColors = {
+                'MOVING_TO_TABLE': '#FBB924',
+                'DELIVERING':      '#4ADE80',
+                'RETURNING':       '#60A5FA',
+                'IDLE':            '#4ADE80'
+            };
+            const stateLabels = {
+                'MOVING_TO_TABLE': 'EN ROUTE',
+                'DELIVERING':      'DELIVERING',
+                'RETURNING':       'RETURNING',
+                'IDLE':            'DOCKED'
+            };
+            setRobotState(
+                stateLabels[data.state] || data.state,
+                data.target_table ? 'Table ' + data.target_table : '—',
+                stateColors[data.state] || '#4ADE80'
+            );
+
+            // Update kitchen robot bar if kitchen is logged in
+            const kitchState = document.getElementById('kitch-robot-state');
+            const kitchDest  = document.getElementById('kitch-robot-dest');
+            const kitchBat   = document.getElementById('kitch-robot-bat');
+            if (kitchState) kitchState.textContent = '● ' + (stateLabels[data.state] || data.state);
+            if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
+            if (kitchBat)   kitchBat.textContent   = data.battery + '%';
+
+            // Robot busy state sync
+            const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            if (isRobotBusy !== robotBusy) {
+                robotBusy = isRobotBusy;
+                setAllDispatchButtons(!isRobotBusy);
+            }
+
+        } catch {
+            // Python script not running — fall back to simulated map
+        }
+    }, 500);
+}
  
   function animateMap() {
     const canvas=document.getElementById('liveMap'); if (!canvas) return;
