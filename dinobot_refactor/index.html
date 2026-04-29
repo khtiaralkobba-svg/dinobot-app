@@ -1268,21 +1268,22 @@ let announcedOrders = new Set();
       document.getElementById('control-center').classList.remove('unlocked');
       document.getElementById('kitchen-center').classList.remove('unlocked');
       if (serverRole === 'manager') {
-        document.getElementById('control-center').classList.add('unlocked');
-        setTimeout(initMap, 300);
-        setTimeout(loadAnalyticsFromDB, 500);
-        startAnalyticsPolling();
-        connectSocket('manager');
-        setTimeout(loadStaffList, 600);
-      } else {
-        document.getElementById('kitchen-center').classList.add('unlocked');
-        await loadKitchenOrders();
-connectSocket('kitchen');
-// WebSocket handles live updates — poll every 30s as safety net only
-if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
-window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
-        startAlertEngine();
-      }
+    document.getElementById('control-center').classList.add('unlocked');
+    setTimeout(initMap, 300);
+    setTimeout(loadAnalyticsFromDB, 500);
+    startAnalyticsPolling();
+    connectSocket('manager');
+    setTimeout(loadStaffList, 600);
+} else {
+    document.getElementById('kitchen-center').classList.add('unlocked');
+    await loadKitchenOrders();
+    connectSocket('kitchen');
+    if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
+    window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
+    startAlertEngine();
+    // ── Poll real robot status for kitchen bar ──
+    startKitchenRobotPolling();
+}
       document.getElementById('ub-icon').textContent = r.icon;
       document.getElementById('ub-name').textContent = ((data.user?.fullName || data.user?.full_name || r.label) + '').toUpperCase();
       document.getElementById('ub-role').textContent = serverRole;
@@ -1816,6 +1817,48 @@ if (window.speechSynthesis) {
     _alertCheckInterval = setInterval(runAlertEngine, 5000);
     runAlertEngine();
   }
+  function startAlertEngine() {
+    if (_alertCheckInterval) clearInterval(_alertCheckInterval);
+    _alertCheckInterval = setInterval(runAlertEngine, 5000);
+    runAlertEngine();
+}
+
+function startKitchenRobotPolling() {
+    if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
+    window._kitchenRobotPoll = setInterval(async () => {
+        try {
+            const res  = await fetch('http://localhost:5000/status');
+            const data = await res.json();
+            const stateLabels = {
+                'MOVING_TO_TABLE': '● EN ROUTE',
+                'DELIVERING':      '● DELIVERING',
+                'RETURNING':       '● RETURNING',
+                'IDLE':            '● DOCKED'
+            };
+            const kitchState = document.getElementById('kitch-robot-state');
+            const kitchDest  = document.getElementById('kitch-robot-dest');
+            const kitchBat   = document.getElementById('kitch-robot-bat');
+            const kitchEta   = document.getElementById('kitch-robot-eta');
+            if (kitchState) kitchState.textContent = stateLabels[data.state] || '● ' + data.state;
+            if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
+            if (kitchBat)   kitchBat.textContent   = data.battery + '%';
+            if (kitchEta) {
+                if (data.state === 'IDLE')            kitchEta.textContent = '—';
+                else if (data.state === 'DELIVERING') kitchEta.textContent = 'Arrived';
+                else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
+                else                                   kitchEta.textContent = '~2 min';
+            }
+            const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            if (isRobotBusy !== robotBusy) {
+                robotBusy = isRobotBusy;
+                setAllDispatchButtons(!isRobotBusy);
+                if (!isRobotBusy) showToast('⬡ Robot back at dock — ready for next order');
+            }
+        } catch {
+            // Python not running — silent fail
+        }
+    }, 1000);
+}
   let _analyticsInterval = null;
   function startAnalyticsPolling() {
     if (_analyticsInterval) clearInterval(_analyticsInterval);
