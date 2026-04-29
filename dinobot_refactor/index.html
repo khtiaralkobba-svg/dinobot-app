@@ -1977,14 +1977,6 @@ if (window.speechSynthesis) {
       startWaitTimer(ref);
     }
 
-    // Play new order sound + voice only for freshly arriving orders
-    if (status === 'new') {
-      const age = (Date.now() - new Date(order.placed_at).getTime()) / 1000;
-if (age < 15) {
-  sfxNewOrder();
-  voiceNewOrder(ref, table);
-}
-    }
   }
  
   let robotBusy = false;
@@ -2326,13 +2318,6 @@ function getKitchenPrediction(ref) {
       analytics.waitTimes       = [];
 
      orders.forEach(order => {
-
-  // 🔊 ADD IT RIGHT HERE
-  if (order.status === 'new' && !announcedOrders.has(order.order_ref)) {
-    announcedOrders.add(order.order_ref);
-    speak(`New order ${order.order_ref} for table ${order.table_number}`);
-  }
-
   // Count ALL orders toward total — no skipping
   analytics.totalOrders++;
 
@@ -2392,14 +2377,15 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     });
 
     _socket.on('order:new', (order) => {
-      if (!document.getElementById('order-' + order.order_ref)) {
-        renderKitchenOrder(order);
-        resortColumns();
-      }
-      addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
-      showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
-      sfxNewOrder();
-    });
+  if (!document.getElementById('order-' + order.order_ref)) {
+    renderKitchenOrder(order);
+    resortColumns();
+  }
+  addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
+  showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
+  sfxNewOrder();           // ← already here
+  voiceNewOrder(order.order_ref, order.table_number);  // ← add this
+});
 
     _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
