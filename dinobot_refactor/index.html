@@ -2383,8 +2383,10 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
   }
   addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
   showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
-  sfxNewOrder();           // ← already here
-  voiceNewOrder(order.order_ref, order.table_number);  // ← add this
+  if (currentRole === 'kitchen') {
+    sfxNewOrder();
+    voiceNewOrder(order.order_ref, order.table_number);
+  }
 });
 
     _socket.on('order:updated', (payload) => {
