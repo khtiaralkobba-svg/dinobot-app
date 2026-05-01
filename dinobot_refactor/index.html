@@ -2650,7 +2650,7 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
         } catch {
             // Python script not running — fall back to simulated map
         }
-    }, 500);
+    }, 150);
 }
   function animateMap() {
     const canvas=document.getElementById('liveMap'); if (!canvas) return;
