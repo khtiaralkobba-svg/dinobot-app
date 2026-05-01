@@ -2631,6 +2631,27 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
                 data.target_table ? 'Table ' + data.target_table : '—',
                 stateColors[data.state] || '#4ADE80'
             );
+            // ── Sync currentTarget from robot status (enables kitchen→map connection) ──
+if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
+    if (!currentTarget || currentTarget.id !== data.target_table) {
+        currentTarget = tables.find(t => t.id === data.target_table) || null;
+        if (currentTarget) {
+            targetX = currentTarget.x;  // normalized 0-1
+            targetY = currentTarget.y;
+        }
+        robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
+        document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
+    }
+} else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
+    robotState = 'RETURNING';
+    targetX = dockX;
+    targetY = dockY;
+    currentTarget = null;
+    document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+} else if (data.state === 'IDLE') {
+    currentTarget = null;
+}
 
             // Update kitchen robot bar if kitchen is logged in
             const kitchState = document.getElementById('kitch-robot-state');
