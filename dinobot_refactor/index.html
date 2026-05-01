@@ -2712,16 +2712,64 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     if(manualActive){toggle.classList.add('active');toggle.textContent='⬡ MANUAL CONTROL ACTIVE';dpad.style.opacity='1';dpad.style.pointerEvents='auto';robotState='MANUAL';setRobotState('MANUAL OVERRIDE','Operator','#FBB924');}
     else{toggle.classList.remove('active');toggle.textContent='⬡ ENABLE MANUAL CONTROL';dpad.style.opacity='0.35';dpad.style.pointerEvents='none';stopMove();if(robotState==='MANUAL'){robotState='DOCKED';setRobotState('DOCKED — STANDBY','—','#4ADE80');}}
   }
-  function startMove(dir){if(!manualActive)return;manualDir=dir;highlightDpad(dir,true);clearInterval(manualTimer);manualTimer=setInterval(()=>moveRobot(dir),50);}
-  function stopMove(){manualDir=null;clearInterval(manualTimer);highlightDpad(null,false);if(manualActive){document.getElementById('speed-val').textContent='0 cm/s';document.getElementById('speed-bar').style.width='0%';}}
-  function manualStop(){stopMove();showToast('⬡ Manual stop');}
-  function moveRobot(dir){
-    const sl=parseInt(document.getElementById('manual-speed')?.value||2),step=MANUAL_STEP*sl;
-    if(dir==='up')robotY=Math.max(0.05,robotY-step);if(dir==='down')robotY=Math.min(0.95,robotY+step);
-    if(dir==='left')robotX=Math.max(0.05,robotX-step);if(dir==='right')robotX=Math.min(0.95,robotX+step);
-    document.getElementById('speed-val').textContent=(sl*12)+' cm/s';document.getElementById('speed-bar').style.width=(sl*18)+'%';
-    const angles={up:-Math.PI/2,down:Math.PI/2,left:Math.PI,right:0};robotAngle=angles[dir];targetX=robotX;targetY=robotY;
+  // ── REPLACE toggleManual() ──
+function toggleManual() {
+  manualActive = !manualActive;
+  const toggle = document.getElementById('manual-toggle');
+  const dpad   = document.getElementById('dpad');
+
+  if (manualActive) {
+    toggle.classList.add('active');
+    toggle.textContent = '⬡ MANUAL CONTROL ACTIVE';
+    dpad.style.opacity = '1';
+    dpad.style.pointerEvents = 'auto';
+    setRobotState('MANUAL OVERRIDE', 'Operator', '#FBB924');
+    // Tell Python to enter manual mode
+    fetch('http://localhost:5000/manual/start', { method: 'POST' }).catch(() => {});
+  } else {
+    toggle.classList.remove('active');
+    toggle.textContent = '⬡ ENABLE MANUAL CONTROL';
+    dpad.style.opacity = '0.35';
+    dpad.style.pointerEvents = 'none';
+    stopMove();
+    // Tell Python to exit manual mode
+    fetch('http://localhost:5000/manual/stop', { method: 'POST' }).catch(() => {});
+    setRobotState('DOCKED — STANDBY', '—', '#4ADE80');
   }
+}
+
+// ── REPLACE moveRobot() ──
+function moveRobot(dir) {
+  if (!manualActive) return;
+  const speedLevel = parseInt(document.getElementById('manual-speed')?.value || 2);
+
+  // Update telemetry display
+  document.getElementById('speed-val').textContent = (speedLevel * 12) + ' cm/s';
+  document.getElementById('speed-bar').style.width = (speedLevel * 18) + '%';
+
+  const angles = { up: -Math.PI / 2, down: Math.PI / 2, left: Math.PI, right: 0 };
+  robotAngle = angles[dir] ?? robotAngle;
+  targetX = robotX; targetY = robotY;
+
+  // Send to Python
+  fetch('http://localhost:5000/manual/move', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ direction: dir, speed: speedLevel })
+  }).catch(() => {});
+  // Note: the /status poll (every 500ms) will update robotX/Y from Python response
+}
+
+// ── REPLACE manualStop() ──
+function manualStop() {
+  stopMove();
+  fetch('http://localhost:5000/manual/move', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ direction: 'stop', speed: 1 })
+  }).catch(() => {});
+  showToast('⬡ Manual stop');
+}
   function highlightDpad(dir,on){['up','down','left','right'].forEach(d=>{const btn=document.getElementById('btn-'+d);if(btn)btn.classList.toggle('pressed',on&&d===dir);});}
   const keyMap={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
   const keysHeld={};
