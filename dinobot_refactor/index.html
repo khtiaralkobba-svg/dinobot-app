@@ -2275,7 +2275,7 @@ function getKitchenPrediction(ref) {
     updateAnalyticsUI();
   }
 
-  // Call when robot dispatches
+  // Call when robot dispatches — record in analytics
   function recordDispatch() {
     analytics.dispatches++;
     updateAnalyticsUI();
@@ -2521,16 +2521,23 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     document.getElementById('dest-label').textContent=label||'—';
   }
  
-  function dispatch(tableId) {
+  async function dispatch(tableId) {
     if (eStopActive) { showToast('⚠ EMERGENCY STOP ACTIVE'); return; }
-    const t=tables.find(t=>t.id===tableId); if (!t) return;
-    currentTarget=t; targetX=t.x; targetY=t.y; robotState='DISPATCHED';
-    document.querySelectorAll('.dispatch-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.dispatch-btn')[tableId-1]?.classList.add('active');
-    setRobotState('EN ROUTE','Table '+tableId,'#FBB924');
-    document.getElementById('speed-val').textContent='32 cm/s'; document.getElementById('speed-bar').style.width='60%';
-    document.getElementById('load-val').textContent='Loaded'; document.getElementById('load-bar').style.width='80%';
-    addActivity('dot-robot',`UNIT-01 dispatched to <strong>Table ${tableId}</strong>`); showToast('⬡ UNIT-01 dispatched → Table '+tableId);
+    try {
+      const res = await fetch('http://localhost:5000/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table_number: tableId })
+      });
+      if (!res.ok) { showToast('⬡ Robot busy or unavailable'); return; }
+    } catch {
+      showToast('✗ Cannot reach robot server'); return;
+    }
+    document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
+    addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
+    showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
+    recordDispatch();
   }
  
   function recallUnit() {
@@ -2591,9 +2598,9 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
             const res = await fetch('http://localhost:5000/status');
             const data = await res.json();
 
-            // Update robot position on map
-            robotX = data.x / 1100;
-            robotY = data.y / 380;
+            // Update robot position on map — use pre-normalised coords from Python
+            robotX = data.x_norm;
+            robotY = data.y_norm;
             robotAngle = data.theta;
             targetX = robotX;
             targetY = robotY;
@@ -2645,7 +2652,6 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
         }
     }, 500);
 }
- 
   function animateMap() {
     const canvas=document.getElementById('liveMap'); if (!canvas) return;
     const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
