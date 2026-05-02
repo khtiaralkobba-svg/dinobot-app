@@ -2518,8 +2518,33 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     } catch {
       showToast('✗ Cannot reach robot server'); return;
     }
+    // ── Also update the order status in DB if there's a ready order for this table ──
+    try {
+      const ordRes = await fetch(API_BASE + '/api/orders', {
+        headers: authHeaders({ 'Content-Type': 'application/json' })
+      });
+      const ordData = await ordRes.json();
+      const readyOrder = (ordData.orders || []).find(o =>
+        o.table_number === tableId && o.status === 'ready'
+      );
+      if (readyOrder) {
+        await fetch(API_BASE + '/api/orders/' + readyOrder.order_ref + '/status', {
+          method: 'PATCH',
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ status: 'dispatched' })
+        });
+        showToast(`⬡ Order ${readyOrder.order_ref} marked dispatched`);
+      }
+    } catch { /* silent — order sync optional */ }
+
     document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
+    // ── Set currentTarget so map purple highlight works ──
+    currentTarget = tables.find(t => t.id === tableId) || null;
+    if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
+    robotState = 'DISPATCHED';
+    robotBusy = true;
+    setAllDispatchButtons(false);
     addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
     showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
     recordDispatch();
@@ -2589,6 +2614,8 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
             robotAngle = data.theta;
             targetX = robotX;
             targetY = robotY;
+            window._robotNavMode = data.nav_mode || 'NORMAL';
+            window._robotRisk    = data.risk || 0;
 
             // Update telemetry bars
             document.getElementById('bat-bar').style.width = data.battery + '%';
@@ -2681,31 +2708,95 @@ if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) 
         }
       }
     }
+
     ctx.clearRect(0,0,W,H);
+
+    // ── Grid ──
     ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
     for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
     for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+
+    // ── Route lines ──
     const jx=0.42*W,jy=0.5*H;
     ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
     ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
     tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
     ctx.setLineDash([]);
+
+    // ── Tables ──
     tables.forEach(t=>{
       const tx=t.x*W,ty=t.y*H,isTarget=currentTarget&&currentTarget.id===t.id;
       ctx.fillStyle=isTarget?'#C084FC':'#60A5FA'; ctx.shadowColor=isTarget?'#C084FC':'#60A5FA'; ctx.shadowBlur=isTarget?14:8;
       ctx.beginPath(); ctx.arc(tx,ty,isTarget?9:7,0,Math.PI*2); ctx.fill();
       ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
     });
+
+    // ── Dock ──
     ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=12;
     ctx.beginPath(); ctx.arc(dockX*W,dockY*H,8,0,Math.PI*2); ctx.fill();
     ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.7)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('DOCK',dockX*W,dockY*H+20);
-    const rx=robotX*W,ry=robotY*H,rs=11;
+
+    // ── Robot ──
+    const rx=robotX*W, ry=robotY*H, rs=11;
+
+    // Avoidance mode ring from Python AvoidanceController
+    const navMode = window._robotNavMode || 'NORMAL';
+    if (navMode !== 'NORMAL') {
+      const ringColor = navMode === 'EMERGENCY' ? '#ef4444' :
+                        navMode === 'REJOIN'    ? '#C084FC' : '#FBB924';
+      ctx.save();
+      ctx.strokeStyle = ringColor;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = ringColor;
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a=(Math.PI/3)*i-Math.PI/2;
+        const r=rs+9;
+        i===0?ctx.moveTo(rx+Math.cos(a)*r,ry+Math.sin(a)*r):ctx.lineTo(rx+Math.cos(a)*r,ry+Math.sin(a)*r);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+
+      // Nav mode label above robot
+      ctx.fillStyle = ringColor;
+      ctx.font = 'bold 8px Share Tech Mono,monospace';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = ringColor;
+      ctx.shadowBlur = 6;
+      ctx.fillText(navMode, rx, ry - 24);
+      ctx.shadowBlur = 0;
+    }
+
+    // Risk bar below robot (shows obstacle proximity from Python)
+    const risk = window._robotRisk || 0;
+    if (risk > 0.05) {
+      const barW = 40;
+      const barX = rx - barW/2;
+      const barY = ry + 18;
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(barX, barY, barW, 3);
+      const riskColor = risk > 0.7 ? '#ef4444' : risk > 0.3 ? '#FBB924' : '#4ADE80';
+      ctx.fillStyle = riskColor;
+      ctx.fillRect(barX, barY, barW * Math.min(risk, 1), 3);
+      ctx.fillStyle = 'rgba(220,232,248,0.4)';
+      ctx.font = '7px Share Tech Mono,monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('RISK', rx, barY + 10);
+    }
+
+    // Robot body hex
     ctx.save(); ctx.translate(rx,ry); ctx.rotate(robotAngle);
     ctx.beginPath();
     for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
     ctx.closePath();
-    ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowColor=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowBlur=16;
+    const robotColor = eStopActive ? '#ef4444' :
+                       navMode === 'EMERGENCY' ? '#ef4444' :
+                       navMode === 'AVOIDANCE' ? '#FBB924' : '#FF6B1A';
+    ctx.fillStyle=robotColor; ctx.shadowColor=robotColor; ctx.shadowBlur=16;
     ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
+
     mapAnimFrame=requestAnimationFrame(animateMap);
   }
  
