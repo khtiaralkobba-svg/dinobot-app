@@ -24,6 +24,22 @@ const orderService = require('../services/orderService');
 // Create new order (students don't need auth)
 router.post('/', validate.validateCreateOrder, createOrder);
 
+// ── Reset stuck dispatched/delivering orders ──
+router.post(
+  '/reset-stuck',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const updated = await orderService.resetStuckOrders();
+      res.json({ affected: updated.length, orders: updated.map(o => o.order_ref) });
+    } catch (err) {
+      console.error('[reset-stuck]', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 // ── Queue ETA prediction — MUST be before /:orderRef ──
 router.get('/queue-eta', async (req, res) => {
   try {

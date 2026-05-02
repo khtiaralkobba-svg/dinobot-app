@@ -119,4 +119,40 @@ async function cancelOrder(req, res) {
   }
 }
 
-module.exports = { createOrder, getOrder, getOrders, updateStatus, cancelOrder };
+async function resetStuckOrders(req, res) {
+  try {
+    const updated = await orderService.resetStuckOrders();
+
+    const io = req.app.get('io');
+    if (io && updated.length > 0) {
+      updated.forEach(order => {
+        const payload = {
+          order_ref: order.order_ref,
+          status: 'ready',
+          table_number: order.table_number
+        };
+        io.to('kitchen').emit('order:updated', payload);
+        io.to('manager').emit('order:updated', payload);
+        io.to('student').emit('order:updated', payload);
+      });
+    }
+
+    return res.json({
+      success: true,
+      affected: updated.length,
+      orders: updated.map(o => o.order_ref)
+    });
+  } catch (err) {
+    console.error('Reset stuck orders error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+module.exports = {
+  createOrder,
+  getOrder,
+  getOrders,
+  updateStatus,
+  cancelOrder,
+  resetStuckOrders
+};

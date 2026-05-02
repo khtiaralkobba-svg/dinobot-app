@@ -96,7 +96,7 @@ async function getAllOrders() {
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
     .select('*')
-    .order('placed_at', { ascending: true }); // oldest first for kitchen
+    .order('placed_at', { ascending: true });
 
   if (ordersError) throw ordersError;
   if (!orders || orders.length === 0) return [];
@@ -140,7 +140,6 @@ async function updateOrderStatus(orderRef, status) {
     updateData.delivered_at = new Date().toISOString();
   }
   if (status === 'prep') {
-    // Only set prep_started_at if not already set (don't overwrite on re-sync)
     const { data: existing } = await supabase
       .from('orders')
       .select('prep_started_at')
@@ -156,7 +155,7 @@ async function updateOrderStatus(orderRef, status) {
     .from('orders')
     .update(updateData)
     .eq('order_ref', orderRef)
-    .select('id, prep_started_at'); // return prep_started_at so frontend can sync timer
+    .select('id, prep_started_at, table_number');
 
   if (error) throw error;
   return data?.[0] || null;
@@ -170,7 +169,6 @@ async function cancelOrder(orderRef) {
 
   if (!order) return { ok: false, reason: 'not_found' };
 
-  // Only allow cancel before kitchen starts preparing
   if (order.status !== 'new') {
     return { ok: false, reason: 'not_cancellable' };
   }
@@ -185,10 +183,25 @@ async function cancelOrder(orderRef) {
   return { ok: true };
 }
 
+// ==========================
+// RESET STUCK ORDERS
+// ==========================
+async function resetStuckOrders() {
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ status: 'ready' })
+    .in('status', ['dispatched', 'delivering'])
+    .select('order_ref, table_number, status');
+
+  if (error) throw error;
+  return data || [];
+}
+
 module.exports = {
   createOrder,
   getOrderByRef,
   getAllOrders,
   updateOrderStatus,
-  cancelOrder
+  cancelOrder,
+  resetStuckOrders
 };
