@@ -2030,9 +2030,30 @@ function startKitchenRobotPolling() {
         return;
       }
       const data = await res.json();
-      robotBusy = false; setAllDispatchButtons(true);
+
+      // Force-remove all dispatched/delivering cards from DOM and state
+      Object.entries(kitchenOrders).forEach(([ref, order]) => {
+        if (['dispatched', 'delivering'].includes(order.status)) {
+          const card = document.getElementById('order-' + ref);
+          if (card) {
+            card.style.transition = 'opacity 0.2s';
+            card.style.opacity = '0';
+            setTimeout(() => card.remove(), 220);
+          }
+          if (order.timerInterval) clearInterval(order.timerInterval);
+          if (order.waitInterval)  clearInterval(order.waitInterval);
+          delete kitchenOrders[ref];
+        }
+      });
+
+      robotBusy = false;
+      setAllDispatchButtons(true);
+      resortColumns();
       showToast('⬡ Reset ' + data.affected + ' stuck orders — robot ready');
-      await loadKitchenOrders();
+
+      // Full reload after DOM clears
+      setTimeout(() => loadKitchenOrders(), 400);
+
     } catch (err) { showToast('✗ Failed to reset orders'); }
   }
  
