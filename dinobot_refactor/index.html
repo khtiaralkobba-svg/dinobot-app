@@ -977,7 +977,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; margin-bottom:20px;">
           <div>
             <div class="op-section-title">⬡ Dispatch to Table</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px; width:100%;" id="table-btns">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;" id="table-btns">
               <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
               <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
               <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
@@ -2559,27 +2559,15 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     addActivity('dot-robot','UNIT-01 recalled to <strong>Dock</strong>'); showToast('⬡ UNIT-01 recalling to dock');
     // ── Tell real robot to return ──
     fetch('http://localhost:5000/recall', { method: 'POST' }).catch(() => {});
-    robotBusy = false;                
-    setAllDispatchButtons(true);
   }
  
   function pauseUnit() {
     if (eStopActive) return;
     paused=!paused;
     const btn=document.getElementById('pause-btn');
-    if (paused) {
-        btn.textContent='⬡ RESUME UNIT';
-        setRobotState('PAUSED',document.getElementById('dest-label').textContent,'#FBB924');
-        document.getElementById('speed-val').textContent='0 cm/s';
-        document.getElementById('speed-bar').style.width='0%';
-        setAllDispatchButtons(false);                                              
-        fetch('http://localhost:5000/stop', { method: 'POST' }).catch(() => {});   
-    } else {
-        btn.textContent='⬡ PAUSE UNIT';
-        addActivity('dot-status','UNIT-01 <strong>resumed</strong>');
-        setAllDispatchButtons(!robotBusy);                                         
-    }
-}
+    if (paused) { btn.textContent='⬡ RESUME UNIT'; setRobotState('PAUSED',document.getElementById('dest-label').textContent,'#FBB924'); document.getElementById('speed-val').textContent='0 cm/s'; document.getElementById('speed-bar').style.width='0%'; }
+    else { btn.textContent='⬡ PAUSE UNIT'; addActivity('dot-status','UNIT-01 <strong>resumed</strong>'); }
+  }
  
   function toggleEStop() {
     eStopActive=!eStopActive;
@@ -2593,15 +2581,14 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
         document.getElementById('speed-val').textContent='0 cm/s'; 
         document.getElementById('speed-bar').style.width='0%';
         addActivity('dot-system','🛑 <strong>EMERGENCY STOP</strong> activated');
+        // ── Stop real robot ──
         fetch('http://localhost:5000/stop', { method: 'POST' }).catch(() => {});
-        setAllDispatchButtons(false);                       
     } else {
         btn.classList.remove('active'); 
         btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
         warning.classList.remove('show'); 
         setRobotState('DOCKED — STANDBY','—','#4ADE80');
         addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
-        setAllDispatchButtons(!robotBusy && !paused);        
     }
 }
  
@@ -3141,7 +3128,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
         badge.textContent = STATUS_LABEL[status] || status; 
         badge.className = 'olc-status olc-status-' + status; 
     }
-    // update the timeline if this order is currently being viewed
+    // ← ADD THIS: update the timeline if this order is currently being viewed
     if (activeTrackingRef === ref) {
         applyStatusToTimeline(ref, status, order.table_number);
     }
