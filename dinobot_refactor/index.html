@@ -2631,7 +2631,7 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     }
 }
  
-  function initMap() {
+function initMap() {
     const container=document.getElementById('map-container'); 
     const canvas=document.getElementById('liveMap'); 
     if (!canvas||!container) return;
@@ -2640,255 +2640,99 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     if (mapAnimFrame) cancelAnimationFrame(mapAnimFrame); 
     animateMap();
 
-    // ── Poll real robot position every 500ms ──
-    if (window._robotPollInterval) clearInterval(window._robotPollInterval);
-    window._robotPollInterval = setInterval(async () => {
-        try {
-            const res = await fetch('http://localhost:5000/status');
-            const data = await res.json();
-
-            // Update robot position on map — use pre-normalised coords from Python
-            robotX = data.x_norm;
-            robotY = data.y_norm;
-            robotAngle = data.theta;
-            targetX = robotX;
-            targetY = robotY;
-            window._robotNavMode = data.nav_mode || 'NORMAL';
-            window._robotRisk    = data.risk || 0;
-
-            // Update telemetry bars
-            document.getElementById('bat-bar').style.width = data.battery + '%';
-            document.getElementById('bat-pct').textContent = data.battery + '%';
-            document.getElementById('speed-val').textContent = data.speed + ' cm/s';
-            document.getElementById('speed-bar').style.width = Math.min(data.speed, 100) + '%';
-            document.getElementById('load-val').textContent = data.state === 'IDLE' ? 'Empty' : 'Loaded';
-            document.getElementById('load-bar').style.width = data.state === 'IDLE' ? '0%' : '80%';
-
-            // Update state badge
-            const stateColors = {
-                'MOVING_TO_TABLE': '#FBB924',
-                'DELIVERING':      '#4ADE80',
-                'RETURNING':       '#60A5FA',
-                'IDLE':            '#4ADE80'
-            };
-            const stateLabels = {
-                'MOVING_TO_TABLE': 'EN ROUTE',
-                'DELIVERING':      'DELIVERING',
-                'RETURNING':       'RETURNING',
-                'IDLE':            'DOCKED'
-            };
-            setRobotState(
-                stateLabels[data.state] || data.state,
-                data.target_table ? 'Table ' + data.target_table : '—',
-                stateColors[data.state] || '#4ADE80'
-            );
-            // ── Sync currentTarget from robot status (enables kitchen→map connection) ──
-if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
-    if (!currentTarget || currentTarget.id !== data.target_table) {
-        currentTarget = tables.find(t => t.id === data.target_table) || null;
-        if (currentTarget) {
-            targetX = currentTarget.x;  // normalized 0-1
-            targetY = currentTarget.y;
-        }
-        robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
-        document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
-    }
-} else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
-    robotState = 'RETURNING';
-    targetX = dockX;
-    targetY = dockY;
-    currentTarget = null;
-    document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-} else if (data.state === 'IDLE') {
-    currentTarget = null;
-}
-
-            // Update kitchen robot bar if kitchen is logged in
-            const kitchState = document.getElementById('kitch-robot-state');
-            const kitchDest  = document.getElementById('kitch-robot-dest');
-            const kitchBat   = document.getElementById('kitch-robot-bat');
-            if (kitchState) kitchState.textContent = '● ' + (stateLabels[data.state] || data.state);
-            if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
-            if (kitchBat)   kitchBat.textContent   = data.battery + '%';
-
-            // Robot busy state sync
-            const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
-            if (isRobotBusy !== robotBusy) {
-                robotBusy = isRobotBusy;
-                setAllDispatchButtons(!isRobotBusy);
-            }
-
-        } catch {
-            // Python script not running — fall back to simulated map
-        }
-    }, 150);
-}
-  function animateMap() {
-    const canvas=document.getElementById('liveMap'); if (!canvas) return;
-    const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
-    if (!paused&&!eStopActive) {
-      const dx=targetX-robotX,dy=targetY-robotY,dist=Math.sqrt(dx*dx+dy*dy);
-      if (dist>0.005) {
-        const spd=0.004; robotX+=(dx/dist)*spd; robotY+=(dy/dist)*spd; robotAngle=Math.atan2(dy,dx);
-        if (dist<0.015&&robotState==='DISPATCHED'&&currentTarget) {
-          robotState='DELIVERING'; setRobotState('DELIVERING','Table '+currentTarget.id,'#4ADE80');
-          document.getElementById('speed-val').textContent='0 cm/s'; document.getElementById('speed-bar').style.width='0%';
-          addActivity('dot-order',`UNIT-01 arrived at <strong>Table ${currentTarget.id}</strong>`);
-          setTimeout(()=>{ if(robotState==='DELIVERING') recallUnit(); },4000);
-        }
-        if (dist<0.015&&robotState==='RETURNING') {
-          robotX=dockX; robotY=dockY; robotState='DOCKED';
-          setRobotState('DOCKED — STANDBY','—','#4ADE80');
-          document.getElementById('speed-val').textContent='0 cm/s'; document.getElementById('speed-bar').style.width='0%';
-          document.getElementById('load-val').textContent='Empty'; document.getElementById('load-bar').style.width='0%';
-          document.querySelectorAll('.dispatch-btn').forEach(b=>b.classList.remove('active'));
-          addActivity('dot-robot','UNIT-01 <strong>docked</strong>'); currentTarget=null;
-        }
-      }
-    }
-
-    ctx.clearRect(0,0,W,H);
-
-    // ── Grid ──
-    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
-    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
-    for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
-
-    // ── Route lines ──
-    const jx=0.42*W,jy=0.5*H;
-    ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
-    ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
-    tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
-    ctx.setLineDash([]);
-
-    // ── Tables ──
-    tables.forEach(t=>{
-      const tx=t.x*W,ty=t.y*H,isTarget=currentTarget&&currentTarget.id===t.id;
-      ctx.fillStyle=isTarget?'#C084FC':'#60A5FA'; ctx.shadowColor=isTarget?'#C084FC':'#60A5FA'; ctx.shadowBlur=isTarget?14:8;
-      ctx.beginPath(); ctx.arc(tx,ty,isTarget?9:7,0,Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
+    // ── Disable all dispatch buttons until robot server confirms online ──
+    robotBusy = true;
+    setAllDispatchButtons(false);
+    setRobotState('OFFLINE', '—', '#ef4444');
+    document.querySelectorAll('.dispatch-btn').forEach(b => {
+      b.title = 'Robot server offline — start the Python script first';
     });
 
-    // ── Dock ──
-    ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=12;
-    ctx.beginPath(); ctx.arc(dockX*W,dockY*H,8,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.7)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('DOCK',dockX*W,dockY*H+20);
+    // ── Poll real robot position every 150ms ──
+    if (window._robotPollInterval) clearInterval(window._robotPollInterval);
+    window._robotPollInterval = setInterval(async () => {
+      try {
+        const res = await fetch('http://localhost:5000/status');
+        if (!res.ok) throw new Error('Robot server not ready');
+        const data = await res.json();
 
-    // ── Robot ──
-    const rx=robotX*W, ry=robotY*H, rs=11;
+        robotX = data.x_norm;
+        robotY = data.y_norm;
+        robotAngle = data.theta;
+        targetX = robotX;
+        targetY = robotY;
+        window._robotNavMode = data.nav_mode || 'NORMAL';
+        window._robotRisk    = data.risk || 0;
 
-    // Avoidance mode ring from Python AvoidanceController
-    const navMode = window._robotNavMode || 'NORMAL';
-    if (navMode !== 'NORMAL') {
-      const ringColor = navMode === 'EMERGENCY' ? '#ef4444' :
-                        navMode === 'REJOIN'    ? '#C084FC' : '#FBB924';
-      ctx.save();
-      ctx.strokeStyle = ringColor;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = ringColor;
-      ctx.shadowBlur = 16;
-      ctx.beginPath();
-      for(let i=0;i<6;i++){
-        const a=(Math.PI/3)*i-Math.PI/2;
-        const r=rs+9;
-        i===0?ctx.moveTo(rx+Math.cos(a)*r,ry+Math.sin(a)*r):ctx.lineTo(rx+Math.cos(a)*r,ry+Math.sin(a)*r);
+        document.getElementById('bat-bar').style.width = data.battery + '%';
+        document.getElementById('bat-pct').textContent = data.battery + '%';
+        document.getElementById('speed-val').textContent = data.speed + ' cm/s';
+        document.getElementById('speed-bar').style.width = Math.min(data.speed, 100) + '%';
+        document.getElementById('load-val').textContent = data.state === 'IDLE' ? 'Empty' : 'Loaded';
+        document.getElementById('load-bar').style.width = data.state === 'IDLE' ? '0%' : '80%';
+
+        const stateColors = {
+          'MOVING_TO_TABLE': '#FBB924',
+          'DELIVERING':      '#4ADE80',
+          'RETURNING':       '#60A5FA',
+          'IDLE':            '#4ADE80'
+        };
+        const stateLabels = {
+          'MOVING_TO_TABLE': 'EN ROUTE',
+          'DELIVERING':      'DELIVERING',
+          'RETURNING':       'RETURNING',
+          'IDLE':            'DOCKED'
+        };
+
+        setRobotState(
+          stateLabels[data.state] || data.state,
+          data.target_table ? 'Table ' + data.target_table : '—',
+          stateColors[data.state] || '#4ADE80'
+        );
+
+        if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
+          if (!currentTarget || currentTarget.id !== data.target_table) {
+            currentTarget = tables.find(t => t.id === data.target_table) || null;
+            if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
+            robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
+            document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
+          }
+        } else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
+          robotState = 'RETURNING';
+          targetX = dockX; targetY = dockY; currentTarget = null;
+          document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+        } else if (data.state === 'IDLE') {
+          currentTarget = null;
+        }
+
+        const kitchState = document.getElementById('kitch-robot-state');
+        const kitchDest  = document.getElementById('kitch-robot-dest');
+        const kitchBat   = document.getElementById('kitch-robot-bat');
+        if (kitchState) kitchState.textContent = '● ' + (stateLabels[data.state] || data.state);
+        if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
+        if (kitchBat)   kitchBat.textContent   = data.battery + '%';
+
+        const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+        if (isRobotBusy !== robotBusy) {
+          robotBusy = isRobotBusy;
+          setAllDispatchButtons(!isRobotBusy);
+        }
+        document.querySelectorAll('.dispatch-btn').forEach(b => {
+          b.title = isRobotBusy ? 'Robot is busy' : '';
+        });
+
+      } catch {
+        // ── Python offline — disable all dispatch buttons ──
+        robotBusy = true;
+        setAllDispatchButtons(false);
+        setRobotState('OFFLINE', '—', '#ef4444');
+        document.querySelectorAll('.dispatch-btn').forEach(b => {
+          b.title = 'Robot server offline — start the Python script first';
+        });
       }
-      ctx.closePath();
-      ctx.stroke();
-      ctx.restore();
-
-      // Nav mode label above robot
-      ctx.fillStyle = ringColor;
-      ctx.font = 'bold 8px Share Tech Mono,monospace';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = ringColor;
-      ctx.shadowBlur = 6;
-      ctx.fillText(navMode, rx, ry - 24);
-      ctx.shadowBlur = 0;
-    }
-
-    // Risk bar below robot (shows obstacle proximity from Python)
-    const risk = window._robotRisk || 0;
-    if (risk > 0.05) {
-      const barW = 40;
-      const barX = rx - barW/2;
-      const barY = ry + 18;
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(barX, barY, barW, 3);
-      const riskColor = risk > 0.7 ? '#ef4444' : risk > 0.3 ? '#FBB924' : '#4ADE80';
-      ctx.fillStyle = riskColor;
-      ctx.fillRect(barX, barY, barW * Math.min(risk, 1), 3);
-      ctx.fillStyle = 'rgba(220,232,248,0.4)';
-      ctx.font = '7px Share Tech Mono,monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('RISK', rx, barY + 10);
-    }
-
-    // Robot body hex
-    ctx.save(); ctx.translate(rx,ry); ctx.rotate(robotAngle);
-    ctx.beginPath();
-    for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
-    ctx.closePath();
-    const robotColor = eStopActive ? '#ef4444' :
-                       navMode === 'EMERGENCY' ? '#ef4444' :
-                       navMode === 'AVOIDANCE' ? '#FBB924' : '#FF6B1A';
-    ctx.fillStyle=robotColor; ctx.shadowColor=robotColor; ctx.shadowBlur=16;
-    ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
-
-    mapAnimFrame=requestAnimationFrame(animateMap);
+    }, 150);
   }
- 
-  /* ── MANUAL CONTROL ─────────────────────────────────────── */
-  let manualActive=false,manualDir=null,manualTimer=null;
-  const MANUAL_STEP=0.008;
-  // ── REPLACE toggleManual() ──
-function toggleManual() {
-  manualActive = !manualActive;
-  const toggle = document.getElementById('manual-toggle');
-  const dpad   = document.getElementById('dpad');
-
-  if (manualActive) {
-    toggle.classList.add('active');
-    toggle.textContent = '⬡ MANUAL CONTROL ACTIVE';
-    dpad.style.opacity = '1';
-    dpad.style.pointerEvents = 'auto';
-    setRobotState('MANUAL OVERRIDE', 'Operator', '#FBB924');
-    // Tell Python to enter manual mode
-    fetch('http://localhost:5000/manual/start', { method: 'POST' }).catch(() => {});
-  } else {
-    toggle.classList.remove('active');
-    toggle.textContent = '⬡ ENABLE MANUAL CONTROL';
-    dpad.style.opacity = '0.35';
-    dpad.style.pointerEvents = 'none';
-    stopMove();
-    // Tell Python to exit manual mode
-    fetch('http://localhost:5000/manual/stop', { method: 'POST' }).catch(() => {});
-    setRobotState('DOCKED — STANDBY', '—', '#4ADE80');
-  }
-}
-
-// ── REPLACE moveRobot() ──
-function moveRobot(dir) {
-  if (!manualActive) return;
-  const speedLevel = parseInt(document.getElementById('manual-speed')?.value || 2);
-
-  // Update telemetry display
-  document.getElementById('speed-val').textContent = (speedLevel * 12) + ' cm/s';
-  document.getElementById('speed-bar').style.width = (speedLevel * 18) + '%';
-
-  const angles = { up: -Math.PI / 2, down: Math.PI / 2, left: Math.PI, right: 0 };
-  robotAngle = angles[dir] ?? robotAngle;
-  targetX = robotX; targetY = robotY;
-
-  // Send to Python
-  fetch('http://localhost:5000/manual/move', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ direction: dir, speed: speedLevel })
-  }).catch(() => {});
-  // Note: the /status poll (every 500ms) will update robotX/Y from Python response
-}
 
 // ── REPLACE manualStop() ──
 function manualStop() {
