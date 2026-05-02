@@ -2099,10 +2099,23 @@ function startKitchenRobotPolling() {
       addActivity('dot-robot',`Robot dispatched for <strong>${ref}</strong> → Table ${tableNum}`);
       sfxDispatched();
     } catch(err) {
-      if (btn) { btn.disabled=false; btn.textContent='🤖 Dispatch Robot → Table '+tableNum; btn.className='ticket-action ticket-action-prep'; }
-      showToast('✗ '+(err.message||'Failed to dispatch robot'));
-    }
-  }
+      if (err.message === 'Robot rejected dispatch' || err.message === 'Failed to update order') {
+        if (btn) { btn.disabled=false; btn.textContent='🤖 Dispatch Robot → Table '+tableNum; btn.className='ticket-action ticket-action-prep'; }
+        showToast('✗ '+(err.message||'Failed to dispatch robot'));
+      } else {
+        robotBusy = true;
+        setAllDispatchButtons(false);
+        if (btn) btn.textContent = '⬡ Robot En Route (SIM)';
+        showToast('🤖 [SIM] Robot dispatched → Table ' + tableNum);
+        addActivity('dot-robot', `[SIM] Robot dispatched for <strong>${ref}</strong> → Table ${tableNum}`);
+        sfxDispatched();
+        setTimeout(() => {
+          robotBusy = false;
+          setAllDispatchButtons(true);
+          showToast('⬡ [SIM] Robot returned to dock');
+        }, 8000);
+      }
+    }}
  
   async function setOrderStatus(ref, newStatus) {
     const order = kitchenOrders[ref]; if (!order) return;
@@ -2117,14 +2130,15 @@ function startKitchenRobotPolling() {
     if (newStatus === 'prep') {
       showToast('▶ Order ' + ref + ' — Now preparing');
       addActivity('dot-status', `Kitchen started preparing <strong>${ref}</strong>`);
-    } else if (newStatus === 'ready') {
-  if (kitchenOrders[ref]) clearInterval(kitchenOrders[ref].timerInterval);
-  showToast('✓ Order ' + ref + ' ready for pickup');
-  addActivity('dot-status', `Order <strong>${ref}</strong> marked READY`);
-  sfxOrderReady();
-  recordPrepTime(ref);
-}
-
+   } else if (newStatus === 'ready') {
+      if (kitchenOrders[ref]) clearInterval(kitchenOrders[ref].timerInterval);
+      const timerEl = document.getElementById('timer-' + ref);
+      if (timerEl) timerEl.className = 'ticket-timer ok';
+      showToast('✓ Order ' + ref + ' ready for pickup');
+      addActivity('dot-status', `Order <strong>${ref}</strong> marked READY`);
+      sfxOrderReady();
+      recordPrepTime(ref);
+    }
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(API_BASE + '/api/orders/' + ref + '/status', {
