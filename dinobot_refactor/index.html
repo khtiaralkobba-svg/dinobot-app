@@ -2803,12 +2803,6 @@ if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) 
   /* ── MANUAL CONTROL ─────────────────────────────────────── */
   let manualActive=false,manualDir=null,manualTimer=null;
   const MANUAL_STEP=0.008;
-  function toggleManual(){
-    manualActive=!manualActive;
-    const toggle=document.getElementById('manual-toggle'),dpad=document.getElementById('dpad');
-    if(manualActive){toggle.classList.add('active');toggle.textContent='⬡ MANUAL CONTROL ACTIVE';dpad.style.opacity='1';dpad.style.pointerEvents='auto';robotState='MANUAL';setRobotState('MANUAL OVERRIDE','Operator','#FBB924');}
-    else{toggle.classList.remove('active');toggle.textContent='⬡ ENABLE MANUAL CONTROL';dpad.style.opacity='0.35';dpad.style.pointerEvents='none';stopMove();if(robotState==='MANUAL'){robotState='DOCKED';setRobotState('DOCKED — STANDBY','—','#4ADE80');}}
-  }
   // ── REPLACE toggleManual() ──
 function toggleManual() {
   manualActive = !manualActive;
@@ -2866,6 +2860,26 @@ function manualStop() {
     body: JSON.stringify({ direction: 'stop', speed: 1 })
   }).catch(() => {});
   showToast('⬡ Manual stop');
+}
+function startMove(dir) {
+  if (!manualActive) return;
+  highlightDpad(dir, true);
+  moveRobot(dir);
+  clearInterval(manualTimer);
+  manualTimer = setInterval(() => moveRobot(dir), 100);
+}
+
+function stopMove() {
+  clearInterval(manualTimer);
+  manualTimer = null;
+  highlightDpad(null, false);
+  if (manualActive) {
+    fetch('http://localhost:5000/manual/move', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction: 'stop', speed: 1 })
+    }).catch(() => {});
+  }
 }
   function highlightDpad(dir,on){['up','down','left','right'].forEach(d=>{const btn=document.getElementById('btn-'+d);if(btn)btn.classList.toggle('pressed',on&&d===dir);});}
   const keyMap={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
