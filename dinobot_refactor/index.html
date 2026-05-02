@@ -2563,11 +2563,21 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
  
   function pauseUnit() {
     if (eStopActive) return;
-    paused=!paused;
-    const btn=document.getElementById('pause-btn');
-    if (paused) { btn.textContent='⬡ RESUME UNIT'; setRobotState('PAUSED',document.getElementById('dest-label').textContent,'#FBB924'); document.getElementById('speed-val').textContent='0 cm/s'; document.getElementById('speed-bar').style.width='0%'; }
-    else { btn.textContent='⬡ PAUSE UNIT'; addActivity('dot-status','UNIT-01 <strong>resumed</strong>'); }
-  }
+    paused = !paused;
+    const btn = document.getElementById('pause-btn');
+    if (paused) {
+        btn.textContent = '⬡ RESUME UNIT';
+        setRobotState('PAUSED', document.getElementById('dest-label').textContent, '#FBB924');
+        document.getElementById('speed-val').textContent = '0 cm/s';
+        document.getElementById('speed-bar').style.width = '0%';
+        addActivity('dot-status', 'UNIT-01 <strong>paused</strong>');
+        fetch('http://localhost:5000/pause', { method: 'POST' }).catch(() => {});
+    } else {
+        btn.textContent = '⬡ PAUSE UNIT';
+        addActivity('dot-status', 'UNIT-01 <strong>resumed</strong>');
+        fetch('http://localhost:5000/resume', { method: 'POST' }).catch(() => {});
+    }
+}
  
   function toggleEStop() {
     eStopActive=!eStopActive;
