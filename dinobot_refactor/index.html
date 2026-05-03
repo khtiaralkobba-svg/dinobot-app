@@ -2050,6 +2050,10 @@ function startKitchenRobotPolling() {
       setAllDispatchButtons(true);
       resortColumns();
       showToast('⬡ Reset ' + data.affected + ' stuck orders — robot ready');
+      // Tell Python robot to stop and return to dock
+      fetch('http://localhost:5000/stop', { method: 'POST' })
+        .then(() => fetch('http://localhost:5000/recall', { method: 'POST' }))
+        .catch(() => {}); // silent fail if Python offline
 
       // Full reload after DOM clears
       setTimeout(() => loadKitchenOrders(), 400);
@@ -2628,6 +2632,8 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
         warning.classList.remove('show'); 
         setRobotState('DOCKED — STANDBY','—','#4ADE80');
         addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
+        // Resume robot (returns to IDLE/dock-ready state)
+        fetch('http://localhost:5000/recall', { method: 'POST' }).catch(() => {});
     }
 }
  
