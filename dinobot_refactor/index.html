@@ -1227,7 +1227,47 @@ let announcedOrders = new Set();
     let start = 0; const step = target/(duration/16);
     const timer = setInterval(()=>{ start=Math.min(start+step,target); el.textContent=Math.floor(start); if(start>=target)clearInterval(timer); }, 16);
   }
-  setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);
+  setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);setTimeout(async () => {
+  try {
+    const res = await fetch(API_BASE + '/api/orders/all');
+    const data = await res.json();
+    const orders = data.orders || [];
+
+    // Orders delivered today
+    const today = new Date().toDateString();
+    const deliveredToday = orders.filter(o =>
+      o.status === 'delivered' &&
+      new Date(o.placed_at).toDateString() === today
+    ).length;
+
+    // Avg delivery time (placed_at → delivered, in minutes)
+    const deliveredWithTimes = orders.filter(o =>
+      o.status === 'delivered' && o.placed_at && o.delivered_at
+    );
+    const avgDelivery = deliveredWithTimes.length
+      ? Math.round(deliveredWithTimes.reduce((sum, o) => {
+          return sum + (new Date(o.delivered_at) - new Date(o.placed_at)) / 60000;
+        }, 0) / deliveredWithTimes.length)
+      : 0;
+
+    // Unique tables served today
+    const tablesServed = new Set(
+      orders
+        .filter(o => new Date(o.placed_at).toDateString() === today)
+        .map(o => o.table_number)
+    ).size;
+
+    animateCounter('counter-1', deliveredToday || 0, 1200);
+    animateCounter('counter-2', avgDelivery || 0, 800);
+    animateCounter('counter-3', tablesServed || 0, 1000);
+
+  } catch {
+    // Fallback to zeros if API unreachable
+    animateCounter('counter-1', 0, 800);
+    animateCounter('counter-2', 0, 800);
+    animateCounter('counter-3', 0, 800);
+  }
+}, 3200);
  
   /* ── TOAST ─────────────────────────────────────────────── */
   function showToast(msg) {
