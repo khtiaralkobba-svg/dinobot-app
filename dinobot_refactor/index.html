@@ -1431,16 +1431,14 @@ if (window.speechSynthesis) {
     if (!order || !order.placed_at) return;
     clearInterval(order.waitInterval);
     order.waitInterval = setInterval(() => {
-      // Stop if order moved out of new
       if (order.status !== 'new') { clearInterval(order.waitInterval); return; }
       const card = document.getElementById('order-' + ref);
       if (!card) { clearInterval(order.waitInterval); return; }
- 
+
       const mins = (Date.now() - new Date(order.placed_at).getTime()) / 60000;
       const m = Math.floor(mins), s = Math.floor((mins % 1) * 60);
       const timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
- 
-      // Update or create wait badge
+
       let badge = document.getElementById('wait-badge-' + ref);
       if (!badge) {
         const received = card.querySelector('.ticket-received');
@@ -1449,21 +1447,18 @@ if (window.speechSynthesis) {
         badge.id = 'wait-badge-' + ref;
         received.after(badge);
       }
- 
-      // Determine tier
+
       let label, cls, borderCls;
       if (mins >= WAIT.CRIT) {
         label = '🔴 NOT ACKNOWLEDGED'; cls = 'ticket-wait ticket-wait-crit'; borderCls = 'wait-crit';
-        // Voice alert once when crossing CRIT threshold
-        if (!order._waitCritSpoken) {
+        if (currentRole === 'kitchen' && !order._waitCritSpoken) {
           order._waitCritSpoken = true;
           voiceNotAcknowledged(ref, order.table);
           sfxWarn();
         }
       } else if (mins >= WAIT.WARN) {
         label = '🟡 WAITING'; cls = 'ticket-wait ticket-wait-warn'; borderCls = 'wait-warn';
-        // Voice alert once when crossing WARN threshold
-        if (!order._waitWarnSpoken) {
+        if (currentRole === 'kitchen' && !order._waitWarnSpoken) {
           order._waitWarnSpoken = true;
           speak(`Order for table ${order.table} is waiting`);
           sfxWarn();
@@ -1471,11 +1466,10 @@ if (window.speechSynthesis) {
       } else {
         label = '⬡ WAITING'; cls = 'ticket-wait ticket-wait-ok'; borderCls = '';
       }
- 
+
       badge.textContent = `${label} — ${timeStr}`;
       badge.className = cls;
- 
-      // Card border escalation
+
       card.classList.remove('wait-warn','wait-crit');
       if (borderCls) card.classList.add(borderCls);
     }, 1000);
@@ -1493,7 +1487,7 @@ if (window.speechSynthesis) {
       const elapsed = Date.now() - new Date(order.prep_started_at).getTime();
       const total = Math.floor(elapsed / 1000);
       const m = Math.floor(total / 60), s = total % 60;
-      el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      el.textContent = String(m).padStart(2,'00') + ':' + String(s).padStart(2,'00');
       const mins = elapsed / 60000;
       if (mins >= ALERT.CRIT)      el.className = 'ticket-timer late';
       else if (mins >= ALERT.LATE) el.className = 'ticket-timer late';
@@ -1524,22 +1518,24 @@ if (window.speechSynthesis) {
           }
         }
       } else {
-        // Remove pred badge once alert thresholds take over
         const predBadge = document.getElementById('pred-badge-' + ref);
         if (predBadge) predBadge.remove();
       }
 
-      if (mins >= ALERT.CRIT && !order._critSpoken) {
-        order._critSpoken = true;
-        voiceOrderCrit(ref, mins);
-      } else if (mins >= ALERT.LATE && !order._lateSpoken) {
-        order._lateSpoken = true;
-        voiceOrderLate(ref, mins);
-      } else if (mins >= ALERT.WARN && !order._warnSpoken) {
-        order._warnSpoken = true;
-        sfxWarn();
-        speak(`Order ${ref.replace('ORD-','')} is approaching the time limit`);
+      if (currentRole === 'kitchen') {
+        if (mins >= ALERT.CRIT && !order._critSpoken) {
+          order._critSpoken = true;
+          voiceOrderCrit(ref, mins);
+        } else if (mins >= ALERT.LATE && !order._lateSpoken) {
+          order._lateSpoken = true;
+          voiceOrderLate(ref, mins);
+        } else if (mins >= ALERT.WARN && !order._warnSpoken) {
+          order._warnSpoken = true;
+          sfxWarn();
+          speak(`Order ${ref.replace('ORD-','')} is approaching the time limit`);
+        }
       }
+
     }, 1000);
 }
  
@@ -1842,14 +1838,11 @@ function startKitchenRobotPolling() {
                 else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
                 else                                   kitchEta.textContent = '~2 min';
             }
-            const estopBtn = document.getElementById('estop-btn');
-            const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
-            if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
-            if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
-            if (isRobotBusy !== robotBusy) {
-                robotBusy = isRobotBusy;
-                setAllDispatchButtons(!isRobotBusy);
-                if (!isRobotBusy) showToast('⬡ Robot back at dock — ready for next order');
+            const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            if (isNowBusy !== robotBusy) {
+                robotBusy = isNowBusy;
+                setAllDispatchButtons(!isNowBusy);
+                if (!isNowBusy) showToast('⬡ Robot back at dock — ready for next order');
             }
         } catch {
             // Python not running — silent fail
@@ -2465,7 +2458,7 @@ function connectSocket(room) {
     });
 
     _socket.on('staff:online',  (id) => { _onlineStaff.add(id);    loadStaffList(); });
-_socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); });
+    _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); });
 
     _socket.on('reconnect', () => {
       _socket.emit('join', room);
@@ -2473,17 +2466,17 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     });
 
     _socket.on('order:new', (order) => {
-  if (!document.getElementById('order-' + order.order_ref)) {
-    renderKitchenOrder(order);
-    resortColumns();
-  }
-  addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
-  showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
-  if (currentRole === 'kitchen') {
-    sfxNewOrder();
-    voiceNewOrder(order.order_ref, order.table_number);
-  }
-});
+      if (currentRole === 'kitchen') {
+        if (!document.getElementById('order-' + order.order_ref)) {
+          renderKitchenOrder(order);
+          resortColumns();
+        }
+        sfxNewOrder();
+        voiceNewOrder(order.order_ref, order.table_number);
+      }
+      addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
+      showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
+    });
 
     _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
