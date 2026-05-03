@@ -2033,7 +2033,8 @@ function startKitchenRobotPolling() {
       actionHtml=`<button class="ticket-action ticket-action-prep" onclick="setOrderStatus('${ref}','ready')">✓ Mark as Ready</button>`;
     } else if (status === 'ready') {
       colId='kitch-col-ready'; ticketClass='order-ticket order-ticket-ready';
-      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})">🤖 Dispatch Robot → Table ${table}</button>`;
+      const dispatchDisabled = !window._pythonOnline;
+      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})" ${dispatchDisabled ? 'disabled style="opacity:0.4;pointer-events:none;" title=\'Robot server offline — start the Python script first\'' : ''}>🤖 Dispatch Robot → Table ${table}</button>`;
     } else {
       colId='kitch-col-ready'; ticketClass='order-ticket order-ticket-sent';
       actionHtml=`<button class="ticket-action ticket-action-status" id="action-${ref}">⬡ ${status==='delivering'?'Robot Delivering...':'Robot Dispatched'}</button>`;
