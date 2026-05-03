@@ -1486,13 +1486,7 @@ if (window.speechSynthesis) {
         }
       });
 
-      // ── Robot busy state ──
-      const isRobotBusy = incoming.some(o => ['dispatched', 'delivering'].includes(o.status));
-      if (isRobotBusy !== robotBusy) {
-        robotBusy = isRobotBusy;
-        setAllDispatchButtons(!isRobotBusy);
-        if (!isRobotBusy) showToast('⬡ Robot back at dock — ready for next order');
-      }
+      
       cleanupOldReadyOrders();
       resortColumns();
     } catch (err) { console.error('[loadKitchenOrders]', err); showToast('Failed to connect to server'); }
@@ -1923,13 +1917,20 @@ function startKitchenRobotPolling() {
 
             // Always sync dispatch buttons on every tick
             const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            const wasbusy = robotBusy;
             robotBusy = isNowBusy;
             document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
-                btn.disabled = isNowBusy;
-                btn.style.opacity = isNowBusy ? '0.4' : '';
-                btn.style.pointerEvents = isNowBusy ? 'none' : '';
-                btn.title = isNowBusy ? 'Robot is busy delivering' : '';
+              btn.disabled = isNowBusy;
+              btn.style.opacity = isNowBusy ? '0.4' : '';
+              btn.style.pointerEvents = isNowBusy ? 'none' : '';
+              btn.title = isNowBusy ? 'Robot is busy — wait for it to return to dock' : '';
             });
+            // Robot just docked — show toast and trigger delivered card cleanup
+            if (wasbusy && !isNowBusy) {
+              showToast('⬡ Robot back at dock — ready for next order');
+               // Now safe to remove delivered cards
+              loadKitchenOrders();
+            }
 
         } catch {
             if (window._pythonOnline !== false) {
