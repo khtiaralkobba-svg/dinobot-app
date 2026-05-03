@@ -1877,6 +1877,7 @@ function startKitchenRobotPolling() {
             const res  = await fetch('http://localhost:5000/status');
             const data = await res.json();
             window._pythonOnline = true;
+
             const stateLabels = {
                 'MOVING_TO_TABLE': '● EN ROUTE',
                 'DELIVERING':      '● DELIVERING',
@@ -1896,14 +1897,27 @@ function startKitchenRobotPolling() {
                 else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
                 else                                   kitchEta.textContent = '~2 min';
             }
+
+            // Always sync dispatch buttons on every tick
             const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
-            if (isNowBusy !== robotBusy) {
-                robotBusy = isNowBusy;
-                setAllDispatchButtons(!isNowBusy);
-                if (!isNowBusy) showToast('⬡ Robot back at dock — ready for next order');
-            }
+            robotBusy = isNowBusy;
+            document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
+                btn.disabled = isNowBusy;
+                btn.style.opacity = isNowBusy ? '0.4' : '';
+                btn.style.pointerEvents = isNowBusy ? 'none' : '';
+                btn.title = isNowBusy ? 'Robot is busy delivering' : '';
+            });
+
         } catch {
-            window._pythonOnline = false;
+            if (window._pythonOnline !== false) {
+                window._pythonOnline = false;
+                document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.pointerEvents = 'none';
+                    btn.title = 'Robot server offline — start the Python script first';
+                });
+            }
         }
     }, 1000);
 }
