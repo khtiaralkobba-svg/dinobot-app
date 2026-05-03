@@ -1310,6 +1310,22 @@ if (window.speechSynthesis) {
   async function doLogout() {
     try { await fetch(API_BASE + '/api/auth/logout', { method:'POST', headers: authHeaders() }); } catch {}
     localStorage.removeItem('accessToken');
+
+    // ── Stop all kitchen intervals and voice ──
+    if (window._kitchenPollInterval)  { clearInterval(window._kitchenPollInterval);  window._kitchenPollInterval = null; }
+    if (window._kitchenRobotPoll)     { clearInterval(window._kitchenRobotPoll);      window._kitchenRobotPoll = null; }
+    if (window._alertCheckInterval)   { clearInterval(_alertCheckInterval);            _alertCheckInterval = null; }
+    if (window.speechSynthesis)       { window.speechSynthesis.cancel(); }
+    _voiceQueue.length = 0;
+    _voiceBusy = false;
+
+    // ── Clear all kitchen order timers ──
+    Object.values(kitchenOrders).forEach(order => {
+        if (order.timerInterval) clearInterval(order.timerInterval);
+        if (order.waitInterval)  clearInterval(order.waitInterval);
+    });
+    kitchenOrders = {};
+
     document.getElementById('control-center').classList.remove('unlocked');
     document.getElementById('kitchen-center').classList.remove('unlocked');
     document.getElementById('auth-gate').classList.remove('hidden');
@@ -1318,7 +1334,7 @@ if (window.speechSynthesis) {
     document.getElementById('user-badge').classList.remove('show');
     currentRole = null;
     showToast('⬡ Logged out');
-  }
+}
  
   /* ══════════════════════════════════════════════════════════
      KITCHEN — Oldest First, Smooth Updates, Server-Anchored Timers
