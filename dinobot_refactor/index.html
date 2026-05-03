@@ -1842,7 +1842,10 @@ function startKitchenRobotPolling() {
                 else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
                 else                                   kitchEta.textContent = '~2 min';
             }
-            const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            const estopBtn = document.getElementById('estop-btn');
+            const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
+            if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
+            if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
             if (isRobotBusy !== robotBusy) {
                 robotBusy = isRobotBusy;
                 setAllDispatchButtons(!isRobotBusy);
@@ -2719,6 +2722,10 @@ function initMap() {
         if (kitchBat)   kitchBat.textContent   = data.battery + '%';
 
         // ── Robot online — enable/disable based on busy state ──
+        const estopBtn = document.getElementById('estop-btn');
+        const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
+        if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
+        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
         const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
         if (isRobotBusy !== robotBusy) {
           robotBusy = isRobotBusy;
@@ -2729,13 +2736,16 @@ function initMap() {
         });
 
       } catch {
-        // ── Python offline — disable all dispatch buttons ──
-        robotBusy = true;
-        setAllDispatchButtons(false);
-        setRobotState('OFFLINE', '—', '#ef4444');
-        document.querySelectorAll('.dispatch-btn').forEach(b => {
-          b.title = 'Robot server offline — start the Python script first';
-        });
+          robotBusy = true;
+          setAllDispatchButtons(false);
+          setRobotState('OFFLINE', '—', '#ef4444');
+          document.querySelectorAll('.dispatch-btn').forEach(b => {
+            b.title = 'Robot server offline — start the Python script first';
+          });
+          const estopBtn = document.getElementById('estop-btn');
+          const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
+          if (estopBtn) { estopBtn.disabled = true; estopBtn.style.opacity = '0.35'; estopBtn.title = 'Robot offline'; }
+          if (resetBtn) { resetBtn.disabled = true; resetBtn.style.opacity = '0.35'; resetBtn.title = 'Robot offline'; }
       }
     }, 150);
   }
