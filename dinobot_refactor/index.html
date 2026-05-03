@@ -1540,7 +1540,7 @@ if (window.speechSynthesis) {
     order.timerInterval = setInterval(() => {
       const el = document.getElementById('timer-' + ref);
       if (!el) { clearInterval(order.timerInterval); return; }
-      const elapsed = Date.now() - new Date(order.prep_started_at).getTime();
+      const elapsed = Math.max(0, Date.now() - new Date(order.prep_started_at).getTime());
       const total = Math.floor(elapsed / 1000);
       const m = Math.floor(total / 60), s = total % 60;
       el.textContent = String(m).padStart(2,'00') + ':' + String(s).padStart(2,'00');
@@ -1875,6 +1875,7 @@ function startKitchenRobotPolling() {
         try {
             const res  = await fetch('http://localhost:5000/status');
             const data = await res.json();
+            window._pythonOnline = true;
             const stateLabels = {
                 'MOVING_TO_TABLE': '● EN ROUTE',
                 'DELIVERING':      '● DELIVERING',
@@ -1901,7 +1902,7 @@ function startKitchenRobotPolling() {
                 if (!isNowBusy) showToast('⬡ Robot back at dock — ready for next order');
             }
         } catch {
-            // Python not running — silent fail
+            window._pythonOnline = false;
         }
     }, 1000);
 }
@@ -2135,6 +2136,7 @@ function startKitchenRobotPolling() {
   const ROBOT_URL = 'http://localhost:5000';
  
   async function dispatchRobot(ref, tableNum) {
+    if (!window._pythonOnline) { showToast('✗ Robot server offline — start the Python script first'); return; }
     if (robotBusy) { showToast('⬡ Robot is busy — wait for it to return to dock'); return; }
     const btn = document.getElementById('action-' + ref);
     if (btn) { btn.disabled=true; btn.textContent='⬡ Dispatching...'; btn.className='ticket-action ticket-action-status'; }
