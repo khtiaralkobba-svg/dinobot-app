@@ -1416,11 +1416,12 @@ if (window.speechSynthesis) {
       if (!res.ok) { showToast('Could not load orders from server'); return; }
       const data = await res.json();
       const incoming = data.orders || [];
- 
-      // ── Remove cancelled / gone cards ──
+
+      // ── Remove cancelled cards only — never remove dispatched/delivered while robot is busy ──
       Object.keys(kitchenOrders).forEach(ref => {
         const still = incoming.find(o => o.order_ref === ref);
-        if (!still || still.status === 'cancelled') {
+        const shouldRemove = !still || still.status === 'cancelled';
+        if (shouldRemove) {
           const card = document.getElementById('order-' + ref);
           if (card) {
             card.style.transition = 'opacity 0.3s, transform 0.3s';
@@ -1433,38 +1434,60 @@ if (window.speechSynthesis) {
           delete kitchenOrders[ref];
         }
       });
- 
+
       // ── Add new / update existing ──
       incoming.forEach(order => {
-  if (['cancelled', 'delivered'].includes(order.status)) return;
-  const existing = kitchenOrders[order.order_ref];
-  if (!existing) {
-    renderKitchenOrder(order);
-    const card = document.getElementById('order-' + order.order_ref);
-    if (card) {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(-12px)';
-      card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        card.style.opacity = '';
-        card.style.transform = '';
-      }));
-    }
-  } else if (existing.status !== order.status) {
-    if (_kitchenTransitioning.has(order.order_ref)) return;
-    if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 3000) return;
-    if (order.status === 'prep' && order.prep_started_at) {
-      existing.prep_started_at = order.prep_started_at;
-    }
-    updateKitchenOrderStatus(order.order_ref, order.status, order.table_number); // once only
-  } else if (order.status === 'prep' && order.prep_started_at && !existing.prep_started_at) {
-    existing.prep_started_at = order.prep_started_at;
-    if (!existing.timerInterval) restartTimerFromServer(order.order_ref);
-  }
-});
- 
+        if (order.status === 'cancelled') return;
+
+        // Keep delivered cards visible until robot is back at dock
+        if (order.status === 'delivered') {
+          const card = document.getElementById('order-' + order.order_ref);
+          if (card && !robotBusy) {
+            // Robot is back — now safe to fade out the card
+            card.style.transition = 'opacity 0.4s, transform 0.4s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+              card.remove();
+              if (kitchenOrders[order.order_ref]) {
+                clearInterval(kitchenOrders[order.order_ref].timerInterval);
+                clearInterval(kitchenOrders[order.order_ref].waitInterval);
+                delete kitchenOrders[order.order_ref];
+              }
+              resortColumns();
+            }, 420);
+          }
+          return;
+        }
+
+        const existing = kitchenOrders[order.order_ref];
+        if (!existing) {
+          renderKitchenOrder(order);
+          const card = document.getElementById('order-' + order.order_ref);
+          if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-12px)';
+            card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              card.style.opacity = '';
+              card.style.transform = '';
+            }));
+          }
+        } else if (existing.status !== order.status) {
+          if (_kitchenTransitioning.has(order.order_ref)) return;
+          if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 3000) return;
+          if (order.status === 'prep' && order.prep_started_at) {
+            existing.prep_started_at = order.prep_started_at;
+          }
+          updateKitchenOrderStatus(order.order_ref, order.status, order.table_number);
+        } else if (order.status === 'prep' && order.prep_started_at && !existing.prep_started_at) {
+          existing.prep_started_at = order.prep_started_at;
+          if (!existing.timerInterval) restartTimerFromServer(order.order_ref);
+        }
+      });
+
       // ── Robot busy state ──
-      const isRobotBusy = incoming.some(o => ['dispatched','delivering'].includes(o.status));
+      const isRobotBusy = incoming.some(o => ['dispatched', 'delivering'].includes(o.status));
       if (isRobotBusy !== robotBusy) {
         robotBusy = isRobotBusy;
         setAllDispatchButtons(!isRobotBusy);
@@ -2509,7 +2532,6 @@ function getKitchenPrediction(ref) {
     }
 }
  /* ── WEBSOCKET SYNC ─────────────────────────────────── */
-let _socket = null;
 function connectSocket(room) {
   if (_socket && _socket.connected) {
     _socket.emit('join', room);
@@ -2554,16 +2576,14 @@ function connectSocket(room) {
 
     _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
+
+      // ── Always update student tracking view ──
       updateSessionOrderStatus(order_ref, status);
-      const existing = kitchenOrders[order_ref];
-      if (existing && existing.status !== status) {
-        if (!_kitchenTransitioning.has(order_ref)) {
-          if (status === 'prep' && prep_started_at) {
-            existing.prep_started_at = prep_started_at;
-          }
-          updateKitchenOrderStatus(order_ref, status, table_number || existing.table);
-        }
-      }
+
+      // ── Delivered: keep card visible until robot docks — loadKitchenOrders handles removal ──
+      if (status === 'delivered') return;
+
+      // ── Cancelled: remove card immediately ──
       if (status === 'cancelled') {
         const card = document.getElementById('order-' + order_ref);
         if (card) {
@@ -2580,6 +2600,18 @@ function connectSocket(room) {
             resortColumns();
           }, 320);
         }
+        return;
+      }
+
+      // ── All other status updates ──
+      const existing = kitchenOrders[order_ref];
+      if (existing && existing.status !== status) {
+        if (!_kitchenTransitioning.has(order_ref)) {
+          if (status === 'prep' && prep_started_at) {
+            existing.prep_started_at = prep_started_at;
+          }
+          updateKitchenOrderStatus(order_ref, status, table_number || existing.table);
+        }
       }
     });
 
@@ -2589,7 +2621,6 @@ function connectSocket(room) {
   };
   document.head.appendChild(script);
 }
- 
   /* ══════════════════════════════════════════════════════════
      MANAGER DASHBOARD
   ══════════════════════════════════════════════════════════ */
