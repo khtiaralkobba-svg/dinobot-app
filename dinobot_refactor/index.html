@@ -1279,6 +1279,7 @@ let announcedOrders = new Set();
  
   /* ── AUTH ──────────────────────────────────────────────── */
   let currentRole = null;
+  window._pythonOnline = false;
   const ROLES = { manager: { label: 'Robot Manager', icon: '🤖' }, kitchen: { label: 'Kitchen Staff', icon: '👨‍🍳' } };
  
   function selectRole(role) {
