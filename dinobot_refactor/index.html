@@ -2051,7 +2051,7 @@ function startKitchenRobotPolling() {
       actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})" ${dispatchDisabled ? 'disabled style="opacity:0.4;pointer-events:none;" title=\'Robot server offline — start the Python script first\'' : ''}>🤖 Dispatch Robot → Table ${table}</button>`;
     } else {
       colId='kitch-col-ready'; ticketClass='order-ticket order-ticket-sent';
-      actionHtml=`<button class="ticket-action ticket-action-status" id="action-${ref}">⬡ ${status==='delivering'?'Robot Delivering...':'Robot Dispatched'}</button>`;
+      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})" style="font-size:10px;">🔄 RE-DISPATCH ROBOT → Table ${table}</button>`;
     }
  
     const card = document.createElement('div');
@@ -3148,96 +3148,63 @@ function stopMove() {
  
 function applyStatusToTimeline(ref, status, tableNum) {
     const eta = document.getElementById('track-eta-' + ref);
-
-    // Reset all steps first, then rebuild from scratch each call
-    ['ts-ordered','ts-prep','ts-ready','ts-enroute','ts-delivered'].forEach(id => {
-        const el = document.getElementById(id + '-' + ref);
-        if (el) { el.classList.remove('active', 'done'); }
-    });
-
-    const markDone   = id => { const el = document.getElementById(id + '-' + ref); if (el) { el.classList.remove('active'); el.classList.add('done'); } };
-    const markActive = id => { const el = document.getElementById(id + '-' + ref); if (el) { el.classList.remove('done'); el.classList.add('active'); } };
-
-    // Order placed is always done once we're tracking
-    markDone('ts-ordered');
+    const markDone = id => { const el = document.getElementById(id + '-' + ref); if (el) { el.classList.remove('active'); el.classList.add('done'); } };
+    const markActive = id => { const el = document.getElementById(id + '-' + ref); if (el && !el.classList.contains('done')) el.classList.add('active'); };
 
     if (status === 'cancelled') {
-        if (eta) eta.textContent = 'Cancelled';
-
+      if (eta) eta.textContent = 'Cancelled';
     } else if (status === 'new') {
-        if (eta) eta.textContent = 'Calculating...';
-        fetch(API_BASE + '/api/orders/queue-eta?ref=' + ref)
-            .then(r => r.json())
-            .then(d => {
-                if (eta && d.estimatedMinutes) eta.textContent = '~' + d.estimatedMinutes + ' min';
-                let strip = document.getElementById('pred-strip-' + ref);
-                const etaStrip = document.querySelector('#track-detail .track-eta-strip');
-                if (!strip && etaStrip) {
-                    strip = document.createElement('div');
-                    strip.id = 'pred-strip-' + ref;
-                    strip.style.cssText = 'margin-top:8px;padding:10px 16px;background:rgba(251,185,36,0.05);border:1px solid rgba(251,185,36,0.2);font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;color:rgba(251,185,36,0.7);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
-                    etaStrip.after(strip);
-                }
-                if (strip && d.ordersAhead !== undefined) {
-                    strip.textContent = d.ordersAhead > 0
-                        ? `⬡ ${d.ordersAhead} ORDER${d.ordersAhead > 1 ? 'S' : ''} AHEAD · AVG PREP ${d.avgPrep} MIN`
-                        : '⬡ YOUR ORDER IS NEXT IN QUEUE';
-                }
-            })
-            .catch(() => { if (eta) eta.textContent = '~8 min'; });
+      // ── Predictive ETA for new orders ──
+      if (eta) eta.textContent = 'Calculating...';
+      fetch(API_BASE + '/api/orders/queue-eta?ref=' + ref)
+        .then(r => r.json())
+        .then(d => {
+          if (eta && d.estimatedMinutes) {
+            eta.textContent = '~' + d.estimatedMinutes + ' min';
+          }
+          // Show queue info strip
+          let strip = document.getElementById('pred-strip-' + ref);
+          const etaStrip = document.querySelector('#track-detail .track-eta-strip');
+          if (!strip && etaStrip) {
+            strip = document.createElement('div');
+            strip.id = 'pred-strip-' + ref;
+            strip.style.cssText = 'margin-top:8px;padding:10px 16px;background:rgba(251,185,36,0.05);border:1px solid rgba(251,185,36,0.2);font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;color:rgba(251,185,36,0.7);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
+            etaStrip.after(strip);
+          }
+          if (strip && d.ordersAhead !== undefined) {
+            strip.textContent = d.ordersAhead > 0
+              ? `⬡ ${d.ordersAhead} ORDER${d.ordersAhead > 1 ? 'S' : ''} AHEAD · AVG PREP ${d.avgPrep} MIN`
+              : '⬡ YOUR ORDER IS NEXT IN QUEUE';
+          }
+        })
+        .catch(() => {
+          if (eta) eta.textContent = STATUS_ETA[status] || '—';
+        });
+    } else {
+      // For all other statuses remove the pred strip and use static ETA
+      if (eta) eta.textContent = STATUS_ETA[status] || '—';
+      const strip = document.getElementById('pred-strip-' + ref);
+      if (strip) strip.remove();
 
-    } else if (status === 'prep') {
-        markActive('ts-prep');
-        if (eta) eta.textContent = '~5 min';
-        const strip = document.getElementById('pred-strip-' + ref);
-        if (strip) strip.remove();
-
-    } else if (status === 'ready') {
-        markDone('ts-prep');
-        markActive('ts-ready');
-        if (eta) eta.textContent = '~2 min';
-
-    } else if (status === 'dispatched') {
-        markDone('ts-prep');
-        markDone('ts-ready');
+      if (['prep','ready','dispatched','delivering','delivered'].includes(status)) markDone('ts-prep');
+      if (['ready','dispatched','delivering','delivered'].includes(status)) markDone('ts-ready');
+      if (['dispatched','delivering','delivered'].includes(status)) {
         markActive('ts-enroute');
         const sub = document.getElementById('ts-enroute-sub-' + ref);
         if (sub) sub.textContent = 'Heading to Table ' + tableNum;
-        if (eta) eta.textContent = '~1 min';
-
-    } else if (status === 'delivering') {
-        markDone('ts-prep');
-        markDone('ts-ready');
-        markActive('ts-enroute');
-        const sub = document.getElementById('ts-enroute-sub-' + ref);
-        if (sub) sub.textContent = 'Almost there...';
-        if (eta) eta.textContent = 'Arriving!';
-
-    } else if (status === 'delivered') {
-        markDone('ts-prep');
-        markDone('ts-ready');
-        markDone('ts-enroute');
-        markDone('ts-delivered');
-        if (eta) eta.textContent = 'Delivered ✓';
+      }
+      if (status === 'delivered') { markDone('ts-enroute'); markDone('ts-delivered'); }
     }
 
     const badge = document.getElementById('olc-badge-' + ref);
     if (badge) { badge.textContent = STATUS_LABEL[status] || status; badge.className = 'olc-status olc-status-' + status; }
-
     const cancelBtn = document.getElementById('cancel-btn-' + ref);
     if (cancelBtn) {
-        if (status === 'new') {
-            cancelBtn.disabled = false; cancelBtn.textContent = 'CANCEL ORDER';
-            cancelBtn.style.opacity = '1'; cancelBtn.style.cursor = 'pointer';
-        } else if (status === 'cancelled') {
-            cancelBtn.disabled = true; cancelBtn.textContent = 'ORDER CANCELLED';
-            cancelBtn.style.opacity = '0.5'; cancelBtn.style.cursor = 'not-allowed';
-        } else {
-            cancelBtn.disabled = true; cancelBtn.textContent = 'CANNOT CANCEL';
-            cancelBtn.style.opacity = '0.5'; cancelBtn.style.cursor = 'not-allowed';
-        }
+      if (status === 'new') { cancelBtn.disabled=false; cancelBtn.textContent='CANCEL ORDER'; cancelBtn.style.opacity='1'; cancelBtn.style.cursor='pointer'; }
+      else if (status === 'cancelled') { cancelBtn.disabled=true; cancelBtn.textContent='ORDER CANCELLED'; cancelBtn.style.opacity='0.5'; cancelBtn.style.cursor='not-allowed'; }
+      else { cancelBtn.disabled=true; cancelBtn.textContent='CANNOT CANCEL'; cancelBtn.style.opacity='0.5'; cancelBtn.style.cursor='not-allowed'; }
     }
-}
+  }
  
  async function cancelOrder(ref) {
     const order = sessionOrders.find(o => o.order_ref === ref);
