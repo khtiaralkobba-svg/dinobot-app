@@ -1283,6 +1283,7 @@ const orders = data.orders || [];
  
   /* ── AUTH ──────────────────────────────────────────────── */
   let currentRole = null;
+  let _socket = null;
   window._pythonOnline = false;
   const ROLES = { manager: { label: 'Robot Manager', icon: '🤖' }, kitchen: { label: 'Kitchen Staff', icon: '👨‍🍳' } };
  
