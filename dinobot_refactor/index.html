@@ -1182,7 +1182,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 
 let announcedOrders = new Set();
   const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'
+  ? 'http://localhost:3001'
   : 'https://dinobot-app.onrender.com';
   function getAccessToken() { return localStorage.getItem('accessToken'); }
   function authHeaders(extra = {}) {
@@ -1229,9 +1229,13 @@ let announcedOrders = new Set();
   }
   setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);setTimeout(async () => {
   try {
-    const res = await fetch(API_BASE + '/api/orders/all');
-    const data = await res.json();
-    const orders = data.orders || [];
+    const res = await fetch(API_BASE + '/api/orders/all', {
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+});
+const data = await res.json();
+const orders = data.orders || [];
 
     // Orders delivered today
     const today = new Date().toDateString();
