@@ -1227,15 +1227,15 @@ let announcedOrders = new Set();
     let start = 0; const step = target/(duration/16);
     const timer = setInterval(()=>{ start=Math.min(start+step,target); el.textContent=Math.floor(start); if(start>=target)clearInterval(timer); }, 16);
   }
-  setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);setTimeout(async () => {
+  setTimeout(async () => {
   try {
     const res = await fetch(API_BASE + '/api/orders/all', {
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-  }
-});
-const data = await res.json();
-const orders = data.orders || [];
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+    const data = await res.json();
+    const orders = data.orders || [];
 
     // Orders delivered today
     const today = new Date().toDateString();
@@ -1265,8 +1265,7 @@ const orders = data.orders || [];
     animateCounter('counter-2', avgDelivery || 0, 800);
     animateCounter('counter-3', tablesServed || 0, 1000);
 
-  }catch {
-    // Fallback to zeros if API unreachable
+  } catch {
     animateCounter('counter-1', 0, 800);
     animateCounter('counter-2', 0, 800);
     animateCounter('counter-3', 0, 800);
