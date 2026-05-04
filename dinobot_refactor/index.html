@@ -2663,17 +2663,9 @@ function connectSocket(room) {
  
   async function dispatch(tableId) {
     if (eStopActive) { showToast('⚠ EMERGENCY STOP ACTIVE'); return; }
-    try {
-      const res = await fetch('http://localhost:5000/dispatch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ table_number: tableId })
-      });
-      if (!res.ok) { showToast('⬡ Robot busy or unavailable'); return; }
-    } catch {
-      showToast('✗ Cannot reach robot server'); return;
-    }
-    // ── Also update the order status in DB if there's a ready order for this table ──
+
+    // ── Find the ready order for this table first ──
+    let orderRef = null;
     try {
       const ordRes = await fetch(API_BASE + '/api/orders', {
         headers: authHeaders({ 'Content-Type': 'application/json' })
@@ -2683,18 +2675,30 @@ function connectSocket(room) {
         o.table_number === tableId && o.status === 'ready'
       );
       if (readyOrder) {
-        await fetch(API_BASE + '/api/orders/' + readyOrder.order_ref + '/status', {
+        orderRef = readyOrder.order_ref;
+        await fetch(API_BASE + '/api/orders/' + orderRef + '/status', {
           method: 'PATCH',
           headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ status: 'dispatched' })
         });
-        showToast(`⬡ Order ${readyOrder.order_ref} marked dispatched`);
+        showToast(`⬡ Order ${orderRef} marked dispatched`);
       }
     } catch { /* silent — order sync optional */ }
 
+    // ── Dispatch robot with order_ref ──
+    try {
+      const res = await fetch('http://localhost:5000/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table_number: tableId, order_ref: orderRef })  // ← added order_ref
+      });
+      if (!res.ok) { showToast('⬡ Robot busy or unavailable'); return; }
+    } catch {
+      showToast('✗ Cannot reach robot server'); return;
+    }
+
     document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
-    // ── Set currentTarget so map purple highlight works ──
     currentTarget = tables.find(t => t.id === tableId) || null;
     if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
     robotState = 'DISPATCHED';
