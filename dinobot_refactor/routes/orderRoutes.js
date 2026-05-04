@@ -1,128 +1,124 @@
 const express = require('express');
 const router = express.Router();
 
-// Controllers
+// CORRECT controller names matching orderController.js exports
 const {
   createOrder,
-  getOrder,
-  getOrders,
-  updateStatus,
-  cancelOrder
+  getOrderByRef,
+  getAllOrders,
+  updateOrderStatus,
+  cancelOrder,
+  resetStuckOrders
 } = require('../controllers/orderController');
 
-// Middleware
 const { authenticateToken } = require('../middleware/auth');
 const { authorizeRoles } = require('../middleware/authorize');
-const validate = require('../middleware/validate');
+const { validateCreateOrder, validateOrderStatus } = require('../middleware/validate');
 
-const orderService = require('../services/orderService');
+// ── PUBLIC ROUTES ──
 
-// ==========================
-// PUBLIC ROUTES
-// ==========================
-
-// Create new order (students don't need auth)
-router.post('/', validate.validateCreateOrder, createOrder);
-
-// ── Reset stuck dispatched/delivering orders ──
-router.post(
-  '/reset-stuck',
-  authenticateToken,
-  authorizeRoles('manager'),
-  async (req, res) => {
-    try {
-      const updated = await orderService.resetStuckOrders();
-      res.json({ affected: updated.length, orders: updated.map(o => o.order_ref) });
-    } catch (err) {
-      console.error('[reset-stuck]', err);
-      res.status(500).json({ error: err.message });
-    }
+// Create new order (students)
+router.post('/', validateCreateOrder, async (req, res) => {
+  try {
+    const order = await createOrder(req.body);
+    const io = req.app.get('io');
+    if (io) io.to('kitchen').emit('order:new', order);
+    res.status(201).json({ success: true, order });
+  } catch (err) {
+    console.error('[createOrder]', err);
+    res.status(500).json({ success: false, error: err.message });
   }
-);
+});
 
-// ── Queue ETA prediction — MUST be before /:orderRef ──
+// Queue ETA prediction
 router.get('/queue-eta', async (req, res) => {
   try {
     const { ref } = req.query;
-    const orders = await orderService.getAllOrders();
-
+    const orders = await getAllOrders();
     const target = orders.find(o => o.order_ref === ref);
-    if (!target) return res.json({ estimatedMinutes: 8 });
-
+    const avgPrep = 8;
     const newOrders = orders.filter(o => o.status === 'new');
-    const prepOrders = orders.filter(o => o.status === 'prep');
-
-    const completedOrders = orders.filter(o =>
-      o.prep_started_at && ['ready','dispatched','delivering','delivered'].includes(o.status)
-    );
-    const avgPrep = completedOrders.length > 0
-      ? completedOrders.reduce((sum, o) => {
-          const mins = (new Date(o.updated_at) - new Date(o.prep_started_at)) / 60000;
-          return sum + (mins > 0 && mins < 60 ? mins : 8);
-        }, 0) / completedOrders.length
-      : 8;
-
-    const ordersAhead = newOrders.filter(o =>
-      new Date(o.placed_at) < new Date(target.placed_at)
-    ).length;
-
-    const prepBurden = prepOrders.reduce((sum, o) => {
-      if (!o.prep_started_at) return sum + avgPrep;
-      const elapsed = (Date.now() - new Date(o.prep_started_at)) / 60000;
-      const remaining = Math.max(0, avgPrep - elapsed);
-      return sum + remaining;
-    }, 0);
-
-    const estimatedMinutes = Math.round(
-      (ordersAhead * avgPrep) + (prepBurden / Math.max(1, prepOrders.length)) + avgPrep
-    );
-
+    const ordersAhead = target 
+      ? newOrders.filter(o => new Date(o.placed_at) < new Date(target.placed_at)).length 
+      : 0;
     res.json({
-      estimatedMinutes: Math.max(2, estimatedMinutes),
+      estimatedMinutes: Math.max(2, (ordersAhead * avgPrep) + avgPrep),
       ordersAhead,
-      avgPrep: Math.round(avgPrep * 10) / 10
+      avgPrep
     });
   } catch (err) {
-    console.error('[queue-eta]', err);
     res.json({ estimatedMinutes: 8 });
   }
 });
 
-// Get single order (tracking page) — MUST be after /queue-eta
-router.get('/:orderRef', getOrder);
+// ── PROTECTED ROUTES ──
 
-// ── Cancel order — PUBLIC, no auth needed (student cancels their own order) ──
-router.patch('/:orderRef/cancel', cancelOrder);
-
-// ── Status update with smart auth:
-//    - 'cancelled' by status route = allow without auth (student cancel from frontend)
-//    - all other statuses = require kitchen/manager auth
-router.patch('/:orderRef/status', async (req, res, next) => {
-  const { status } = req.body;
-
-  // Allow students to cancel via the /status route too (frontend uses this)
-  if (status === 'cancelled') {
-    return next(); // skip auth, go straight to updateStatus
+// Get all orders (kitchen/manager) — BEFORE dynamic routes
+router.get('/', authenticateToken, authorizeRoles('manager', 'kitchen'), async (req, res) => {
+  try {
+    const orders = await getAllOrders();
+    res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
+});
 
-  // All other status changes require kitchen/manager auth
+// Reset stuck orders (manager only)
+router.post('/reset-stuck', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const updated = await resetStuckOrders();
+    res.json({ affected: updated.length, orders: updated.map(o => o.order_ref) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DYNAMIC ROUTES (must be LAST) ──
+
+// Get single order
+router.get('/:orderRef', async (req, res) => {
+  try {
+    const order = await getOrderByRef(req.params.orderRef);
+    if (!order) return res.status(404).json({ success: false, error: 'Not found' });
+    res.json({ success: true, order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Cancel order
+router.patch('/:orderRef/cancel', async (req, res) => {
+  try {
+    const result = await cancelOrder(req.params.orderRef);
+    if (!result.ok) return res.status(400).json({ success: false, error: result.reason });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Update status
+router.patch('/:orderRef/status', (req, res, next) => {
+  if (req.body.status === 'cancelled') return next();
   authenticateToken(req, res, () => {
     authorizeRoles('manager', 'kitchen')(req, res, next);
   });
-}, validate.validateOrderStatus, updateStatus);
-
-// ==========================
-// PROTECTED ROUTES (Kitchen & Manager)
-// ==========================
-
-// Get all orders (kitchen screen)
-router.get(
-  '/',
-  authenticateToken,
-  authorizeRoles('manager', 'kitchen'),
-  getOrders
-);
-
-
+}, validateOrderStatus, async (req, res) => {
+  try {
+    const result = await updateOrderStatus(req.params.orderRef, req.body.status);
+    const io = req.app.get('io');
+    if (io) {
+      io.to('kitchen').to('student').emit('order:updated', {
+        order_ref: req.params.orderRef,
+        status: req.body.status,
+        prep_started_at: result?.prep_started_at,
+        table_number: result?.table_number
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 module.exports = router;
