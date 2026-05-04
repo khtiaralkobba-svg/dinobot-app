@@ -780,6 +780,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     <li><a href="#" id="nav-student" onclick="showPage('student'); return false;">Order Now</a></li>
     <li><a href="#" class="nav-cta" id="nav-dashboard" onclick="showPage('dashboard'); return false;">Login →</a></li>
   </ul>
+  <div id="user-badge" style="margin-left:12px;">
+    <span class="ub-icon" id="ub-icon">🤖</span>
+    <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
+    <button class="ub-logout" onclick="doLogout()">⬡ Logout</button>
+  </div>
 </nav>
  
 <!-- HOME PAGE -->
@@ -917,14 +922,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         <div class="dash-subtitle">// Staff Authentication</div>
         <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
       </div>
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-        <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
-        <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
-        <div id="user-badge">
-          <span class="ub-icon" id="ub-icon">🤖</span>
-          <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
-          <button class="ub-logout" onclick="doLogout()">⬡ Logout</button>
-        </div>
+      
       </div>
     </div>
     <div id="auth-gate">
