@@ -934,8 +934,19 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         <div class="dash-subtitle">// Staff Authentication</div>
         <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
       </div>
-      
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+        <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
+        <div id="logout-area" style="display:none; align-items:center; gap:12px; margin-top:4px;">
+          <span id="ub-icon" style="font-size:20px;">🤖</span>
+          <div>
+            <div id="ub-name" style="font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--orange); text-transform:uppercase;">—</div>
+            <div id="ub-role" style="font-size:11px; color:var(--text-dim); letter-spacing:1px;">—</div>
+          </div>
+          <button onclick="doLogout()" style="background:none; border:1px solid var(--border-bright); color:var(--text); font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; padding:6px 14px; cursor:pointer; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">⬡ Logout</button>
+        </div>
       </div>
+    </div>
     </div>
     <div id="auth-gate">
       <div class="auth-box">
@@ -1338,7 +1349,8 @@ let announcedOrders = new Set();
       document.getElementById('ub-icon').textContent = r.icon;
       document.getElementById('ub-name').textContent = ((data.user?.fullName || data.user?.full_name || r.label) + '').toUpperCase();
       document.getElementById('ub-role').textContent = serverRole;
-      document.getElementById('user-badge').classList.add('show');
+      const la = document.getElementById('logout-area');
+      if (la) la.style.display = 'flex';
       showToast('⬡ Welcome — Access granted');
       // Unlock audio immediately on login
 const ctx = getAudioCtx();
@@ -1382,7 +1394,8 @@ if (window.speechSynthesis) {
     document.getElementById('auth-gate').classList.remove('hidden');
     document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
     document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('show'));
-    document.getElementById('user-badge').classList.remove('show');
+    const la = document.getElementById('logout-area');
+    if (la) la.style.display = 'none';
     currentRole = null;
     showToast('⬡ Logged out');
 }
