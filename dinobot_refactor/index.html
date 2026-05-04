@@ -920,6 +920,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
       <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
         <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
         <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
+        <button id="header-logout-btn" onclick="doLogout()" style="display:none; margin-top:6px; padding:6px 18px; background:rgba(239,68,68,0.07); border:1px solid rgba(239,68,68,0.35); color:#ef4444; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.07)'">⬡ LOGOUT</button>
         <div id="user-badge">
           <span class="ub-icon" id="ub-icon">🤖</span>
           <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
@@ -1329,6 +1330,8 @@ let announcedOrders = new Set();
       document.getElementById('ub-name').textContent = ((data.user?.fullName || data.user?.full_name || r.label) + '').toUpperCase();
       document.getElementById('ub-role').textContent = serverRole;
       document.getElementById('user-badge').classList.add('show');
+      const hLogout = document.getElementById('header-logout-btn');
+      if (hLogout) hLogout.style.display = 'block';
       showToast('⬡ Welcome — Access granted');
       // Unlock audio immediately on login
 const ctx = getAudioCtx();
@@ -1375,6 +1378,8 @@ if (window.speechSynthesis) {
     document.getElementById('user-badge').classList.remove('show');
     currentRole = null;
     showToast('⬡ Logged out');
+    const hLogout = document.getElementById('header-logout-btn');
+    if (hLogout) hLogout.style.display = 'none';
 }
  
   /* ══════════════════════════════════════════════════════════
