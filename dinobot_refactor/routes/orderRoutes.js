@@ -39,7 +39,21 @@ router.post(
     }
   }
 );
-
+// ── Get ALL orders (manager analytics — no pagination) ──
+router.get(
+  '/all',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const orders = await orderService.getAllOrders();
+      res.json({ orders });
+    } catch (err) {
+      console.error('[/all]', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 // ── Queue ETA prediction — MUST be before /:orderRef ──
 router.get('/queue-eta', async (req, res) => {
   try {
