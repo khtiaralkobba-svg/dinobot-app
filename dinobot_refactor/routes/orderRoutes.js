@@ -122,5 +122,13 @@ router.get(
   authorizeRoles('manager', 'kitchen'),
   getOrders
 );
+// ── /all alias (used by frontend) ──
+router.get(
+  '/all',
+  authenticateToken,
+  authorizeRoles('manager', 'kitchen'),
+  getOrders
+);
+
 
 module.exports = router;
