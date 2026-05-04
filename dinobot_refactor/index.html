@@ -1227,7 +1227,47 @@ let announcedOrders = new Set();
     let start = 0; const step = target/(duration/16);
     const timer = setInterval(()=>{ start=Math.min(start+step,target); el.textContent=Math.floor(start); if(start>=target)clearInterval(timer); }, 16);
   }
-  setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);
+  setTimeout(()=>{ animateCounter('counter-1',43,1200); animateCounter('counter-2',4,800); animateCounter('counter-3',18,1000); }, 3200);setTimeout(async () => {
+  try {
+    const res = await fetch(API_BASE + '/api/orders/all');
+    const data = await res.json();
+    const orders = data.orders || [];
+
+    // Orders delivered today
+    const today = new Date().toDateString();
+    const deliveredToday = orders.filter(o =>
+      o.status === 'delivered' &&
+      new Date(o.placed_at).toDateString() === today
+    ).length;
+
+    // Avg delivery time (placed_at → delivered, in minutes)
+    const deliveredWithTimes = orders.filter(o =>
+      o.status === 'delivered' && o.placed_at && o.delivered_at
+    );
+    const avgDelivery = deliveredWithTimes.length
+      ? Math.round(deliveredWithTimes.reduce((sum, o) => {
+          return sum + (new Date(o.delivered_at) - new Date(o.placed_at)) / 60000;
+        }, 0) / deliveredWithTimes.length)
+      : 0;
+
+    // Unique tables served today
+    const tablesServed = new Set(
+      orders
+        .filter(o => new Date(o.placed_at).toDateString() === today)
+        .map(o => o.table_number)
+    ).size;
+
+    animateCounter('counter-1', deliveredToday || 0, 1200);
+    animateCounter('counter-2', avgDelivery || 0, 800);
+    animateCounter('counter-3', tablesServed || 0, 1000);
+
+  } catch {
+    // Fallback to zeros if API unreachable
+    animateCounter('counter-1', 0, 800);
+    animateCounter('counter-2', 0, 800);
+    animateCounter('counter-3', 0, 800);
+  }
+}, 3200);
  
   /* ── TOAST ─────────────────────────────────────────────── */
   function showToast(msg) {
@@ -1239,6 +1279,7 @@ let announcedOrders = new Set();
  
   /* ── AUTH ──────────────────────────────────────────────── */
   let currentRole = null;
+  window._pythonOnline = false;
   const ROLES = { manager: { label: 'Robot Manager', icon: '🤖' }, kitchen: { label: 'Kitchen Staff', icon: '👨‍🍳' } };
  
   function selectRole(role) {
@@ -1310,6 +1351,22 @@ if (window.speechSynthesis) {
   async function doLogout() {
     try { await fetch(API_BASE + '/api/auth/logout', { method:'POST', headers: authHeaders() }); } catch {}
     localStorage.removeItem('accessToken');
+
+    // ── Stop all kitchen intervals and voice ──
+    if (window._kitchenPollInterval)  { clearInterval(window._kitchenPollInterval);  window._kitchenPollInterval = null; }
+    if (window._kitchenRobotPoll)     { clearInterval(window._kitchenRobotPoll);      window._kitchenRobotPoll = null; }
+    if (window._alertCheckInterval)   { clearInterval(_alertCheckInterval);            _alertCheckInterval = null; }
+    if (window.speechSynthesis)       { window.speechSynthesis.cancel(); }
+    _voiceQueue.length = 0;
+    _voiceBusy = false;
+
+    // ── Clear all kitchen order timers ──
+    Object.values(kitchenOrders).forEach(order => {
+        if (order.timerInterval) clearInterval(order.timerInterval);
+        if (order.waitInterval)  clearInterval(order.waitInterval);
+    });
+    kitchenOrders = {};
+
     document.getElementById('control-center').classList.remove('unlocked');
     document.getElementById('kitchen-center').classList.remove('unlocked');
     document.getElementById('auth-gate').classList.remove('hidden');
@@ -1318,7 +1375,7 @@ if (window.speechSynthesis) {
     document.getElementById('user-badge').classList.remove('show');
     currentRole = null;
     showToast('⬡ Logged out');
-  }
+}
  
   /* ══════════════════════════════════════════════════════════
      KITCHEN — Oldest First, Smooth Updates, Server-Anchored Timers
@@ -1359,11 +1416,12 @@ if (window.speechSynthesis) {
       if (!res.ok) { showToast('Could not load orders from server'); return; }
       const data = await res.json();
       const incoming = data.orders || [];
- 
-      // ── Remove cancelled / gone cards ──
+
+      // ── Remove cancelled cards only — never remove dispatched/delivered while robot is busy ──
       Object.keys(kitchenOrders).forEach(ref => {
         const still = incoming.find(o => o.order_ref === ref);
-        if (!still || still.status === 'cancelled') {
+        const shouldRemove = !still || still.status === 'cancelled';
+        if (shouldRemove) {
           const card = document.getElementById('order-' + ref);
           if (card) {
             card.style.transition = 'opacity 0.3s, transform 0.3s';
@@ -1376,38 +1434,60 @@ if (window.speechSynthesis) {
           delete kitchenOrders[ref];
         }
       });
- 
+
       // ── Add new / update existing ──
       incoming.forEach(order => {
-  if (['cancelled', 'delivered'].includes(order.status)) return;
-  const existing = kitchenOrders[order.order_ref];
-  if (!existing) {
-    renderKitchenOrder(order);
-    const card = document.getElementById('order-' + order.order_ref);
-    if (card) {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(-12px)';
-      card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        card.style.opacity = '';
-        card.style.transform = '';
-      }));
-    }
-  } else if (existing.status !== order.status) {
-    if (_kitchenTransitioning.has(order.order_ref)) return;
-    if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 3000) return;
-    if (order.status === 'prep' && order.prep_started_at) {
-      existing.prep_started_at = order.prep_started_at;
-    }
-    updateKitchenOrderStatus(order.order_ref, order.status, order.table_number); // once only
-  } else if (order.status === 'prep' && order.prep_started_at && !existing.prep_started_at) {
-    existing.prep_started_at = order.prep_started_at;
-    if (!existing.timerInterval) restartTimerFromServer(order.order_ref);
-  }
-});
- 
+        if (order.status === 'cancelled') return;
+
+        // Keep delivered cards visible until robot is back at dock
+        if (order.status === 'delivered') {
+          const card = document.getElementById('order-' + order.order_ref);
+          if (card && !robotBusy) {
+            // Robot is back — now safe to fade out the card
+            card.style.transition = 'opacity 0.4s, transform 0.4s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+              card.remove();
+              if (kitchenOrders[order.order_ref]) {
+                clearInterval(kitchenOrders[order.order_ref].timerInterval);
+                clearInterval(kitchenOrders[order.order_ref].waitInterval);
+                delete kitchenOrders[order.order_ref];
+              }
+              resortColumns();
+            }, 420);
+          }
+          return;
+        }
+
+        const existing = kitchenOrders[order.order_ref];
+        if (!existing) {
+          renderKitchenOrder(order);
+          const card = document.getElementById('order-' + order.order_ref);
+          if (card) {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-12px)';
+            card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              card.style.opacity = '';
+              card.style.transform = '';
+            }));
+          }
+        } else if (existing.status !== order.status) {
+          if (_kitchenTransitioning.has(order.order_ref)) return;
+          if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 3000) return;
+          if (order.status === 'prep' && order.prep_started_at) {
+            existing.prep_started_at = order.prep_started_at;
+          }
+          updateKitchenOrderStatus(order.order_ref, order.status, order.table_number);
+        } else if (order.status === 'prep' && order.prep_started_at && !existing.prep_started_at) {
+          existing.prep_started_at = order.prep_started_at;
+          if (!existing.timerInterval) restartTimerFromServer(order.order_ref);
+        }
+      });
+
       // ── Robot busy state ──
-      const isRobotBusy = incoming.some(o => ['dispatched','delivering'].includes(o.status));
+      const isRobotBusy = incoming.some(o => ['dispatched', 'delivering'].includes(o.status));
       if (isRobotBusy !== robotBusy) {
         robotBusy = isRobotBusy;
         setAllDispatchButtons(!isRobotBusy);
@@ -1431,16 +1511,14 @@ if (window.speechSynthesis) {
     if (!order || !order.placed_at) return;
     clearInterval(order.waitInterval);
     order.waitInterval = setInterval(() => {
-      // Stop if order moved out of new
       if (order.status !== 'new') { clearInterval(order.waitInterval); return; }
       const card = document.getElementById('order-' + ref);
       if (!card) { clearInterval(order.waitInterval); return; }
- 
+
       const mins = (Date.now() - new Date(order.placed_at).getTime()) / 60000;
       const m = Math.floor(mins), s = Math.floor((mins % 1) * 60);
       const timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
- 
-      // Update or create wait badge
+
       let badge = document.getElementById('wait-badge-' + ref);
       if (!badge) {
         const received = card.querySelector('.ticket-received');
@@ -1449,21 +1527,18 @@ if (window.speechSynthesis) {
         badge.id = 'wait-badge-' + ref;
         received.after(badge);
       }
- 
-      // Determine tier
+
       let label, cls, borderCls;
       if (mins >= WAIT.CRIT) {
         label = '🔴 NOT ACKNOWLEDGED'; cls = 'ticket-wait ticket-wait-crit'; borderCls = 'wait-crit';
-        // Voice alert once when crossing CRIT threshold
-        if (!order._waitCritSpoken) {
+        if (currentRole === 'kitchen' && !order._waitCritSpoken) {
           order._waitCritSpoken = true;
           voiceNotAcknowledged(ref, order.table);
           sfxWarn();
         }
       } else if (mins >= WAIT.WARN) {
         label = '🟡 WAITING'; cls = 'ticket-wait ticket-wait-warn'; borderCls = 'wait-warn';
-        // Voice alert once when crossing WARN threshold
-        if (!order._waitWarnSpoken) {
+        if (currentRole === 'kitchen' && !order._waitWarnSpoken) {
           order._waitWarnSpoken = true;
           speak(`Order for table ${order.table} is waiting`);
           sfxWarn();
@@ -1471,11 +1546,10 @@ if (window.speechSynthesis) {
       } else {
         label = '⬡ WAITING'; cls = 'ticket-wait ticket-wait-ok'; borderCls = '';
       }
- 
+
       badge.textContent = `${label} — ${timeStr}`;
       badge.className = cls;
- 
-      // Card border escalation
+
       card.classList.remove('wait-warn','wait-crit');
       if (borderCls) card.classList.add(borderCls);
     }, 1000);
@@ -1490,10 +1564,10 @@ if (window.speechSynthesis) {
     order.timerInterval = setInterval(() => {
       const el = document.getElementById('timer-' + ref);
       if (!el) { clearInterval(order.timerInterval); return; }
-      const elapsed = Date.now() - new Date(order.prep_started_at).getTime();
+      const elapsed = Math.max(0, Date.now() - new Date(order.prep_started_at).getTime());
       const total = Math.floor(elapsed / 1000);
       const m = Math.floor(total / 60), s = total % 60;
-      el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      el.textContent = String(m).padStart(2,'00') + ':' + String(s).padStart(2,'00');
       const mins = elapsed / 60000;
       if (mins >= ALERT.CRIT)      el.className = 'ticket-timer late';
       else if (mins >= ALERT.LATE) el.className = 'ticket-timer late';
@@ -1524,22 +1598,24 @@ if (window.speechSynthesis) {
           }
         }
       } else {
-        // Remove pred badge once alert thresholds take over
         const predBadge = document.getElementById('pred-badge-' + ref);
         if (predBadge) predBadge.remove();
       }
 
-      if (mins >= ALERT.CRIT && !order._critSpoken) {
-        order._critSpoken = true;
-        voiceOrderCrit(ref, mins);
-      } else if (mins >= ALERT.LATE && !order._lateSpoken) {
-        order._lateSpoken = true;
-        voiceOrderLate(ref, mins);
-      } else if (mins >= ALERT.WARN && !order._warnSpoken) {
-        order._warnSpoken = true;
-        sfxWarn();
-        speak(`Order ${ref.replace('ORD-','')} is approaching the time limit`);
+      if (currentRole === 'kitchen') {
+        if (mins >= ALERT.CRIT && !order._critSpoken) {
+          order._critSpoken = true;
+          voiceOrderCrit(ref, mins);
+        } else if (mins >= ALERT.LATE && !order._lateSpoken) {
+          order._lateSpoken = true;
+          voiceOrderLate(ref, mins);
+        } else if (mins >= ALERT.WARN && !order._warnSpoken) {
+          order._warnSpoken = true;
+          sfxWarn();
+          speak(`Order ${ref.replace('ORD-','')} is approaching the time limit`);
+        }
       }
+
     }, 1000);
 }
  
@@ -1823,6 +1899,8 @@ function startKitchenRobotPolling() {
         try {
             const res  = await fetch('http://localhost:5000/status');
             const data = await res.json();
+            window._pythonOnline = true;
+
             const stateLabels = {
                 'MOVING_TO_TABLE': '● EN ROUTE',
                 'DELIVERING':      '● DELIVERING',
@@ -1842,17 +1920,27 @@ function startKitchenRobotPolling() {
                 else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
                 else                                   kitchEta.textContent = '~2 min';
             }
-            const estopBtn = document.getElementById('estop-btn');
-            const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
-            if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
-            if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
-            if (isRobotBusy !== robotBusy) {
-                robotBusy = isRobotBusy;
-                setAllDispatchButtons(!isRobotBusy);
-                if (!isRobotBusy) showToast('⬡ Robot back at dock — ready for next order');
-            }
+
+            // Always sync dispatch buttons on every tick
+            const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            robotBusy = isNowBusy;
+            document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
+                btn.disabled = isNowBusy;
+                btn.style.opacity = isNowBusy ? '0.4' : '';
+                btn.style.pointerEvents = isNowBusy ? 'none' : '';
+                btn.title = isNowBusy ? 'Robot is busy delivering' : '';
+            });
+
         } catch {
-            // Python not running — silent fail
+            if (window._pythonOnline !== false) {
+                window._pythonOnline = false;
+                document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.pointerEvents = 'none';
+                    btn.title = 'Robot server offline — start the Python script first';
+                });
+            }
         }
     }, 1000);
 }
@@ -1982,10 +2070,11 @@ function startKitchenRobotPolling() {
       actionHtml=`<button class="ticket-action ticket-action-prep" onclick="setOrderStatus('${ref}','ready')">✓ Mark as Ready</button>`;
     } else if (status === 'ready') {
       colId='kitch-col-ready'; ticketClass='order-ticket order-ticket-ready';
-      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})">🤖 Dispatch Robot → Table ${table}</button>`;
+      const dispatchDisabled = !window._pythonOnline;
+      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})" ${dispatchDisabled ? 'disabled style="opacity:0.4;pointer-events:none;" title=\'Robot server offline — start the Python script first\'' : ''}>🤖 Dispatch Robot → Table ${table}</button>`;
     } else {
       colId='kitch-col-ready'; ticketClass='order-ticket order-ticket-sent';
-      actionHtml=`<button class="ticket-action ticket-action-status" id="action-${ref}">⬡ ${status==='delivering'?'Robot Delivering...':'Robot Dispatched'}</button>`;
+      actionHtml=`<button class="ticket-action ticket-action-prep" id="action-${ref}" data-dispatch="true" onclick="dispatchRobot('${ref}',${table})" style="font-size:10px;">🔄 RE-DISPATCH ROBOT → Table ${table}</button>`;
     }
  
     const card = document.createElement('div');
@@ -2086,6 +2175,7 @@ function startKitchenRobotPolling() {
   const ROBOT_URL = 'http://localhost:5000';
  
   async function dispatchRobot(ref, tableNum) {
+    if (!window._pythonOnline) { showToast('✗ Robot server offline — start the Python script first'); return; }
     if (robotBusy) { showToast('⬡ Robot is busy — wait for it to return to dock'); return; }
     const btn = document.getElementById('action-' + ref);
     if (btn) { btn.disabled=true; btn.textContent='⬡ Dispatching...'; btn.className='ticket-action ticket-action-status'; }
@@ -2442,7 +2532,6 @@ function getKitchenPrediction(ref) {
     }
 }
  /* ── WEBSOCKET SYNC ─────────────────────────────────── */
-let _socket = null;
 function connectSocket(room) {
   if (_socket && _socket.connected) {
     _socket.emit('join', room);
@@ -2465,7 +2554,7 @@ function connectSocket(room) {
     });
 
     _socket.on('staff:online',  (id) => { _onlineStaff.add(id);    loadStaffList(); });
-_socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); });
+    _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); });
 
     _socket.on('reconnect', () => {
       _socket.emit('join', room);
@@ -2473,30 +2562,28 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
     });
 
     _socket.on('order:new', (order) => {
-  if (!document.getElementById('order-' + order.order_ref)) {
-    renderKitchenOrder(order);
-    resortColumns();
-  }
-  addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
-  showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
-  if (currentRole === 'kitchen') {
-    sfxNewOrder();
-    voiceNewOrder(order.order_ref, order.table_number);
-  }
-});
+      if (currentRole === 'kitchen') {
+        if (!document.getElementById('order-' + order.order_ref)) {
+          renderKitchenOrder(order);
+          resortColumns();
+        }
+        sfxNewOrder();
+        voiceNewOrder(order.order_ref, order.table_number);
+      }
+      addActivity('dot-order', `New order <strong>${order.order_ref}</strong> — Table ${order.table_number}`);
+      showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
+    });
 
     _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
+
+      // ── Always update student tracking view ──
       updateSessionOrderStatus(order_ref, status);
-      const existing = kitchenOrders[order_ref];
-      if (existing && existing.status !== status) {
-        if (!_kitchenTransitioning.has(order_ref)) {
-          if (status === 'prep' && prep_started_at) {
-            existing.prep_started_at = prep_started_at;
-          }
-          updateKitchenOrderStatus(order_ref, status, table_number || existing.table);
-        }
-      }
+
+      // ── Delivered: keep card visible until robot docks — loadKitchenOrders handles removal ──
+      if (status === 'delivered') return;
+
+      // ── Cancelled: remove card immediately ──
       if (status === 'cancelled') {
         const card = document.getElementById('order-' + order_ref);
         if (card) {
@@ -2513,6 +2600,18 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
             resortColumns();
           }, 320);
         }
+        return;
+      }
+
+      // ── All other status updates ──
+      const existing = kitchenOrders[order_ref];
+      if (existing && existing.status !== status) {
+        if (!_kitchenTransitioning.has(order_ref)) {
+          if (status === 'prep' && prep_started_at) {
+            existing.prep_started_at = prep_started_at;
+          }
+          updateKitchenOrderStatus(order_ref, status, table_number || existing.table);
+        }
       }
     });
 
@@ -2522,7 +2621,6 @@ _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); 
   };
   document.head.appendChild(script);
 }
- 
   /* ══════════════════════════════════════════════════════════
      MANAGER DASHBOARD
   ══════════════════════════════════════════════════════════ */
