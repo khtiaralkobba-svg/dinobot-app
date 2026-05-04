@@ -2585,7 +2585,24 @@ function connectSocket(room) {
       updateSessionOrderStatus(order_ref, status);
 
       // ── Delivered: keep card visible until robot docks — loadKitchenOrders handles removal ──
-      if (status === 'delivered') return;
+      if (status === 'delivered') {
+        const card = document.getElementById('order-' + order_ref);
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(20px)';
+          setTimeout(() => {
+            card.remove();
+            if (kitchenOrders[order_ref]) {
+              clearInterval(kitchenOrders[order_ref].timerInterval);
+              clearInterval(kitchenOrders[order_ref].waitInterval);
+              delete kitchenOrders[order_ref];
+            }
+              resortColumns();
+          }, 320);
+        }
+        return;
+      }
 
       // ── Cancelled: remove card immediately ──
       if (status === 'cancelled') {
