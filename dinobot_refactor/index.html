@@ -612,19 +612,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     0%  { box-shadow: 0 0 0 2px rgba(239,68,68,0.9), 0 0 60px rgba(239,68,68,0.4); opacity: 1; }
     50% { box-shadow: 0 0 0 3px rgba(239,68,68,0.4), 0 0 20px rgba(239,68,68,0.1); opacity: 0.85; }
   }
- #user-badge {
-  display: none;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255,107,26,0.08);
-  border: 1px solid var(--border-bright);
-  padding: 8px 18px 8px 12px;
-  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
-  flex-shrink: 0;  /* ADD THIS */
-}
-#user-badge.show {
-  display: flex;
-}
+ 
   /* Alert banner */
   #kitchen-alert-bar {
     display: none;
@@ -791,12 +779,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     <li><a href="#" id="nav-home" class="active" onclick="showPage('home'); return false;">Home</a></li>
     <li><a href="#" id="nav-student" onclick="showPage('student'); return false;">Order Now</a></li>
     <li><a href="#" class="nav-cta" id="nav-dashboard" onclick="showPage('dashboard'); return false;">Login →</a></li>
-</ul>
-  <div id="user-badge" style="margin-left:12px;">
-    <span class="ub-icon" id="ub-icon">🤖</span>
-    <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
-    <button class="ub-logout" onclick="doLogout()">⬡ Logout</button>
-  </div>
+  </ul>
 </nav>
  
 <!-- HOME PAGE -->
@@ -927,24 +910,23 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   <span class="cart-bubble-count" id="cart-bubble-count">0</span>
 </div>
 <!-- DASHBOARD PAGE -->
-<div class="dashboard-header">
-  <div>
-    <div class="dash-subtitle">// Staff Authentication</div>
-    <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
-  </div>
-  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-    <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
-    <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
-    <div id="logout-area" style="display:none; align-items:center; gap:12px; margin-top:4px;">
-      <span id="ub-icon" style="font-size:20px;">🤖</span>
+<div id="dashboard" class="page">
+  <div style="position: relative; z-index: 2; padding: 100px 48px 80px;">
+    <div class="dashboard-header">
       <div>
-        <div id="ub-name" style="font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--orange); text-transform:uppercase;">—</div>
-        <div id="ub-role" style="font-size:11px; color:var(--text-dim); letter-spacing:1px;">—</div>
+        <div class="dash-subtitle">// Staff Authentication</div>
+        <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
       </div>
-      <button onclick="doLogout()" style="background:none; border:1px solid var(--border-bright); color:var(--text); font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; padding:6px 14px; cursor:pointer; clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">⬡ Logout</button>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+        <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
+        <div id="user-badge">
+          <span class="ub-icon" id="ub-icon">🤖</span>
+          <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
+          <button class="ub-logout" onclick="doLogout()">⬡ Logout</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
     <div id="auth-gate">
       <div class="auth-box">
         <div class="auth-select-label">Select Your Role</div>
@@ -1346,8 +1328,7 @@ let announcedOrders = new Set();
       document.getElementById('ub-icon').textContent = r.icon;
       document.getElementById('ub-name').textContent = ((data.user?.fullName || data.user?.full_name || r.label) + '').toUpperCase();
       document.getElementById('ub-role').textContent = serverRole;
-      const la = document.getElementById('logout-area');
-      if (la) la.style.display = 'flex';
+      document.getElementById('user-badge').classList.add('show');
       showToast('⬡ Welcome — Access granted');
       // Unlock audio immediately on login
 const ctx = getAudioCtx();
@@ -1391,8 +1372,7 @@ if (window.speechSynthesis) {
     document.getElementById('auth-gate').classList.remove('hidden');
     document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
     document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('show'));
-    const la = document.getElementById('logout-area');
-    if (la) la.style.display = 'none';
+    document.getElementById('user-badge').classList.remove('show');
     currentRole = null;
     showToast('⬡ Logged out');
 }
