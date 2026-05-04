@@ -1231,7 +1231,7 @@ let announcedOrders = new Set();
   try {
     const res = await fetch(API_BASE + '/api/orders/all', {
   headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
+    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
   }
 });
 const data = await res.json();
@@ -1265,7 +1265,7 @@ const orders = data.orders || [];
     animateCounter('counter-2', avgDelivery || 0, 800);
     animateCounter('counter-3', tablesServed || 0, 1000);
 
-  } catch {
+  }catch {
     // Fallback to zeros if API unreachable
     animateCounter('counter-1', 0, 800);
     animateCounter('counter-2', 0, 800);
