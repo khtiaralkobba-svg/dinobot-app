@@ -1424,7 +1424,8 @@ if (window.speechSynthesis) {
       // ── Remove cancelled cards only — never remove dispatched/delivered while robot is busy ──
       Object.keys(kitchenOrders).forEach(ref => {
         const still = incoming.find(o => o.order_ref === ref);
-        const shouldRemove = !still || still.status === 'cancelled';
+        const isActiveOnRobot = kitchenOrders[ref] && ['dispatched','delivering'].includes(kitchenOrders[ref].status);
+        const shouldRemove = (!still || still.status === 'cancelled') && !isActiveOnRobot;
         if (shouldRemove) {
           const card = document.getElementById('order-' + ref);
           if (card) {
@@ -1445,9 +1446,10 @@ if (window.speechSynthesis) {
 
         // Keep delivered cards visible until robot is back at dock
         if (order.status === 'delivered') {
-          const card = document.getElementById('order-' + order.order_ref);
-          if (card && !robotBusy) {
-            // Robot is back — now safe to fade out the card
+          // Only remove if robot is confirmed back at dock
+          if (!robotBusy) {
+            const card = document.getElementById('order-' + order.order_ref);
+            if (card) {
             card.style.transition = 'opacity 0.4s, transform 0.4s';
             card.style.opacity = '0';
             card.style.transform = 'translateX(20px)';
@@ -1461,8 +1463,14 @@ if (window.speechSynthesis) {
               resortColumns();
             }, 420);
           }
-          return;
+        } else {
+          // Robot still busy — update local status so card shows correct state but don't remove
+          if (kitchenOrders[order.order_ref]) {
+            kitchenOrders[order.order_ref].status = 'delivered';
+          }
         }
+        return;
+      }
 
         const existing = kitchenOrders[order.order_ref];
         if (!existing) {
@@ -2008,7 +2016,10 @@ function startKitchenRobotPolling() {
       const colId = newStatus === 'prep' ? 'kitch-col-prep' :
                     ['ready','dispatched','delivering'].includes(newStatus) ? 'kitch-col-ready' :
                     'kitch-col-new';
-      document.getElementById(colId).appendChild(card);
+      const targetCol = document.getElementById(colId);
+      if (card.parentElement !== targetCol) {
+        targetCol.appendChild(card);
+      }
  
       if (newStatus === 'prep' && order.prep_started_at) {
         restartTimerFromServer(ref);
@@ -2259,9 +2270,9 @@ function startKitchenRobotPolling() {
 }
   function cleanupOldReadyOrders() {
     Object.entries(kitchenOrders).forEach(([ref, order]) => {
-        if (['dispatched', 'delivering', 'delivered'].includes(order.status)) {
-            const age = (Date.now() - new Date(order.placed_at).getTime()) / 60000;
-            if (age > 30) { // remove cards older than 30 minutes
+        if (order.status === 'delivered') {
+          const age = (Date.now() - new Date(order.placed_at).getTime()) / 60000;
+          if (age > 30 && !robotBusy) { // remove cards older than 30 minutes
                 const card = document.getElementById('order-' + ref);
                 if (card) {
                     card.style.transition = 'opacity 0.3s';
