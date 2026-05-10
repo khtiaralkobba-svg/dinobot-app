@@ -1078,7 +1078,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
 
       <!-- Analytics Overlay -->
-<div id="analytics-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9500;background:#020b1a;flex-direction:column;overflow:hidden;">
+<div id="analytics-panel" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#020b1a;flex-direction:column;overflow:hidden;">
   <!-- Top bar -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid rgba(96,165,250,0.2);flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:12px;">
@@ -1090,7 +1090,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 
   <!-- Body -->
   <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:0;">
-    <div class="analytics-grid">
       <div class="analytics-card ac-blue">
         <div class="ac-label">Avg Prep Time</div>
         <div class="ac-value blue" id="an-avg-prep">—</div>
@@ -1203,9 +1202,15 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   function openAnalyticsOverlay() {
   const el = document.getElementById('analytics-panel');
   el.style.display = 'flex';
+  el.style.position = 'fixed';
+  el.style.top = '0';
+  el.style.left = '0';
   el.style.width = '100vw';
   el.style.height = '100vh';
   el.style.zIndex = '99999';
+  el.style.background = '#020b1a';
+  el.style.flexDirection = 'column';
+  el.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
   loadAnalyticsFromDB();
 }
