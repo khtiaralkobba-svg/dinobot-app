@@ -975,24 +975,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     </div>
  
     <!-- MANAGER CONTROL CENTER -->
-    <div id="control-center">
-      <div class="cc-layer cc-layer-critical">
-        <div class="cc-layer-tag">🟥 CRITICAL</div>
-        <div style="display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center;">
-          <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
-            <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
-          </button>
-          <div style="text-align:center; min-width:200px;">
-            <div class="layer-sublabel" style="color:rgba(239,68,68,0.5); margin-bottom:10px;">UNIT-01 STATE</div>
-            <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
-            <div style="margin-top:12px;">
-              <div class="layer-sublabel" style="color:rgba(239,68,68,0.4); margin-bottom:6px;">DESTINATION</div>
-              <span class="dest-script" id="dest-label">—</span>
-            </div>
-          </div>
-        </div>
-        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
-      </div>
       <div class="cc-layer cc-layer-operational">
         <div class="cc-layer-tag">🟧 OPERATIONAL</div>
       </div>
@@ -4548,6 +4530,23 @@ function openCartFromAnywhere() {
           <button class="dispatch-btn" onclick="dispatch(6);syncOverlayState()">Table 6</button>
           <button class="dispatch-btn" onclick="dispatch(7);syncOverlayState()">Table 7</button>
           <button class="dispatch-btn" onclick="dispatch(8);syncOverlayState()">Table 8</button>
+        </div>
+      </div>
+
+      <!-- Critical -->
+      <div style="padding:20px;border-bottom:1px solid rgba(239,68,68,0.2);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,transparent 60%);">
+        <div class="op-section-title" style="color:rgba(239,68,68,0.7);border-color:rgba(239,68,68,0.14);">⬡ Critical</div>
+        <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="font-size:16px;letter-spacing:4px;padding:16px;">
+          <span class="estop-icon">🛑</span> EMERGENCY STOP <span class="estop-icon">🛑</span>
+        </button>
+        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
+        <div style="margin-top:16px;text-align:center;">
+          <div class="layer-sublabel" style="color:rgba(239,68,68,0.5);margin-bottom:8px;">UNIT-01 STATE</div>
+          <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
+          <div style="margin-top:10px;">
+            <div class="layer-sublabel" style="color:rgba(239,68,68,0.4);margin-bottom:4px;">DESTINATION</div>
+            <span class="dest-script" id="dest-label">—</span>
+          </div>
         </div>
       </div>
 
