@@ -3019,7 +3019,7 @@ function connectSocket(room) {
  
 function initMap() {
     const container=document.getElementById('map-container'); 
-    const canvas=document.getElementById('liveMap'); 
+    const canvas=document.getElementById('overlayMap'); 
     if (!canvas||!container) return;
     canvas.width=container.offsetWidth||500; 
     canvas.height=container.offsetHeight||350;
@@ -3160,7 +3160,7 @@ function initMap() {
     }, 150);
   }
   function animateMap() {
-    const canvas=document.getElementById('liveMap'); if (!canvas) return;
+    const canvas = document.getElementById('overlayMap'); if (!canvas) return;
     const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
     if (!paused&&!eStopActive) {
       const dx=targetX-robotX,dy=targetY-robotY,dist=Math.sqrt(dx*dx+dy*dy);
@@ -4512,95 +4512,116 @@ function openCartFromAnywhere() {
     </div>
   </div>
 
-  <!-- Body -->
-  <div style="display:grid;grid-template-columns:1fr 300px;flex:1;min-height:0;">
+ <!-- Body -->
+<div style="display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;padding:24px;gap:16px;">
 
-    <!-- Map -->
-<div style="position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);">
-  <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-
-  <!-- Manual Override floating panel inside map -->
-  <div style="position:absolute;bottom:16px;left:16px;z-index:10;background:rgba(4,16,40,0.92);border:1px solid rgba(255,107,26,0.3);padding:14px 16px;min-width:200px;">
-    <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()" style="width:100%;margin-bottom:10px;">⬡ ENABLE MANUAL CONTROL</button>
-    <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
-      <div class="dpad-row">
-        <div class="dpad-center"></div>
-        <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
-        <div class="dpad-center"></div>
-      </div>
-      <div class="dpad-row">
-        <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
-        <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
-        <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
-      </div>
-      <div class="dpad-row">
-        <div class="dpad-center"></div>
-        <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
-        <div class="dpad-center"></div>
-      </div>
-      <div class="manual-speed-wrap" style="width:100%;max-width:180px;margin-top:8px;">
-        <span>SPEED</span>
-        <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
-        <span id="manual-speed-label">×2</span>
-      </div>
-      <div class="manual-kbd-hint">W A S D / arrow keys</div>
-    </div>
-  </div>
-</div>
-
-    <!-- Sidebar -->
-    <div style="display:flex;flex-direction:column;overflow-y:auto;background:#061422;">
-
-      <!-- Dispatch -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Dispatch to Table</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-          <button class="dispatch-btn" onclick="dispatch(1);syncOverlayState()">Table 1</button>
-          <button class="dispatch-btn" onclick="dispatch(2);syncOverlayState()">Table 2</button>
-          <button class="dispatch-btn" onclick="dispatch(3);syncOverlayState()">Table 3</button>
-          <button class="dispatch-btn" onclick="dispatch(4);syncOverlayState()">Table 4</button>
-          <button class="dispatch-btn" onclick="dispatch(5);syncOverlayState()">Table 5</button>
-          <button class="dispatch-btn" onclick="dispatch(6);syncOverlayState()">Table 6</button>
-          <button class="dispatch-btn" onclick="dispatch(7);syncOverlayState()">Table 7</button>
-          <button class="dispatch-btn" onclick="dispatch(8);syncOverlayState()">Table 8</button>
+  <!-- Row 1: Critical (full width) -->
+  <div style="position:relative;padding:24px 28px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);">
+    <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
+      <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
+        <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
+      </button>
+      <div style="text-align:center;min-width:200px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(239,68,68,0.5);margin-bottom:10px;">UNIT-01 STATE</div>
+        <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
+        <div style="margin-top:12px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(239,68,68,0.4);margin-bottom:6px;">DESTINATION</div>
+          <span class="dest-script" id="dest-label">—</span>
         </div>
       </div>
+    </div>
+    <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
+  </div>
 
-      <!-- Critical -->
-      <div style="padding:20px;border-bottom:1px solid rgba(239,68,68,0.2);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,transparent 60%);">
-        <div class="op-section-title" style="color:rgba(239,68,68,0.7);border-color:rgba(239,68,68,0.14);">⬡ Critical</div>
-        <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="font-size:16px;letter-spacing:4px;padding:16px;">
-          <span class="estop-icon">🛑</span> EMERGENCY STOP <span class="estop-icon">🛑</span>
-        </button>
-        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
-        <div style="margin-top:16px;text-align:center;">
-          <div class="layer-sublabel" style="color:rgba(239,68,68,0.5);margin-bottom:8px;">UNIT-01 STATE</div>
-          <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
-          <div style="margin-top:10px;">
-            <div class="layer-sublabel" style="color:rgba(239,68,68,0.4);margin-bottom:4px;">DESTINATION</div>
-            <span class="dest-script" id="dest-label">—</span>
+  <!-- Row 2: Operational — dispatch + unit control LEFT, map + manual RIGHT -->
+  <div style="position:relative;padding:24px 28px;border:1px solid rgba(255,107,26,0.16);background:linear-gradient(135deg,rgba(255,107,26,0.04) 0%,rgba(2,8,26,0.6) 70%);">
+    <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(255,107,26,0.6);border:1px solid rgba(255,107,26,0.18);">🟧 OPERATIONAL</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+      <!-- Dispatch -->
+      <div>
+        <div class="op-section-title">⬡ Dispatch to Table</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+          <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
+          <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
+          <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
+          <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
+          <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
+          <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
+          <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
+          <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
+        </div>
+      </div>
+      <!-- Unit Control + Telemetry -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="op-section-title">⬡ Unit Control</div>
+        <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
+        <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
+        <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;">⬡ RESET STUCK ORDERS</button>
+        <div class="telem-box">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,107,26,0.4);margin-bottom:10px;">TELEMETRY</div>
+          <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
+          <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
+          <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map + Manual side by side -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:stretch;">
+      <!-- Live Map -->
+      <div style="display:flex;flex-direction:column;">
+        <div class="op-section-title">⬡ Live Floor Map</div>
+        <div id="map-container" style="position:relative;flex:1;min-height:320px;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
+          <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+        </div>
+      </div>
+      <!-- Manual Override -->
+      <div style="display:flex;flex-direction:column;">
+        <div class="op-section-title">⬡ Manual Override</div>
+        <div style="flex:1;display:flex;flex-direction:column;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:20px;gap:16px;">
+          <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
+          <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;justify-content:center;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
+            <div class="dpad-row">
+              <div class="dpad-center"></div>
+              <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
+              <div class="dpad-center"></div>
+            </div>
+            <div class="dpad-row">
+              <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
+              <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
+              <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
+            </div>
+            <div class="dpad-row">
+              <div class="dpad-center"></div>
+              <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
+              <div class="dpad-center"></div>
+            </div>
+            <div class="manual-speed-wrap" style="width:100%;max-width:200px;">
+              <span>SPEED</span>
+              <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
+              <span id="manual-speed-label">×2</span>
+            </div>
+            <div class="manual-kbd-hint">W A S D / arrow keys</div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Unit Control -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Unit Control</div>
-        <button onclick="recallUnit()" class="op-btn op-btn-blue" style="margin-bottom:8px;">⬡ RECALL TO DOCK</button>
-        <button id="ov-pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
+  <!-- Row 3: Monitoring -->
+  <div style="position:relative;padding:24px 28px;border:1px solid rgba(96,165,250,0.09);background:linear-gradient(135deg,rgba(96,165,250,0.02) 0%,rgba(2,8,26,0.5) 100%);">
+    <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(96,165,250,0.4);border:1px solid rgba(96,165,250,0.1);">🟦 MONITORING</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+      <div>
+        <div class="mon-section-title">⬡ Activity Feed</div>
+        <div id="activityFeed" style="max-height:200px;overflow-y:auto;">
+          <div class="activity-item new"><div class="activity-dot dot-system"></div><div><div class="activity-msg">System <strong>initialized</strong></div><div class="activity-time">TODAY 08:00:00</div></div></div>
+        </div>
       </div>
-
-      <!-- Telemetry -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Telemetry</div>
-        <div class="metric"><div class="metric-header"><span>Battery</span><span id="ov-bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="ov-bat-bar" style="width:78%"></div></div></div>
-        <div class="metric"><div class="metric-header"><span>Speed</span><span id="ov-speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="ov-speed-bar" style="width:0%"></div></div></div>
-        <div class="metric"><div class="metric-header"><span>Load</span><span id="ov-load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="ov-load-bar" style="width:0%"></div></div></div>
-      </div>
-
-      <!-- Legend -->
-      <div style="padding:20px;">
-        <div class="op-section-title">⬡ Map Legend</div>
+      <div>
+        <div class="mon-section-title">⬡ Map Legend</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span> UNIT-01 Robot</div>
           <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span> Dock Station</div>
@@ -4608,9 +4629,9 @@ function openCartFromAnywhere() {
           <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span> Active Target</div>
         </div>
       </div>
-
     </div>
   </div>
+
 </div>
 </body>
 </html>
