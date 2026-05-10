@@ -1926,7 +1926,7 @@ function startKitchenRobotPolling() {
             }
 
             // Always sync dispatch buttons on every tick
-            const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+            const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING', 'RETURNING', 'RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
             robotBusy = isNowBusy;
             document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
                 btn.disabled = isNowBusy;
@@ -2884,7 +2884,8 @@ function initMap() {
         const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
         if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
         if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
-        const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
+        // Robot is busy until it's fully back at dock
+        const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING', 'RETURNING', 'RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
         if (isRobotBusy !== robotBusy) {
           robotBusy = isRobotBusy;
           setAllDispatchButtons(!isRobotBusy);
