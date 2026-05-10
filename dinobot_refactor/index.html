@@ -4534,111 +4534,97 @@ function openCartFromAnywhere() {
     <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
   </div>
 
-  <!-- Row 2: Main operational area — BIG MAP left, controls right -->
-  <div style="position:relative;padding:20px 24px;border:1px solid rgba(255,107,26,0.16);background:linear-gradient(135deg,rgba(255,107,26,0.04) 0%,rgba(2,8,26,0.6) 70%);flex:1;">
-    <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(255,107,26,0.6);border:1px solid rgba(255,107,26,0.18);">🟧 OPERATIONAL</div>
-
-    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;height:100%;align-items:start;direction:rtl;">
-
-      <!-- RIGHT: All controls stacked -->
-      <div style="display:flex;flex-direction:column;gap:10px;height:100%;direction:ltr;">
-        <div class="op-section-title">⬡ Live Floor Map</div>
-        <div id="map-container" style="position:relative;height:72vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
-          <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <!-- Top controls: Dispatch + Unit Control + Telemetry -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+      
+      <!-- Dispatch -->
+      <div>
+        <div class="op-section-title">⬡ Dispatch</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
+          <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
+          <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
+          <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
+          <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
+          <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
+          <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
+          <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
         </div>
       </div>
 
-      <!-- RIGHT: All controls stacked -->
-      <div style="display:flex;flex-direction:column;gap:10px;height:100%;">
-
-        <!-- Dispatch -->
-        <div>
-          <div class="op-section-title">⬡ Dispatch</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-            <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
-            <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
-            <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
-            <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
-            <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
-            <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
-            <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
-            <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
-          </div>
+      <!-- Unit Control -->
+      <div>
+        <div class="op-section-title">⬡ Unit Control</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
+          <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
+          <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
         </div>
+      </div>
 
-        <!-- Unit Control -->
-        <div>
-          <div class="op-section-title">⬡ Unit Control</div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
-            <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-            <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
-          </div>
-        </div>
-
-        <!-- Telemetry -->
+      <!-- Telemetry -->
+      <div>
+        <div class="op-section-title">⬡ Telemetry</div>
         <div class="telem-box">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,107,26,0.4);margin-bottom:8px;">TELEMETRY</div>
           <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
           <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
           <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
         </div>
-
-        <!-- Manual Override -->
-        <div>
-          <div class="op-section-title">⬡ Manual Override</div>
-          <div style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
-            <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
-            <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
-              <div class="dpad-row">
-                <div class="dpad-center"></div>
-                <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
-                <div class="dpad-center"></div>
-              </div>
-              <div class="dpad-row">
-                <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
-                <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
-                <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
-              </div>
-              <div class="dpad-row">
-                <div class="dpad-center"></div>
-                <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
-                <div class="dpad-center"></div>
-              </div>
-              <div class="manual-speed-wrap" style="width:100%;max-width:180px;">
-                <span>SPD</span>
-                <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
-                <span id="manual-speed-label">×2</span>
-              </div>
-              <div class="manual-kbd-hint">W A S D / arrows</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity Feed -->
-        <div style="flex:1;">
-          <div class="mon-section-title">⬡ Activity Feed</div>
-          <div id="activityFeed" style="max-height:160px;overflow-y:auto;">
-            <div class="activity-item new"><div class="activity-dot dot-system"></div><div><div class="activity-msg">System <strong>initialized</strong></div><div class="activity-time">TODAY 08:00:00</div></div></div>
-          </div>
-        </div>
-
-        <!-- Legend -->
-        <div>
-          <div class="mon-section-title">⬡ Legend</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span>UNIT-01</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span>Dock</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span>Table</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span>Target</div>
-          </div>
-        </div>
-
       </div>
     </div>
-  </div>
 
-</div>
-</div>
+    <!-- Bottom: Big Map + Manual Override side by side -->
+    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;">
+
+      <!-- Map -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="op-section-title">⬡ Live Floor Map</div>
+        <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
+          <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+        </div>
+      </div>
+
+      <!-- Manual Override + Activity + Legend -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="op-section-title">⬡ Manual Override</div>
+        <div style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
+          <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
+          <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
+            <div class="dpad-row">
+              <div class="dpad-center"></div>
+              <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
+              <div class="dpad-center"></div>
+            </div>
+            <div class="dpad-row">
+              <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
+              <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
+              <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
+            </div>
+            <div class="dpad-row">
+              <div class="dpad-center"></div>
+              <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
+              <div class="dpad-center"></div>
+            </div>
+            <div class="manual-speed-wrap" style="width:100%;max-width:180px;">
+              <span>SPD</span>
+              <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
+              <span id="manual-speed-label">×2</span>
+            </div>
+            <div class="manual-kbd-hint">W A S D / arrows</div>
+          </div>
+        </div>
+        <div class="mon-section-title" style="margin-top:8px;">⬡ Activity Feed</div>
+        <div id="activityFeed" style="max-height:200px;overflow-y:auto;">
+          <div class="activity-item new"><div class="activity-dot dot-system"></div><div><div class="activity-msg">System <strong>initialized</strong></div><div class="activity-time">TODAY 08:00:00</div></div></div>
+        </div>
+        <div class="mon-section-title">⬡ Legend</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span>UNIT-01</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span>Dock</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span>Table</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span>Target</div>
+        </div>
+      </div>
+    </div>
 </body>
 </html>
