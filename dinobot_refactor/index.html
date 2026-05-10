@@ -932,15 +932,16 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
 <!-- DASHBOARD PAGE -->
 <div id="dashboard" class="page">
-  <div style="position: relative; z-index: 2; padding: 100px 48px 80px;">
-    <div class="dashboard-header">
+  <!-- Hero Banner -->
+  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);margin-bottom:0;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
         <div class="dash-subtitle">// Staff Authentication</div>
         <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
       </div>
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
         <div class="system-status"><div class="status-led"></div> ALL SYSTEMS OPERATIONAL</div>
-        <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px;" id="clock">--:--:--</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;" id="clock">--:--:--</div>
         <div id="user-badge">
           <span class="ub-icon" id="ub-icon">🤖</span>
           <div><div class="ub-name" id="ub-name">—</div><div class="ub-role" id="ub-role">—</div></div>
@@ -948,6 +949,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         </div>
       </div>
     </div>
+  </div>
+  <!-- Content below banner -->
+  <div style="position:relative;z-index:2;padding:48px 48px 80px;">
     <div id="auth-gate">
       <div class="auth-box">
         <div class="auth-select-label">Select Your Role</div>
@@ -1135,6 +1139,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         <div class="krb-cell"><span class="krb-label">ETA</span><span class="krb-val" id="kitch-robot-eta">—</span></div>
         <div class="krb-readonly">👁 Read Only</div>
       </div>
+  
       <!-- ALERT BAR -->
       <div id="kitchen-alert-bar" class="level-warn">
         <span class="alert-bar-icon" id="alert-bar-icon">⚠</span>
@@ -1171,7 +1176,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     </div>
   </div>
 </div>
- 
 <script>
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
