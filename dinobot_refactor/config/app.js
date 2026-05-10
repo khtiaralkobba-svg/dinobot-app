@@ -31,3 +31,7 @@ module.exports = {
     apiKey: process.env.GROQ_API_KEY
   }
 };
+
+robot: {
+  secret: process.env.ROBOT_SECRET || 'dinobot-robot-secret-dev'
+}

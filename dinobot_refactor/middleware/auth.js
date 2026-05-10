@@ -14,7 +14,6 @@ function authenticateToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, appConfig.jwt.secret);
-
     req.user = {
       id: decoded.sub,
       employeeId: decoded.employeeId,
@@ -22,7 +21,6 @@ function authenticateToken(req, res, next) {
       fullName: decoded.fullName,
       station: decoded.station
     };
-
     next();
   } catch (err) {
     return res.status(401).json({
@@ -32,4 +30,41 @@ function authenticateToken(req, res, next) {
   }
 }
 
-module.exports = { authenticateToken };
+function authenticateTokenOrRobot(req, res, next) {
+  // Check robot secret header first
+  const robotSecret = req.headers['x-robot-secret'];
+  if (robotSecret && robotSecret === appConfig.robot.secret) {
+    req.user = { role: 'robot', employeeId: 'UNIT-01' };
+    return next();
+  }
+
+  // Fall back to normal JWT
+  const authHeader = req.headers.authorization || '';
+  const [scheme, token] = authHeader.split(' ');
+
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(401).json({
+      success: false,
+      error: 'Missing or invalid authorization token'
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, appConfig.jwt.secret);
+    req.user = {
+      id: decoded.sub,
+      employeeId: decoded.employeeId,
+      role: decoded.role,
+      fullName: decoded.fullName,
+      station: decoded.station
+    };
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      error: 'Token expired or invalid'
+    });
+  }
+}
+
+module.exports = { authenticateToken, authenticateTokenOrRobot };

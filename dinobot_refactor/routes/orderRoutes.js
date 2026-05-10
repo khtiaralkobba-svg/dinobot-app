@@ -11,7 +11,7 @@ const {
 } = require('../controllers/orderController');
 
 // Middleware
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, authenticateTokenOrRobot } = require('../middleware/auth');
 const { authorizeRoles } = require('../middleware/authorize');
 const validate = require('../middleware/validate');
 
@@ -113,6 +113,11 @@ router.patch('/:orderRef/cancel', cancelOrder);
 //    - all other statuses = require kitchen/manager auth
 router.patch('/:orderRef/status', async (req, res, next) => {
   const { status } = req.body;
+
+    // ← ADD THIS TEMPORARILY
+  console.log('[AUTH] x-robot-secret:', req.headers['x-robot-secret']);
+  console.log('[AUTH] ROBOT_SECRET env:', process.env.ROBOT_SECRET);
+  console.log('[AUTH] match:', req.headers['x-robot-secret'] === process.env.ROBOT_SECRET);
 
   // Allow robot with secret key
   if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
