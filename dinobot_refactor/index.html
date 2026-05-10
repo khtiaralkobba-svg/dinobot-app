@@ -4538,10 +4538,10 @@ function openCartFromAnywhere() {
   <div style="position:relative;padding:20px 24px;border:1px solid rgba(255,107,26,0.16);background:linear-gradient(135deg,rgba(255,107,26,0.04) 0%,rgba(2,8,26,0.6) 70%);flex:1;">
     <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(255,107,26,0.6);border:1px solid rgba(255,107,26,0.18);">🟧 OPERATIONAL</div>
 
-    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;height:100%;align-items:start;">
+    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;height:100%;align-items:start;direction:rtl;">
 
-      <!-- LEFT: Big Map -->
-      <div style="display:flex;flex-direction:column;gap:10px;">
+      <!-- RIGHT: All controls stacked -->
+      <div style="display:flex;flex-direction:column;gap:10px;height:100%;direction:ltr;">
         <div class="op-section-title">⬡ Live Floor Map</div>
         <div id="map-container" style="position:relative;height:72vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
           <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
