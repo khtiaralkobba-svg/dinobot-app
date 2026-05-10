@@ -1027,12 +1027,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 <!-- Staff Management Overlay -->
 <div id="staff-overlay" style="display:none;position:fixed;inset:0;z-index:6000;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow:hidden;">
   <!-- Top bar -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid var(--border);flex-shrink:0;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid rgba(192,132,252,0.2);flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:36px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;font-weight:900;">🗺️</div>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;">DINOBOT — <span style="color:var(--orange);">LIVE FLOOR MAP</span></span>
+      <div style="width:32px;height:36px;background:#C084FC;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:14px;">👥</div>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;">DINOBOT — <span style="color:#C084FC;">STAFF MANAGEMENT</span></span>
     </div>
-    <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+    <button onclick="closeStaffOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
   </div>
 
   <!-- Body -->
