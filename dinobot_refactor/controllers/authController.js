@@ -165,7 +165,7 @@ async function updateStaffStatus(req, res) {
     return res.json({
       success: true,
       message: disabled ? 'Account disabled' : 'Account enabled',
-      user: { id: data.id, employeeId: data.employee_id, is_disabled: data.is_disabled }
+      user: { id: dafta.id, employeeId: data.employee_id, is_disabled: data.is_disabled }
     });
   } catch (err) {
     console.error('Update staff status error:', err);
