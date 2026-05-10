@@ -1624,6 +1624,7 @@ let announcedOrders = new Set();
       if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
       document.getElementById('auth-gate').classList.add('hidden');
       document.getElementById('dashboard-hero-title').style.display = 'none';
+      document.getElementById('dashboard-hero-row').style.justifyContent = 'flex-end';
       document.getElementById('control-center').classList.remove('unlocked');
       document.getElementById('kitchen-center').classList.remove('unlocked');
       if (serverRole === 'manager') {
@@ -1689,6 +1690,7 @@ if (window.speechSynthesis) {
     document.getElementById('kitchen-center').classList.remove('unlocked');
     document.getElementById('auth-gate').classList.remove('hidden');
     document.getElementById('dashboard-hero-title').style.display = '';
+    document.getElementById('dashboard-hero-row').style.justifyContent = 'space-between';
     document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
     document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('show'));
     document.getElementById('user-badge').classList.remove('show');
@@ -4565,7 +4567,7 @@ function openCartFromAnywhere() {
 <div id="map-overlay">
   <!-- Top bar -->
   <div style="position:relative;z-index:2;padding:40px 48px 30px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);flex-shrink:0;">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+    <div id="dashboard-hero-row" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Operational Control</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">LIVE <span style="color:var(--orange);">FLOOR MAP</span></div>
