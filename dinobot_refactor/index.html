@@ -6,6 +6,13 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  #analytics-panel {
+  isolation: isolate;
+}
+#analytics-panel, #staff-overlay, #map-overlay {
+  isolation: isolate;
+  background: #020b1a !important;
+}
   #map-overlay {
   display: none;
   position: fixed;
@@ -1130,7 +1137,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   </div>
 </div>
 
-<div class="cc-layer cc-layer-monitoring">
+<div class="cc-layer cc-layer-monitoring" id="monitoring-layer">
   <div class="cc-layer-tag">🟦 MONITORING</div>
   <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
     <div>
@@ -1212,12 +1219,15 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   el.style.flexDirection = 'column';
   el.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
+  document.getElementById('monitoring-layer')?.style.setProperty('display','none');
   loadAnalyticsFromDB();
 }
+
 function closeAnalyticsOverlay() {
   const el = document.getElementById('analytics-panel');
   el.style.display = 'none';
   document.body.style.overflow = '';
+  document.getElementById('monitoring-layer')?.style.setProperty('display','block');
 }
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
