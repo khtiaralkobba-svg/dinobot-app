@@ -18,8 +18,12 @@
   background: #020b1a;
   flex-direction: column;
   animation: overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+  overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 #map-overlay.open { display: flex; }
+#map-overlay::-webkit-scrollbar { display: none; }
 @keyframes overlayIn {
   from { opacity: 0; transform: translateY(32px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -4563,10 +4567,6 @@ function openCartFromAnywhere() {
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Operational Control</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">LIVE <span style="color:var(--orange);">FLOOR MAP</span></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
-        <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> UNIT-01 ONLINE</div>
-        <div id="ov-state-badge" style="padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#4ADE80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">● DOCKED</div>
       </div>
     </div>
   </div>
