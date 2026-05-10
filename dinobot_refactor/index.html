@@ -6,6 +6,20 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  #map-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: #020b1a;
+  flex-direction: column;
+  animation: overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+#map-overlay.open { display: flex; }
+@keyframes overlayIn {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
   * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -961,77 +975,26 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     </div>
  
     <!-- MANAGER CONTROL CENTER -->
-    <div id="control-center">
-      <div class="cc-layer cc-layer-critical">
-        <div class="cc-layer-tag">🟥 CRITICAL</div>
-        <div style="display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center;">
-          <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
-            <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
-          </button>
-          <div style="text-align:center; min-width:200px;">
-            <div class="layer-sublabel" style="color:rgba(239,68,68,0.5); margin-bottom:10px;">UNIT-01 STATE</div>
-            <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
-            <div style="margin-top:12px;">
-              <div class="layer-sublabel" style="color:rgba(239,68,68,0.4); margin-bottom:6px;">DESTINATION</div>
-              <span class="dest-script" id="dest-label">—</span>
-            </div>
-          </div>
-        </div>
-        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
-      </div>
       <div class="cc-layer cc-layer-operational">
         <div class="cc-layer-tag">🟧 OPERATIONAL</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; margin-bottom:20px;">
-          <div>
-            <div class="op-section-title">⬡ Dispatch to Table</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;" id="table-btns">
-              <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
-              <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
-              <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
-              <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
-              <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
-              <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
-              <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
-              <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
-            </div>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <div class="op-section-title">⬡ Unit Control</div>
-            <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
-            <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-            <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); color:#ef4444; margin-top:8px;">⬡ RESET STUCK ORDERS</button>
-            <div class="telem-box">
-              <div class="layer-sublabel" style="color:rgba(255,107,26,0.4); margin-bottom:10px;">TELEMETRY</div>
-              <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
-              <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
-              <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
-            </div>
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:stretch;">
-          <div style="display:flex; flex-direction:column;">
-            <div class="op-section-title">⬡ Live Floor Map</div>
-            <div id="map-container" style="position:relative; flex:1; min-height:320px; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); overflow:hidden;">
-              <canvas id="liveMap" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
-            </div>
-          </div>
-          <div style="display:flex; flex-direction:column;">
-            <div class="op-section-title">⬡ Manual Override</div>
-            <div style="flex:1; display:flex; flex-direction:column; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); padding:20px; gap:16px;">
-              <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
-              <div id="dpad" style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; justify-content:center; opacity:0.35; pointer-events:none; transition:opacity 0.3s;">
-                <div class="dpad-row"><div class="dpad-center"></div><button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button><div class="dpad-center"></div></div>
-                <div class="dpad-row"><button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button><button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); color:#ef4444; font-size:13px; font-family:'Share Tech Mono',monospace;">STOP</button><button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button></div>
-                <div class="dpad-row"><div class="dpad-center"></div><button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button><div class="dpad-center"></div></div>
-                <div class="manual-speed-wrap" style="width:100%; max-width:200px;"><span>SPEED</span><input type="range" id="manual-speed" min="1" max="5" value="2"><span id="manual-speed-label">×2</span></div>
-                <div class="manual-kbd-hint">W A S D / arrow keys</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- ANALYTICS PANEL -->
        <!-- STAFF MANAGEMENT PANEL -->
+        <button onclick="openMapOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)';this.querySelector('.btn-glow').style.opacity='1';" onmouseout="this.style.borderColor='var(--border)';this.querySelector('.btn-glow').style.opacity='0';">
+  <div class="btn-glow" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,107,26,0.04),transparent);opacity:0;transition:opacity 0.3s;pointer-events:none;"></div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div style="width:48px;height:54px;background:rgba(5,22,65,0.6);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid var(--border-bright);flex-shrink:0;transition:all 0.25s;">🗺️</div>
+    <div style="text-align:left;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">⬡ Operational Control</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);line-height:1;">LIVE FLOOR MAP</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">Dispatch · Manual Control · Telemetry · E-Stop</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">Open</div>
+    <div style="width:36px;height:36px;background:rgba(255,107,26,0.1);border:1px solid var(--border-bright);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:var(--orange);font-size:14px;">→</div>
+  </div>
+</button>
 <div class="analytics-layer" id="staff-panel" style="border-color:rgba(192,132,252,0.15); background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
   <div class="cc-layer-tag" style="color:rgba(192,132,252,0.6); border-color:rgba(192,132,252,0.15);">👥 STAFF MANAGEMENT</div>
 
@@ -1179,6 +1142,286 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
  
 <script>
+  function openMapOverlay() {
+  document.getElementById('map-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => initOverlayMap(), 100);
+  syncOverlayState();
+}
+
+function closeMapOverlay() {
+  const el = document.getElementById('map-overlay');
+  el.style.animation = 'none';
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(32px)';
+  el.style.transition = 'all 0.3s ease';
+  setTimeout(() => {
+    el.classList.remove('open');
+    el.style.animation = '';
+    el.style.opacity = '';
+    el.style.transform = '';
+    el.style.transition = '';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+let overlayMapFrame = null;
+
+function initOverlayMap() {
+  cancelAnimationFrame(overlayMapFrame);
+  const canvas = document.getElementById('overlayMap');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.offsetWidth;
+  canvas.height = wrap.offsetHeight;
+  animateOverlayMap();
+}
+
+function animateOverlayMap() {
+  const canvas = document.getElementById('overlayMap');
+  if (!canvas || !document.getElementById('map-overlay').classList.contains('open')) return;
+  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
+  for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for (let j = 0; j < H; j += 40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
+
+  // Route lines
+  const jx = 0.42*W, jy = 0.5*H;
+  ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
+  ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
+  tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
+  ctx.setLineDash([]);
+
+  // Tables
+  tables.forEach(t => {
+    const tx=t.x*W, ty=t.y*H, isT=currentTarget&&currentTarget.id===t.id;
+    ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
+    ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('T'+t.id, tx, ty+22);
+  });
+
+  // Dock
+  ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
+  ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 9, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('DOCK', dockX*W, dockY*H+22);
+
+  // Robot
+  const rs = 13;
+  ctx.save(); ctx.translate(robotX*W, robotY*H); ctx.rotate(robotAngle);
+  ctx.beginPath();
+  for (let i=0;i<6;i++) { const a=(Math.PI/3)*i-Math.PI/2; i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs); }
+  ctx.closePath();
+  ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=20;
+  ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+
+  syncOverlayState();
+  overlayMapFrame = requestAnimationFrame(animateOverlayMap);
+}
+
+function syncOverlayState() {
+  // Sync telemetry
+  const fields = [['bat-pct','bat-pct'],['bat-bar','bat-bar'],['speed-val','speed-val'],['speed-bar','speed-bar'],['load-val','load-val'],['load-bar','load-bar']];
+  fields.forEach(([src, dst]) => {
+    const s = document.getElementById(src), d = document.getElementById('ov-'+dst);
+    if (s && d) { d.textContent = s.textContent; d.style.width = s.style.width; }
+  });
+  // Sync state badge
+  const srcBadge = document.getElementById('robot-state-badge');
+  const dstBadge = document.getElementById('ov-state-badge');
+  if (srcBadge && dstBadge) { dstBadge.textContent = srcBadge.textContent; dstBadge.style.color = srcBadge.style.color; dstBadge.style.borderColor = srcBadge.style.borderColor; }
+}
+  function openMapPopout() {
+  const tables = [
+    {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
+    {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28},
+  ];
+  const dockX=0.08, dockY=0.5;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>DINOBOT — Live Floor Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--orange:#FF6B1A;--border:rgba(255,107,26,0.18);--border-bright:rgba(255,107,26,0.55);--text:#dce8f8;--text-dim:rgba(180,210,245,0.5);--black:#020b1a;--panel:#061422;}
+  body{background:#020b1a;color:var(--text);font-family:'Rajdhani',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;background:rgba(2,11,32,0.95);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-hex{width:28px;height:31px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:12px;color:#000;font-weight:900;}
+  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;}
+  .logo-text span{color:var(--orange);}
+  .status-dot{width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+  .status-row{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#4ADE80;letter-spacing:2px;}
+  .main{display:grid;grid-template-columns:1fr 280px;gap:0;flex:1;min-height:0;}
+  .map-wrap{position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);}
+  canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .sidebar{display:flex;flex-direction:column;gap:0;overflow-y:auto;background:#061422;}
+  .side-section{padding:18px 20px;border-bottom:1px solid var(--border);}
+  .side-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+  .dispatch-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .dbtn{padding:10px 6px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.18s;}
+  .dbtn:hover{border-color:rgba(255,107,26,0.5);color:var(--orange);}
+  .dbtn.active{border-color:var(--orange);color:#fff;background:linear-gradient(135deg,var(--orange),rgba(255,107,26,0.7));}
+  .dbtn:disabled{opacity:0.35;cursor:not-allowed;}
+  .ctrl-btn{width:100%;padding:12px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;border:1px solid;}
+  .ctrl-blue{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);color:#60A5FA;}
+  .ctrl-blue:hover{background:rgba(96,165,250,0.2);}
+  .ctrl-red{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.4);color:#ef4444;}
+  .ctrl-red:hover{background:rgba(239,68,68,0.18);}
+  .metric{margin-bottom:10px;}
+  .metric-header{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:5px;}
+  .metric-header span:last-child{color:var(--orange);}
+  .metric-bar{height:3px;background:rgba(255,255,255,0.06);}
+  .metric-fill{height:100%;background:linear-gradient(90deg,var(--orange),#FF8C3A);transition:width 1s;}
+  .state-badge{display:inline-block;padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .state-ok{color:#4ADE80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);}
+  .state-warn{color:#FBB924;background:rgba(251,185,36,0.1);border:1px solid rgba(251,185,36,0.4);}
+  .legend-item{display:flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);padding:5px 0;}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='104' viewBox='0 0 60 104'%3E%3Cpolygon points='30,2 58,17 58,47 30,62 2,47 2,17' fill='none' stroke='%23FF6B1A' stroke-width='1'/%3E%3C/svg%3E");background-size:60px 104px;}
+</style>
+</head><body>
+<div class="hex-bg"></div>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-hex">D</div>
+    <span class="logo-text">DINO<span>BOT</span> — LIVE FLOOR MAP</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div class="status-row"><div class="status-dot"></div> UNIT-01 ONLINE</div>
+    <div id="state-badge" class="state-badge state-ok">● DOCKED</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);" id="clock-pop">--:--:--</div>
+  </div>
+</div>
+<div class="main" style="position:relative;z-index:1;">
+  <div class="map-wrap">
+    <canvas id="popMap"></canvas>
+  </div>
+  <div class="sidebar">
+    <div class="side-section">
+      <div class="side-title">⬡ Dispatch to Table</div>
+      <div class="dispatch-grid" id="pop-dispatch-grid">
+        ${[1,2,3,4,5,6,7,8].map(i=>`<button class="dbtn" id="pop-dbtn-${i}" onclick="popDispatch(${i})">Table ${i}</button>`).join('')}
+      </div>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Unit Control</div>
+      <button class="ctrl-btn ctrl-blue" onclick="popRecall()">⬡ RECALL TO DOCK</button>
+      <button class="ctrl-btn ctrl-red" onclick="window.opener?.toggleEStop?.();updateFromParent();" style="font-size:13px;letter-spacing:2px;">🛑 EMERGENCY STOP</button>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Telemetry</div>
+      <div class="metric"><div class="metric-header"><span>Battery</span><span id="pop-bat">78%</span></div><div class="metric-bar"><div class="metric-fill" id="pop-bat-bar" style="width:78%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Speed</span><span id="pop-speed">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="pop-speed-bar" style="width:0%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Load</span><span id="pop-load">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="pop-load-bar" style="width:0%"></div></div></div>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Map Legend</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span>UNIT-01 Robot</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span>Dock Station</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span>Table</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span>Active Target</div>
+    </div>
+  </div>
+</div>
+<script>
+  const tables=${JSON.stringify(tables)};
+  const dockX=${dockX}, dockY=${dockY};
+  let frame, angle=0;
+
+  function cl(){ const n=new Date(); document.getElementById('clock-pop').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':'); }
+  setInterval(cl,1000); cl();
+
+  function updateFromParent(){
+    try {
+      const p = window.opener;
+      if(!p) return;
+      document.getElementById('pop-bat').textContent = p.document.getElementById('bat-pct')?.textContent || '78%';
+      document.getElementById('pop-bat-bar').style.width = p.document.getElementById('bat-bar')?.style.width || '78%';
+      document.getElementById('pop-speed').textContent = p.document.getElementById('speed-val')?.textContent || '0 cm/s';
+      document.getElementById('pop-speed-bar').style.width = p.document.getElementById('speed-bar')?.style.width || '0%';
+      document.getElementById('pop-load').textContent = p.document.getElementById('load-val')?.textContent || 'Empty';
+      document.getElementById('pop-load-bar').style.width = p.document.getElementById('load-bar')?.style.width || '0%';
+      const badge = document.getElementById('state-badge');
+      const parentBadge = p.document.getElementById('robot-state-badge');
+      if(badge && parentBadge){ badge.textContent = parentBadge.textContent; badge.style.color=parentBadge.style.color||''; badge.style.borderColor=parentBadge.style.borderColor||''; }
+      // Sync dispatch button active states
+      tables.forEach(t=>{
+        const pb = p.document.querySelectorAll('.dispatch-btn')[t.id-1];
+        const lb = document.getElementById('pop-dbtn-'+t.id);
+        if(lb) lb.classList.toggle('active', pb?.classList.contains('active')||false);
+      });
+    } catch(e){}
+  }
+  setInterval(updateFromParent, 300);
+
+  function popDispatch(id){
+    try{ window.opener?.dispatch?.(id); }catch(e){}
+    document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('pop-dbtn-'+id)?.classList.add('active');
+  }
+  function popRecall(){
+    try{ window.opener?.recallUnit?.(); }catch(e){}
+    document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));
+  }
+
+  function drawMap(){
+    const canvas=document.getElementById('popMap'); if(!canvas) return;
+    const wrap=canvas.parentElement;
+    canvas.width=wrap.offsetWidth; canvas.height=wrap.offsetHeight;
+    const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height;
+    let rx=dockX, ry=dockY, ra=0, tX=dockX, tY=dockY, target=null;
+    try{
+      const p=window.opener;
+      if(p){ rx=p.robotX||dockX; ry=p.robotY||dockY; ra=p.robotAngle||0; target=p.currentTarget||null; }
+    }catch(e){}
+
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+    for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+
+    const jx=0.42*W,jy=0.5*H;
+    ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+    ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
+    tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
+    ctx.setLineDash([]);
+
+    tables.forEach(t=>{
+      const tx=t.x*W,ty=t.y*H,isT=target&&target.id===t.id;
+      ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
+      ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText('T'+t.id,tx,ty+22);
+    });
+
+    ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(dockX*W,dockY*H,9,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('DOCK',dockX*W,dockY*H+22);
+
+    const rs=13;
+    ctx.save(); ctx.translate(rx*W,ry*H); ctx.rotate(ra);
+    ctx.beginPath();
+    for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
+    ctx.closePath();
+    ctx.fillStyle='#FF6B1A'; ctx.shadowColor='#FF6B1A'; ctx.shadowBlur=20; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+
+    frame=requestAnimationFrame(drawMap);
+  }
+  drawMap();
+  window.addEventListener('resize',()=>{ cancelAnimationFrame(frame); drawMap(); });
+<\/script>
+</body></html>`);
+  win.document.close();
+}
   function speak(text) {
   const speech = new SpeechSynthesisUtterance(text);
   speech.lang = 'en-US';
@@ -4254,5 +4497,117 @@ function openCartFromAnywhere() {
 <button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
   🤖
 </button>
+<div id="map-overlay">
+
+  <!-- Top bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;background:rgba(2,11,32,0.97);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:30px;height:34px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:900;">D</div>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;">DINOBOT — <span style="color:var(--orange);">LIVE FLOOR MAP</span></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#4ADE80;letter-spacing:2px;display:flex;align-items:center;gap:8px;"><div style="width:7px;height:7px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 6px #4ADE80;"></div> UNIT-01 ONLINE</div>
+      <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+    </div>
+  </div>
+
+  <!-- CRITICAL ROW -->
+  <div style="display:grid;grid-template-columns:1fr auto;border-bottom:1px solid rgba(239,68,68,0.2);background:linear-gradient(135deg,rgba(239,68,68,0.07) 0%,rgba(2,8,26,0.9) 60%);flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:-10px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
+    <div style="padding:18px 28px;display:flex;align-items:center;justify-content:center;">
+      <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
+        <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
+      </button>
+    </div>
+    <div style="padding:18px 28px;border-left:1px solid rgba(239,68,68,0.15);display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:6px;min-width:200px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(239,68,68,0.5);">UNIT-01 STATE</div>
+      <div id="robot-state-badge" class="state-badge state-ok" style="font-size:20px;padding:8px 20px;">● OFFLINE</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">DESTINATION</div>
+      <span class="dest-script" id="dest-label" style="font-size:22px;">—</span>
+      <div id="estop-warning" style="display:none;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ef4444;animation:blink 0.8s steps(1) infinite;">⚠ ALL MOTORS DISABLED</div>
+    </div>
+  </div>
+
+  <!-- OPERATIONAL ROW -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,107,26,0.04) 0%,rgba(2,8,26,0.6) 70%);flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:-10px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(255,107,26,0.6);border:1px solid rgba(255,107,26,0.18);">🟧 OPERATIONAL</div>
+
+    <!-- Dispatch -->
+    <div style="padding:20px 28px;border-right:1px solid var(--border);">
+      <div class="op-section-title">⬡ Dispatch to Table</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button class="dispatch-btn" onclick="dispatch(1);syncOverlayState()">Table 1</button>
+        <button class="dispatch-btn" onclick="dispatch(2);syncOverlayState()">Table 2</button>
+        <button class="dispatch-btn" onclick="dispatch(3);syncOverlayState()">Table 3</button>
+        <button class="dispatch-btn" onclick="dispatch(4);syncOverlayState()">Table 4</button>
+        <button class="dispatch-btn" onclick="dispatch(5);syncOverlayState()">Table 5</button>
+        <button class="dispatch-btn" onclick="dispatch(6);syncOverlayState()">Table 6</button>
+        <button class="dispatch-btn" onclick="dispatch(7);syncOverlayState()">Table 7</button>
+        <button class="dispatch-btn" onclick="dispatch(8);syncOverlayState()">Table 8</button>
+      </div>
+    </div>
+
+    <!-- Unit Control + Telemetry -->
+    <div style="padding:20px 28px;display:flex;flex-direction:column;gap:10px;">
+      <div class="op-section-title">⬡ Unit Control</div>
+      <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
+      <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
+      <button onclick="resetStuckOrders()" style="width:100%;padding:10px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:rgba(239,68,68,0.6);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">⬡ RESET STUCK ORDERS</button>
+      <div style="border-top:1px solid var(--border);padding-top:10px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(96,165,250,0.4);text-transform:uppercase;margin-bottom:10px;">Telemetry</div>
+        <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
+        <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
+        <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW: Map (3/4) + Manual Override (1/4) -->
+  <div style="flex:1;min-height:0;display:grid;grid-template-columns:3fr 1fr;">
+
+    <!-- Map -->
+    <div style="position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);">
+      <div style="position:absolute;top:14px;left:20px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--orange);text-transform:uppercase;z-index:2;">⬡ LIVE FLOOR MAP</div>
+      <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+      <div style="position:absolute;bottom:14px;right:14px;background:rgba(3,12,28,0.85);border:1px solid var(--border);padding:10px 14px;display:flex;flex-direction:column;gap:5px;z-index:2;">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span> UNIT-01 Robot</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span> Dock Station</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span> Table</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span> Active Target</div>
+      </div>
+    </div>
+
+    <!-- Manual Override -->
+    <div style="padding:20px 16px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(135deg,rgba(255,107,26,0.02) 0%,rgba(2,8,26,0.7) 100%);overflow-y:auto;">
+      <div class="op-section-title">⬡ Manual Override</div>
+      <button id="manual-toggle" class="manual-mode-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
+      <div id="dpad" style="opacity:0.35;pointer-events:none;display:flex;flex-direction:column;gap:8px;align-items:center;">
+        <div style="display:flex;gap:4px;justify-content:center;">
+          <div style="width:52px;height:52px;"></div>
+          <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('up')" ontouchend="stopMove()">▲</button>
+          <div style="width:52px;height:52px;"></div>
+        </div>
+        <div style="display:flex;gap:4px;justify-content:center;">
+          <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('left')" ontouchend="stopMove()">◀</button>
+          <button onclick="manualStop()" style="width:52px;height:52px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);display:flex;align-items:center;justify-content:center;">STOP</button>
+          <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('right')" ontouchend="stopMove()">▶</button>
+        </div>
+        <div style="display:flex;gap:4px;justify-content:center;">
+          <div style="width:52px;height:52px;"></div>
+          <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove('down')" ontouchend="stopMove()">▼</button>
+          <div style="width:52px;height:52px;"></div>
+        </div>
+        <div class="manual-speed-wrap">
+          <span>SPEED</span>
+          <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
+          <span id="manual-speed-label">×2</span>
+        </div>
+        <div class="manual-kbd-hint">W A S D or Arrow Keys</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
 </body>
 </html>
