@@ -975,26 +975,84 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     </div>
  
     <!-- MANAGER CONTROL CENTER -->
+    <div id="control-center">
+      <div class="cc-layer cc-layer-critical">
+        <div class="cc-layer-tag">🟥 CRITICAL</div>
+        <div style="display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center;">
+          <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
+            <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
+          </button>
+          <div style="text-align:center; min-width:200px;">
+            <div class="layer-sublabel" style="color:rgba(239,68,68,0.5); margin-bottom:10px;">UNIT-01 STATE</div>
+            <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
+            <div style="margin-top:12px;">
+              <div class="layer-sublabel" style="color:rgba(239,68,68,0.4); margin-bottom:6px;">DESTINATION</div>
+              <span class="dest-script" id="dest-label">—</span>
+            </div>
+          </div>
+        </div>
+        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
+      </div>
       <div class="cc-layer cc-layer-operational">
         <div class="cc-layer-tag">🟧 OPERATIONAL</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; margin-bottom:20px;">
+          <div>
+            <div class="op-section-title">⬡ Dispatch to Table</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;" id="table-btns">
+              <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
+              <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
+              <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
+              <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
+              <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
+              <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
+              <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
+              <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="op-section-title">⬡ Unit Control</div>
+            <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
+            <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
+            <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); color:#ef4444; margin-top:8px;">⬡ RESET STUCK ORDERS</button>
+            <div class="telem-box">
+              <div class="layer-sublabel" style="color:rgba(255,107,26,0.4); margin-bottom:10px;">TELEMETRY</div>
+              <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
+              <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
+              <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:stretch;">
+          <div style="display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0;">
+              <div class="op-section-title" style="margin-bottom:0;">⬡ Live Floor Map</div>
+              <button onclick="openMapPopout()" style="display:inline-flex;align-items:center;gap:10px;padding:10px 18px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);" onmouseover="this.style.borderColor='var(--border-bright)';this.style.color='var(--orange)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)';">
+                <div style="width:28px;height:31px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🗺️</div>
+                <span>OPEN IN FULL VIEW</span>
+                <span style="font-size:10px;opacity:0.5;">↗</span>
+              </button>
+            </div>
+            <div id="map-container" style="position:relative; flex:1; min-height:320px; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); overflow:hidden;">
+              <canvas id="liveMap" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column;">
+            <div class="op-section-title">⬡ Manual Override</div>
+            <div style="flex:1; display:flex; flex-direction:column; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); padding:20px; gap:16px;">
+              <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
+              <div id="dpad" style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; justify-content:center; opacity:0.35; pointer-events:none; transition:opacity 0.3s;">
+                <div class="dpad-row"><div class="dpad-center"></div><button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button><div class="dpad-center"></div></div>
+                <div class="dpad-row"><button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button><button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1); border-color:rgba(239,68,68,0.3); color:#ef4444; font-size:13px; font-family:'Share Tech Mono',monospace;">STOP</button><button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button></div>
+                <div class="dpad-row"><div class="dpad-center"></div><button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button><div class="dpad-center"></div></div>
+                <div class="manual-speed-wrap" style="width:100%; max-width:200px;"><span>SPEED</span><input type="range" id="manual-speed" min="1" max="5" value="2"><span id="manual-speed-label">×2</span></div>
+                <div class="manual-kbd-hint">W A S D / arrow keys</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- ANALYTICS PANEL -->
        <!-- STAFF MANAGEMENT PANEL -->
-        <button onclick="openMapOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)';this.querySelector('.btn-glow').style.opacity='1';" onmouseout="this.style.borderColor='var(--border)';this.querySelector('.btn-glow').style.opacity='0';">
-  <div class="btn-glow" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,107,26,0.04),transparent);opacity:0;transition:opacity 0.3s;pointer-events:none;"></div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <div style="width:48px;height:54px;background:rgba(5,22,65,0.6);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid var(--border-bright);flex-shrink:0;transition:all 0.25s;">🗺️</div>
-    <div style="text-align:left;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">⬡ Operational Control</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);line-height:1;">LIVE FLOOR MAP</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">Dispatch · Manual Control · Telemetry · E-Stop</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">Open</div>
-    <div style="width:36px;height:36px;background:rgba(255,107,26,0.1);border:1px solid var(--border-bright);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:var(--orange);font-size:14px;">→</div>
-  </div>
-</button>
 <div class="analytics-layer" id="staff-panel" style="border-color:rgba(192,132,252,0.15); background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
   <div class="cc-layer-tag" style="color:rgba(192,132,252,0.6); border-color:rgba(192,132,252,0.15);">👥 STAFF MANAGEMENT</div>
 
@@ -1142,99 +1200,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
  
 <script>
-  function openMapOverlay() {
-  document.getElementById('map-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => initOverlayMap(), 100);
-  syncOverlayState();
-}
-
-function closeMapOverlay() {
-  const el = document.getElementById('map-overlay');
-  el.style.animation = 'none';
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(32px)';
-  el.style.transition = 'all 0.3s ease';
-  setTimeout(() => {
-    el.classList.remove('open');
-    el.style.animation = '';
-    el.style.opacity = '';
-    el.style.transform = '';
-    el.style.transition = '';
-    document.body.style.overflow = '';
-  }, 300);
-}
-
-let overlayMapFrame = null;
-
-function initOverlayMap() {
-  cancelAnimationFrame(overlayMapFrame);
-  const canvas = document.getElementById('overlayMap');
-  if (!canvas) return;
-  const wrap = canvas.parentElement;
-  canvas.width = wrap.offsetWidth;
-  canvas.height = wrap.offsetHeight;
-  animateOverlayMap();
-}
-
-function animateOverlayMap() {
-  const canvas = document.getElementById('overlayMap');
-  if (!canvas || !document.getElementById('map-overlay').classList.contains('open')) return;
-  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-
-  // Grid
-  ctx.strokeStyle = 'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
-  for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
-  for (let j = 0; j < H; j += 40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
-
-  // Route lines
-  const jx = 0.42*W, jy = 0.5*H;
-  ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
-  ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
-  tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
-  ctx.setLineDash([]);
-
-  // Tables
-  tables.forEach(t => {
-    const tx=t.x*W, ty=t.y*H, isT=currentTarget&&currentTarget.id===t.id;
-    ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
-    ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('T'+t.id, tx, ty+22);
-  });
-
-  // Dock
-  ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
-  ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 9, 0, Math.PI*2); ctx.fill();
-  ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
-  ctx.fillText('DOCK', dockX*W, dockY*H+22);
-
-  // Robot
-  const rs = 13;
-  ctx.save(); ctx.translate(robotX*W, robotY*H); ctx.rotate(robotAngle);
-  ctx.beginPath();
-  for (let i=0;i<6;i++) { const a=(Math.PI/3)*i-Math.PI/2; i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs); }
-  ctx.closePath();
-  ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=20;
-  ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
-
-  syncOverlayState();
-  overlayMapFrame = requestAnimationFrame(animateOverlayMap);
-}
-
-function syncOverlayState() {
-  // Sync telemetry
-  const fields = [['bat-pct','bat-pct'],['bat-bar','bat-bar'],['speed-val','speed-val'],['speed-bar','speed-bar'],['load-val','load-val'],['load-bar','load-bar']];
-  fields.forEach(([src, dst]) => {
-    const s = document.getElementById(src), d = document.getElementById('ov-'+dst);
-    if (s && d) { d.textContent = s.textContent; d.style.width = s.style.width; }
-  });
-  // Sync state badge
-  const srcBadge = document.getElementById('robot-state-badge');
-  const dstBadge = document.getElementById('ov-state-badge');
-  if (srcBadge && dstBadge) { dstBadge.textContent = srcBadge.textContent; dstBadge.style.color = srcBadge.style.color; dstBadge.style.borderColor = srcBadge.style.borderColor; }
-}
   function openMapPopout() {
   const tables = [
     {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
@@ -4497,91 +4462,5 @@ function openCartFromAnywhere() {
 <button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
   🤖
 </button>
-<div id="map-overlay">
-  <!-- Top bar -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid var(--border);flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div style="width:32px;height:36px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:14px;color:#000;font-weight:900;">D</div>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;">DINOBOT — <span style="color:var(--orange);">LIVE FLOOR MAP</span></span>
-    </div>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#4ADE80;letter-spacing:2px;display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> UNIT-01 ONLINE</div>
-      <div id="ov-state-badge" style="padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#4ADE80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">● DOCKED</div>
-      <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
-    </div>
-  </div>
-
-  <!-- Body -->
-  <div style="display:grid;grid-template-columns:1fr 300px;flex:1;min-height:0;">
-
-    <!-- Map -->
-    <div style="position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);">
-      <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-    </div>
-
-    <!-- Sidebar -->
-    <div style="display:flex;flex-direction:column;overflow-y:auto;background:#061422;">
-
-      <!-- Dispatch -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Dispatch to Table</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-          <button class="dispatch-btn" onclick="dispatch(1);syncOverlayState()">Table 1</button>
-          <button class="dispatch-btn" onclick="dispatch(2);syncOverlayState()">Table 2</button>
-          <button class="dispatch-btn" onclick="dispatch(3);syncOverlayState()">Table 3</button>
-          <button class="dispatch-btn" onclick="dispatch(4);syncOverlayState()">Table 4</button>
-          <button class="dispatch-btn" onclick="dispatch(5);syncOverlayState()">Table 5</button>
-          <button class="dispatch-btn" onclick="dispatch(6);syncOverlayState()">Table 6</button>
-          <button class="dispatch-btn" onclick="dispatch(7);syncOverlayState()">Table 7</button>
-          <button class="dispatch-btn" onclick="dispatch(8);syncOverlayState()">Table 8</button>
-        </div>
-      </div>
-
-      <!-- Critical -->
-      <div style="padding:20px;border-bottom:1px solid rgba(239,68,68,0.2);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,transparent 60%);">
-        <div class="op-section-title" style="color:rgba(239,68,68,0.7);border-color:rgba(239,68,68,0.14);">⬡ Critical</div>
-        <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="font-size:16px;letter-spacing:4px;padding:16px;">
-          <span class="estop-icon">🛑</span> EMERGENCY STOP <span class="estop-icon">🛑</span>
-        </button>
-        <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
-        <div style="margin-top:16px;text-align:center;">
-          <div class="layer-sublabel" style="color:rgba(239,68,68,0.5);margin-bottom:8px;">UNIT-01 STATE</div>
-          <div id="robot-state-badge" class="state-badge state-ok">● DOCKED</div>
-          <div style="margin-top:10px;">
-            <div class="layer-sublabel" style="color:rgba(239,68,68,0.4);margin-bottom:4px;">DESTINATION</div>
-            <span class="dest-script" id="dest-label">—</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Unit Control -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Unit Control</div>
-        <button onclick="recallUnit()" class="op-btn op-btn-blue" style="margin-bottom:8px;">⬡ RECALL TO DOCK</button>
-        <button id="ov-pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-      </div>
-
-      <!-- Telemetry -->
-      <div style="padding:20px;border-bottom:1px solid var(--border);">
-        <div class="op-section-title">⬡ Telemetry</div>
-        <div class="metric"><div class="metric-header"><span>Battery</span><span id="ov-bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="ov-bat-bar" style="width:78%"></div></div></div>
-        <div class="metric"><div class="metric-header"><span>Speed</span><span id="ov-speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="ov-speed-bar" style="width:0%"></div></div></div>
-        <div class="metric"><div class="metric-header"><span>Load</span><span id="ov-load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="ov-load-bar" style="width:0%"></div></div></div>
-      </div>
-
-      <!-- Legend -->
-      <div style="padding:20px;">
-        <div class="op-section-title">⬡ Map Legend</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span> UNIT-01 Robot</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span> Dock Station</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span> Table</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span> Active Target</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
 </body>
 </html>
