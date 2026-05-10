@@ -943,7 +943,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   <!-- Hero Banner -->
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);margin-bottom:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
+      <div id="dashboard-hero-title">
         <div class="dash-subtitle">// Staff Authentication</div>
         <h1 class="dash-title">STAFF <span style="color:var(--orange)">LOGIN</span></h1>
       </div>
@@ -1623,7 +1623,7 @@ let announcedOrders = new Set();
       const serverRole = data?.user?.role || role;
       if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
       document.getElementById('auth-gate').classList.add('hidden');
-      document.querySelector('#dashboard > div:first-child').style.display = 'none';
+      document.getElementById('dashboard-hero-title').style.display = 'none';
       document.getElementById('control-center').classList.remove('unlocked');
       document.getElementById('kitchen-center').classList.remove('unlocked');
       if (serverRole === 'manager') {
@@ -1688,7 +1688,7 @@ if (window.speechSynthesis) {
     document.getElementById('control-center').classList.remove('unlocked');
     document.getElementById('kitchen-center').classList.remove('unlocked');
     document.getElementById('auth-gate').classList.remove('hidden');
-    document.querySelector('#dashboard > div:first-child').style.display = ''; // ← ADD THIS
+    document.getElementById('dashboard-hero-title').style.display = '';
     document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
     document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('show'));
     document.getElementById('user-badge').classList.remove('show');
