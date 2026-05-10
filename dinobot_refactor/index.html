@@ -1446,10 +1446,8 @@ if (window.speechSynthesis) {
 
         // Keep delivered cards visible until robot is back at dock
         if (order.status === 'delivered') {
-          // Only remove if robot is confirmed back at dock
-          if (!robotBusy) {
-            const card = document.getElementById('order-' + order.order_ref);
-            if (card) {
+          const card = document.getElementById('order-' + order.order_ref);
+          if (card) {
             card.style.transition = 'opacity 0.4s, transform 0.4s';
             card.style.opacity = '0';
             card.style.transform = 'translateX(20px)';
@@ -1463,14 +1461,8 @@ if (window.speechSynthesis) {
               resortColumns();
             }, 420);
           }
-        } else {
-          // Robot still busy — update local status so card shows correct state but don't remove
-          if (kitchenOrders[order.order_ref]) {
-            kitchenOrders[order.order_ref].status = 'delivered';
-          }
+          return;
         }
-        return;
-      }
 
         const existing = kitchenOrders[order.order_ref];
         if (!existing) {
