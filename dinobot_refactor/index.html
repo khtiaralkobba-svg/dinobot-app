@@ -1623,6 +1623,7 @@ let announcedOrders = new Set();
       const serverRole = data?.user?.role || role;
       if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
       document.getElementById('auth-gate').classList.add('hidden');
+      document.querySelector('#dashboard > div:first-child').style.display = 'none';
       document.getElementById('control-center').classList.remove('unlocked');
       document.getElementById('kitchen-center').classList.remove('unlocked');
       if (serverRole === 'manager') {
@@ -1687,6 +1688,7 @@ if (window.speechSynthesis) {
     document.getElementById('control-center').classList.remove('unlocked');
     document.getElementById('kitchen-center').classList.remove('unlocked');
     document.getElementById('auth-gate').classList.remove('hidden');
+    document.querySelector('#dashboard > div:first-child').style.display = ''; // ← ADD THIS
     document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('selected'));
     document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('show'));
     document.getElementById('user-badge').classList.remove('show');
