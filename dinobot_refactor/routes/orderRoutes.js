@@ -114,9 +114,14 @@ router.patch('/:orderRef/cancel', cancelOrder);
 router.patch('/:orderRef/status', async (req, res, next) => {
   const { status } = req.body;
 
+  // Allow robot with secret key
+  if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
+    return next();
+  }
+
   // Allow students to cancel via the /status route too (frontend uses this)
   if (status === 'cancelled') {
-    return next(); // skip auth, go straight to updateStatus
+    return next();
   }
 
   // All other status changes require kitchen/manager auth
