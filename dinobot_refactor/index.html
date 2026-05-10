@@ -4516,9 +4516,37 @@ function openCartFromAnywhere() {
   <div style="display:grid;grid-template-columns:1fr 300px;flex:1;min-height:0;">
 
     <!-- Map -->
-    <div style="position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);">
-      <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+<div style="position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);">
+  <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+
+  <!-- Manual Override floating panel inside map -->
+  <div style="position:absolute;bottom:16px;left:16px;z-index:10;background:rgba(4,16,40,0.92);border:1px solid rgba(255,107,26,0.3);padding:14px 16px;min-width:200px;">
+    <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()" style="width:100%;margin-bottom:10px;">⬡ ENABLE MANUAL CONTROL</button>
+    <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
+      <div class="dpad-row">
+        <div class="dpad-center"></div>
+        <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
+        <div class="dpad-center"></div>
+      </div>
+      <div class="dpad-row">
+        <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
+        <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
+        <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
+      </div>
+      <div class="dpad-row">
+        <div class="dpad-center"></div>
+        <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
+        <div class="dpad-center"></div>
+      </div>
+      <div class="manual-speed-wrap" style="width:100%;max-width:180px;margin-top:8px;">
+        <span>SPEED</span>
+        <input type="range" id="manual-speed" min="1" max="5" value="2" oninput="document.getElementById('manual-speed-label').textContent='×'+this.value">
+        <span id="manual-speed-label">×2</span>
+      </div>
+      <div class="manual-kbd-hint">W A S D / arrow keys</div>
     </div>
+  </div>
+</div>
 
     <!-- Sidebar -->
     <div style="display:flex;flex-direction:column;overflow-y:auto;background:#061422;">
