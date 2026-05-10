@@ -1010,7 +1010,14 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
         </div>
         <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:stretch;">
           <div style="display:flex; flex-direction:column;">
-            <div class="op-section-title">⬡ Live Floor Map</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0;">
+              <div class="op-section-title" style="margin-bottom:0;">⬡ Live Floor Map</div>
+              <button onclick="openMapPopout()" style="display:inline-flex;align-items:center;gap:10px;padding:10px 18px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);" onmouseover="this.style.borderColor='var(--border-bright)';this.style.color='var(--orange)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)';">
+                <div style="width:28px;height:31px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🗺️</div>
+                <span>OPEN IN FULL VIEW</span>
+                <span style="font-size:10px;opacity:0.5;">↗</span>
+              </button>
+            </div>
             <div id="map-container" style="position:relative; flex:1; min-height:320px; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); overflow:hidden;">
               <canvas id="liveMap" style="position:absolute; inset:0; width:100%; height:100%;"></canvas>
             </div>
@@ -1179,6 +1186,193 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </div>
  
 <script>
+  function openMapPopout() {
+  const tables = [
+    {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
+    {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28},
+  ];
+  const dockX=0.08, dockY=0.5;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>DINOBOT — Live Floor Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--orange:#FF6B1A;--border:rgba(255,107,26,0.18);--border-bright:rgba(255,107,26,0.55);--text:#dce8f8;--text-dim:rgba(180,210,245,0.5);--black:#020b1a;--panel:#061422;}
+  body{background:#020b1a;color:var(--text);font-family:'Rajdhani',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;background:rgba(2,11,32,0.95);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-hex{width:28px;height:31px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:12px;color:#000;font-weight:900;}
+  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;}
+  .logo-text span{color:var(--orange);}
+  .status-dot{width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+  .status-row{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#4ADE80;letter-spacing:2px;}
+  .main{display:grid;grid-template-columns:1fr 280px;gap:0;flex:1;min-height:0;}
+  .map-wrap{position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);}
+  canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .sidebar{display:flex;flex-direction:column;gap:0;overflow-y:auto;background:#061422;}
+  .side-section{padding:18px 20px;border-bottom:1px solid var(--border);}
+  .side-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+  .dispatch-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .dbtn{padding:10px 6px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1.5px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.18s;}
+  .dbtn:hover{border-color:rgba(255,107,26,0.5);color:var(--orange);}
+  .dbtn.active{border-color:var(--orange);color:#fff;background:linear-gradient(135deg,var(--orange),rgba(255,107,26,0.7));}
+  .dbtn:disabled{opacity:0.35;cursor:not-allowed;}
+  .ctrl-btn{width:100%;padding:12px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;border:1px solid;}
+  .ctrl-blue{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);color:#60A5FA;}
+  .ctrl-blue:hover{background:rgba(96,165,250,0.2);}
+  .ctrl-red{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.4);color:#ef4444;}
+  .ctrl-red:hover{background:rgba(239,68,68,0.18);}
+  .metric{margin-bottom:10px;}
+  .metric-header{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:5px;}
+  .metric-header span:last-child{color:var(--orange);}
+  .metric-bar{height:3px;background:rgba(255,255,255,0.06);}
+  .metric-fill{height:100%;background:linear-gradient(90deg,var(--orange),#FF8C3A);transition:width 1s;}
+  .state-badge{display:inline-block;padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+  .state-ok{color:#4ADE80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);}
+  .state-warn{color:#FBB924;background:rgba(251,185,36,0.1);border:1px solid rgba(251,185,36,0.4);}
+  .legend-item{display:flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);padding:5px 0;}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .hex-bg{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='104' viewBox='0 0 60 104'%3E%3Cpolygon points='30,2 58,17 58,47 30,62 2,47 2,17' fill='none' stroke='%23FF6B1A' stroke-width='1'/%3E%3C/svg%3E");background-size:60px 104px;}
+</style>
+</head><body>
+<div class="hex-bg"></div>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-hex">D</div>
+    <span class="logo-text">DINO<span>BOT</span> — LIVE FLOOR MAP</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div class="status-row"><div class="status-dot"></div> UNIT-01 ONLINE</div>
+    <div id="state-badge" class="state-badge state-ok">● DOCKED</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);" id="clock-pop">--:--:--</div>
+  </div>
+</div>
+<div class="main" style="position:relative;z-index:1;">
+  <div class="map-wrap">
+    <canvas id="popMap"></canvas>
+  </div>
+  <div class="sidebar">
+    <div class="side-section">
+      <div class="side-title">⬡ Dispatch to Table</div>
+      <div class="dispatch-grid" id="pop-dispatch-grid">
+        ${[1,2,3,4,5,6,7,8].map(i=>`<button class="dbtn" id="pop-dbtn-${i}" onclick="popDispatch(${i})">Table ${i}</button>`).join('')}
+      </div>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Unit Control</div>
+      <button class="ctrl-btn ctrl-blue" onclick="popRecall()">⬡ RECALL TO DOCK</button>
+      <button class="ctrl-btn ctrl-red" onclick="window.opener?.toggleEStop?.();updateFromParent();" style="font-size:13px;letter-spacing:2px;">🛑 EMERGENCY STOP</button>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Telemetry</div>
+      <div class="metric"><div class="metric-header"><span>Battery</span><span id="pop-bat">78%</span></div><div class="metric-bar"><div class="metric-fill" id="pop-bat-bar" style="width:78%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Speed</span><span id="pop-speed">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="pop-speed-bar" style="width:0%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Load</span><span id="pop-load">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="pop-load-bar" style="width:0%"></div></div></div>
+    </div>
+    <div class="side-section">
+      <div class="side-title">⬡ Map Legend</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--orange);"></span>UNIT-01 Robot</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#4ADE80;"></span>Dock Station</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span>Table</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span>Active Target</div>
+    </div>
+  </div>
+</div>
+<script>
+  const tables=${JSON.stringify(tables)};
+  const dockX=${dockX}, dockY=${dockY};
+  let frame, angle=0;
+
+  function cl(){ const n=new Date(); document.getElementById('clock-pop').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':'); }
+  setInterval(cl,1000); cl();
+
+  function updateFromParent(){
+    try {
+      const p = window.opener;
+      if(!p) return;
+      document.getElementById('pop-bat').textContent = p.document.getElementById('bat-pct')?.textContent || '78%';
+      document.getElementById('pop-bat-bar').style.width = p.document.getElementById('bat-bar')?.style.width || '78%';
+      document.getElementById('pop-speed').textContent = p.document.getElementById('speed-val')?.textContent || '0 cm/s';
+      document.getElementById('pop-speed-bar').style.width = p.document.getElementById('speed-bar')?.style.width || '0%';
+      document.getElementById('pop-load').textContent = p.document.getElementById('load-val')?.textContent || 'Empty';
+      document.getElementById('pop-load-bar').style.width = p.document.getElementById('load-bar')?.style.width || '0%';
+      const badge = document.getElementById('state-badge');
+      const parentBadge = p.document.getElementById('robot-state-badge');
+      if(badge && parentBadge){ badge.textContent = parentBadge.textContent; badge.style.color=parentBadge.style.color||''; badge.style.borderColor=parentBadge.style.borderColor||''; }
+      // Sync dispatch button active states
+      tables.forEach(t=>{
+        const pb = p.document.querySelectorAll('.dispatch-btn')[t.id-1];
+        const lb = document.getElementById('pop-dbtn-'+t.id);
+        if(lb) lb.classList.toggle('active', pb?.classList.contains('active')||false);
+      });
+    } catch(e){}
+  }
+  setInterval(updateFromParent, 300);
+
+  function popDispatch(id){
+    try{ window.opener?.dispatch?.(id); }catch(e){}
+    document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('pop-dbtn-'+id)?.classList.add('active');
+  }
+  function popRecall(){
+    try{ window.opener?.recallUnit?.(); }catch(e){}
+    document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));
+  }
+
+  function drawMap(){
+    const canvas=document.getElementById('popMap'); if(!canvas) return;
+    const wrap=canvas.parentElement;
+    canvas.width=wrap.offsetWidth; canvas.height=wrap.offsetHeight;
+    const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height;
+    let rx=dockX, ry=dockY, ra=0, tX=dockX, tY=dockY, target=null;
+    try{
+      const p=window.opener;
+      if(p){ rx=p.robotX||dockX; ry=p.robotY||dockY; ra=p.robotAngle||0; target=p.currentTarget||null; }
+    }catch(e){}
+
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+    for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+
+    const jx=0.42*W,jy=0.5*H;
+    ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+    ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
+    tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
+    ctx.setLineDash([]);
+
+    tables.forEach(t=>{
+      const tx=t.x*W,ty=t.y*H,isT=target&&target.id===t.id;
+      ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
+      ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText('T'+t.id,tx,ty+22);
+    });
+
+    ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(dockX*W,dockY*H,9,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('DOCK',dockX*W,dockY*H+22);
+
+    const rs=13;
+    ctx.save(); ctx.translate(rx*W,ry*H); ctx.rotate(ra);
+    ctx.beginPath();
+    for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
+    ctx.closePath();
+    ctx.fillStyle='#FF6B1A'; ctx.shadowColor='#FF6B1A'; ctx.shadowBlur=20; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+
+    frame=requestAnimationFrame(drawMap);
+  }
+  drawMap();
+  window.addEventListener('resize',()=>{ cancelAnimationFrame(frame); drawMap(); });
+<\/script>
+</body></html>`);
+  win.document.close();
+}
   function speak(text) {
   const speech = new SpeechSynthesisUtterance(text);
   speech.lang = 'en-US';
