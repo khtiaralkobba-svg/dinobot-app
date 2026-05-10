@@ -86,6 +86,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; letter-spacing: 2px; }
   .section-title span { -webkit-text-stroke: 1px var(--text-dim); color: transparent; }
   .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  @media (max-width: 1200px) {
+  .features-grid[style*="repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 768px) {
+  .features-grid[style*="repeat(4"] { grid-template-columns: 1fr !important; }
+}
   .feature-card { background: linear-gradient(160deg, #071828, #061422); border: 1px solid var(--border); padding: 36px 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease; }
   .feature-card:hover { border-color: var(--border-bright); }
   .feature-hex { width: 48px; height: 54px; background: rgba(5, 22, 65, 0.5); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 24px; border: 1px solid var(--border-bright); }
@@ -843,14 +849,19 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
       <div class="section-tag">// How It Works</div>
       <h2 class="section-title">THREE ROLES. <span>ONE SYSTEM.</span></h2>
     </div>
-    <div class="features-grid">
+    <div class="features-grid" style="grid-template-columns: repeat(4, 1fr);">
       <div class="feature-card"><div class="feature-hex">🎓</div><div class="feature-num">ROLE_01</div><div class="feature-title">Student</div><div class="feature-desc">Browse the digital menu, select your table number, and place your order. Track status live and get notified the moment your robot arrives.</div></div>
       <div class="feature-card"><div class="feature-hex">👨‍🍳</div><div class="feature-num">ROLE_02</div><div class="feature-title">Kitchen Staff</div><div class="feature-desc">View and manage incoming orders by table. Update status through Received → Preparing → Ready, then confirm tray placement on the robot.</div></div>
       <div class="feature-card"><div class="feature-hex">🤖</div><div class="feature-num">ROLE_03</div><div class="feature-title">Robot Manager</div><div class="feature-desc">Monitor robot fleet status, battery and tasks. Manually control robots directionally, dispatch to tables, or recall units to dock.</div></div>
+      <div class="feature-card" onclick="openMapTab()" style="cursor:pointer; border-color:rgba(255,107,26,0.35);">
+        <div class="feature-hex">🗺️</div>
+        <div class="feature-num">PANEL_04</div>
+        <div class="feature-title">Live Map & Controls</div>
+        <div class="feature-desc">Open the live robot floor map and manual override controls in a dedicated fullscreen tab.</div>
+        <div style="margin-top:16px; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--orange);">⬡ OPEN IN NEW TAB →</div>
     </div>
-  </section>
-</div>
- 
+  </div>
+
 <!-- STUDENT ORDER PAGE -->
 <div id="student" class="page">
   <div style="max-width:1100px; margin:0 auto; padding:100px 48px 80px; position:relative; z-index:2;">
@@ -2747,7 +2758,198 @@ function connectSocket(room) {
         fetch('http://localhost:5000/resume', { method: 'POST' }).catch(() => {});
     }
 }
- 
+function openMapTab() {
+  const mapWin = window.open('', '_blank');
+  mapWin.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Dinobot — Live Map & Controls</title>
+      <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020b1a; color:#dce8f8; font-family:'Rajdhani',sans-serif; padding:24px; }
+        :root {
+          --orange:#FF6B1A; --border:rgba(255,107,26,0.18); --border-bright:rgba(255,107,26,0.55);
+          --text:#dce8f8; --text-dim:rgba(180,210,245,0.5);
+        }
+        .title { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:4px; color:var(--orange); margin-bottom:20px; }
+        .op-section-title { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--orange); text-transform:uppercase; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,107,26,0.14); }
+        .grid { display:grid; grid-template-columns:2fr 1fr; gap:20px; height:calc(100vh - 90px); }
+        #map-container { position:relative; width:100%; height:100%; background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); overflow:hidden; }
+        #liveMap { position:absolute; inset:0; width:100%; height:100%; }
+        .manual-panel { background:rgba(2,8,26,0.85); border:1px solid rgba(255,107,26,0.15); padding:20px; display:flex; flex-direction:column; gap:16px; }
+        .manual-mode-toggle { width:100%; padding:10px; background:rgba(251,185,36,0.06); border:1px solid rgba(251,185,36,0.3); color:#FBB924; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); }
+        .manual-mode-toggle.active { background:rgba(251,185,36,0.18); border-color:#FBB924; }
+        .dpad-row { display:flex; gap:4px; justify-content:center; }
+        .dpad-btn { width:52px; height:52px; background:linear-gradient(160deg,#0d1e36,#0b1828); border:1px solid rgba(255,107,26,0.25); color:#dce8f8; font-size:18px; cursor:pointer; clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); display:flex; align-items:center; justify-content:center; }
+        .dpad-btn:hover { background:rgba(255,107,26,0.12); border-color:var(--orange); }
+        .dpad-btn.pressed { background:rgba(255,107,26,0.22); transform:scale(0.93); }
+        .dpad-center { width:52px; height:52px; }
+        .manual-speed-wrap { display:flex; align-items:center; gap:10px; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); }
+        .manual-speed-wrap input[type=range] { flex:1; height:3px; cursor:pointer; accent-color:var(--orange); }
+        .manual-kbd-hint { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:rgba(255,107,26,0.35); text-align:center; text-transform:uppercase; }
+        .dpad-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; justify-content:center; opacity:0.35; pointer-events:none; transition:opacity 0.3s; }
+        .dpad-wrap.active { opacity:1; pointer-events:auto; }
+        @media (max-width:768px) { .grid { grid-template-columns:1fr; height:auto; } }
+      </style>
+    </head>
+    <body>
+      <div class="title">⬡ DINOBOT — LIVE MAP & CONTROLS</div>
+      <div class="grid">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="op-section-title">⬡ Live Floor Map</div>
+          <div id="map-container"><canvas id="liveMap"></canvas></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="op-section-title">⬡ Manual Override</div>
+          <div class="manual-panel">
+            <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
+            <div class="dpad-wrap" id="dpad">
+              <div class="dpad-row">
+                <div class="dpad-center"></div>
+                <button class="dpad-btn" id="btn-up" onmousedown="startMove('up')" onmouseup="stopMove()" onmouseleave="stopMove()">▲</button>
+                <div class="dpad-center"></div>
+              </div>
+              <div class="dpad-row">
+                <button class="dpad-btn" id="btn-left" onmousedown="startMove('left')" onmouseup="stopMove()" onmouseleave="stopMove()">◀</button>
+                <button class="dpad-btn" id="btn-stop" onclick="manualStop()" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-family:'Share Tech Mono',monospace;">STOP</button>
+                <button class="dpad-btn" id="btn-right" onmousedown="startMove('right')" onmouseup="stopMove()" onmouseleave="stopMove()">▶</button>
+              </div>
+              <div class="dpad-row">
+                <div class="dpad-center"></div>
+                <button class="dpad-btn" id="btn-down" onmousedown="startMove('down')" onmouseup="stopMove()" onmouseleave="stopMove()">▼</button>
+                <div class="dpad-center"></div>
+              </div>
+              <div class="manual-speed-wrap" style="width:100%;max-width:200px;">
+                <span>SPEED</span>
+                <input type="range" id="manual-speed" min="1" max="5" value="2">
+                <span id="manual-speed-label">×2</span>
+              </div>
+              <div class="manual-kbd-hint">W A S D / arrow keys</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        const tables = [
+          {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
+          {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28},
+        ];
+        const dockX=0.08, dockY=0.5;
+        let robotX=dockX, robotY=dockY, robotAngle=0;
+        let manualActive=false, manualTimer=null, currentTarget=null;
+
+        function initMap() {
+          const canvas = document.getElementById('liveMap');
+          const container = document.getElementById('map-container');
+          canvas.width  = container.offsetWidth;
+          canvas.height = container.offsetHeight;
+          animateMap();
+        }
+
+        function animateMap() {
+          const canvas = document.getElementById('liveMap');
+          if (!canvas) return;
+          const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+          ctx.clearRect(0,0,W,H);
+          ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+          for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+          for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+          const jx=0.42*W, jy=0.5*H;
+          ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+          ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
+          tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
+          ctx.setLineDash([]);
+          tables.forEach(t=>{
+            const tx=t.x*W,ty=t.y*H,isTarget=currentTarget&&currentTarget.id===t.id;
+            ctx.fillStyle=isTarget?'#C084FC':'#60A5FA'; ctx.shadowColor=isTarget?'#C084FC':'#60A5FA'; ctx.shadowBlur=isTarget?14:8;
+            ctx.beginPath(); ctx.arc(tx,ty,isTarget?9:7,0,Math.PI*2); ctx.fill();
+            ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
+          });
+          ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=12;
+          ctx.beginPath(); ctx.arc(dockX*W,dockY*H,8,0,Math.PI*2); ctx.fill();
+          ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.7)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('DOCK',dockX*W,dockY*H+20);
+          const rx=robotX*W, ry=robotY*H, rs=11;
+          ctx.save(); ctx.translate(rx,ry); ctx.rotate(robotAngle);
+          ctx.beginPath();
+          for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
+          ctx.closePath();
+          ctx.fillStyle='#FF6B1A'; ctx.shadowColor='#FF6B1A'; ctx.shadowBlur=16;
+          ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
+          requestAnimationFrame(animateMap);
+        }
+
+        setInterval(async () => {
+          try {
+            const res  = await fetch('http://localhost:5000/status');
+            const data = await res.json();
+            robotX = data.x_norm; robotY = data.y_norm; robotAngle = data.theta;
+            currentTarget = data.target_table ? tables.find(t=>t.id===data.target_table)||null : null;
+          } catch {}
+        }, 300);
+
+        function toggleManual() {
+          manualActive = !manualActive;
+          document.getElementById('manual-toggle').classList.toggle('active', manualActive);
+          document.getElementById('manual-toggle').textContent = manualActive ? '⬡ MANUAL CONTROL ACTIVE' : '⬡ ENABLE MANUAL CONTROL';
+          document.getElementById('dpad').classList.toggle('active', manualActive);
+          fetch('http://localhost:5000/manual/' + (manualActive?'start':'stop'), {method:'POST'}).catch(()=>{});
+        }
+
+        function startMove(dir) {
+          if (!manualActive) return;
+          highlightDpad(dir, true);
+          sendMove(dir);
+          clearInterval(manualTimer);
+          manualTimer = setInterval(() => sendMove(dir), 100);
+        }
+
+        function stopMove() {
+          clearInterval(manualTimer);
+          highlightDpad(null, false);
+          if (manualActive) sendMove('stop');
+        }
+
+        function manualStop() { stopMove(); }
+
+        function sendMove(dir) {
+          const speed = parseInt(document.getElementById('manual-speed')?.value || 2);
+          fetch('http://localhost:5000/manual/move', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({direction:dir, speed})
+          }).catch(()=>{});
+        }
+
+        function highlightDpad(dir, on) {
+          ['up','down','left','right'].forEach(d=>{
+            document.getElementById('btn-'+d)?.classList.toggle('pressed', on&&d===dir);
+          });
+        }
+
+        const keyMap={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right'};
+        const keysHeld={};
+        document.addEventListener('keydown',e=>{
+          if (!manualActive) return;
+          const dir=keyMap[e.key];
+          if(dir&&!keysHeld[e.key]){keysHeld[e.key]=true;startMove(dir);e.preventDefault();}
+        });
+        document.addEventListener('keyup',e=>{
+          const dir=keyMap[e.key];
+          if(dir){keysHeld[e.key]=false;if(!Object.values(keysHeld).some(Boolean))stopMove();}
+        });
+        document.getElementById('manual-speed')?.addEventListener('input', e => {
+          document.getElementById('manual-speed-label').textContent = '×' + e.target.value;
+        });
+
+        window.addEventListener('load', initMap);
+      <\/script>
+    </body>
+    </html>
+  `);
+  mapWin.document.close();
+}
+
   function toggleEStop() {
     eStopActive=!eStopActive;
     const btn=document.getElementById('estop-btn'); 
