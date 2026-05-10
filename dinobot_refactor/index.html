@@ -320,6 +320,13 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
  
   /* TRACKING */
   .tracking-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+@media (max-width: 768px) {
+  .tracking-wrap { grid-template-columns: 1fr; gap: 16px; }
+  .track-map-wrap { padding-bottom: 70%; }
+  .track-status-card { padding: 18px; }
+  .track-order-id { font-size: 24px; }
+}
   .track-status-card { background: linear-gradient(160deg,#0d1e36,#0b1828); border: 1px solid rgba(255,107,26,0.15); padding: 28px; clip-path: polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%); }
   .track-order-id { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 4px; color: var(--orange); margin-bottom: 4px; }
   .track-table-tag { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--text-dim); margin-bottom: 24px; }
@@ -548,7 +555,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     .shift-history-row .shift-history-cell:nth-child(5),
     .shift-history-row .shift-history-cell:nth-child(6) { display: none; }
     .staff-row { display: flex; flex-wrap: wrap; padding: 8px; }
-    .tracking-wrap > div:last-child { display: none; }
+    .tracking-wrap > div:last-child { display: block; }
     .auth-box { padding: 0 4px; }
     .form-input { font-size: 12px; padding: 10px 12px; }
     .btn-login { font-size: 16px; }
