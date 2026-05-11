@@ -1218,7 +1218,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   const el = document.getElementById('analytics-overlay');
   el.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  document.getElementById('control-center').style.visibility = 'hidden';
   updateAnalyticsUI();
 }
 
@@ -1233,14 +1232,12 @@ function closeAnalyticsOverlay() {
     el.style.transform = '';
     el.style.transition = '';
     document.body.style.overflow = '';
-    document.getElementById('control-center').style.visibility = '';
   }, 300);
 }
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
   el.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  document.getElementById('control-center').style.visibility = 'hidden';
   loadStaffList();
 }
 
@@ -1255,7 +1252,6 @@ function closeStaffOverlay() {
     el.style.transform = '';
     el.style.transition = '';
     document.body.style.overflow = '';
-    document.getElementById('control-center').style.visibility = '';
   }, 300);
 }
   function openMapOverlay() {
