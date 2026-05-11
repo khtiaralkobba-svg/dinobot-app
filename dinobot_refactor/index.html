@@ -4682,11 +4682,11 @@ function openCartFromAnywhere() {
   </div>
 
   <!-- Body -->
-  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;padding-top:32px;display:flex;flex-direction:column;gap:16px;min-height:0;">
+  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:40px 48px;display:flex;flex-direction:column;gap:24px;min-height:0;">
 
     <!-- Create + Online Status -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div style="position:relative;padding:28px 30px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;min-height:300px;">
+      <div style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
         <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(192,132,252,0.6);border:1px solid rgba(192,132,252,0.15);">⬡ CREATE NEW STAFF ACCOUNT</div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
           <input id="staff-name" type="text" class="form-input" placeholder="Full Name">
@@ -4711,8 +4711,7 @@ function openCartFromAnywhere() {
     </div>
 
     <!-- Staff List -->
-    <div style="position:relative;padding:28px 30px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
-      <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(192,132,252,0.6);border:1px solid rgba(192,132,252,0.15);">⬡ ALL KITCHEN STAFF</div>
+    <div style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);flex:1;">
       <div id="staff-list-table" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);padding:16px;text-align:center;">Loading staff…</div>
       </div>
