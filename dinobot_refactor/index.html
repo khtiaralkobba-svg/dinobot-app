@@ -1160,18 +1160,18 @@ function closeAnalyticsOverlay() {
   }, 300);
 }
   function openStaffOverlay() {
-  cancelAnimationFrame(mapAnimFrame);
-  cancelAnimationFrame(overlayMapFrame);
   const el = document.getElementById('staff-overlay');
   el.style.display = 'flex';
   el.style.position = 'fixed';
   el.style.inset = '0';
+  el.style.top = '0';
+  el.style.left = '0';
+  el.style.right = '0';
+  el.style.bottom = '0';
+  el.style.width = '100vw';
+  el.style.height = '100vh';
+  el.style.minHeight = '100vh';
   el.style.zIndex = '10000';
-  el.style.flexDirection = 'column';
-  el.style.overflowY = 'auto';
-  el.style.overflowX = 'hidden';
-  el.style.background = '#020b1a';
-  el.style.animation = 'overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards';
   document.body.style.overflow = 'hidden';
   loadStaffList();
 }
@@ -4671,7 +4671,7 @@ function openCartFromAnywhere() {
   </div><!-- end scrollable body -->
 </div><!-- end #map-overlay -->
 <!-- Staff Management Overlay -->
-<div id="staff-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;">
+<div id="staff-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;min-height:100vh;width:100vw;">
   <!-- Top bar -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid rgba(192,132,252,0.2);flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:12px;">
