@@ -6,6 +6,11 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  #staff-overlay.open {
+  z-index: 15000 !important;
+  background: #020b1a !important;
+  isolation: isolate;
+}
 #analytics-overlay::-webkit-scrollbar { display: none; }
 #analytics-overlay { scrollbar-width: none; -ms-overflow-style: none; }
 #map-overlay::-webkit-scrollbar { display: none; }
@@ -1253,6 +1258,8 @@ function closeAnalyticsOverlay() {
   }, 300);
 }
   function openStaffOverlay() {
+  cancelAnimationFrame(mapAnimFrame);
+  cancelAnimationFrame(overlayMapFrame);
   const el = document.getElementById('staff-overlay');
   el.style.display = 'flex';
   el.style.position = 'fixed';
@@ -1273,6 +1280,9 @@ function closeStaffOverlay() {
   el.style.transform = 'translateY(32px)';
   el.style.transition = 'all 0.3s ease';
   setTimeout(() => {
+    if (document.getElementById('map-overlay').classList.contains('open')) {
+    animateOverlayMap();
+    }
     el.style.display = 'none';
     el.style.opacity = '';
     el.style.transform = '';
