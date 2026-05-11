@@ -24,6 +24,18 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+#staff-overlay {
+  display: none;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000;
+  background: #020b1a;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+#staff-overlay.open { display: flex; }
 #map-overlay.open { display: flex; }
 #map-overlay::-webkit-scrollbar { display: none; }
 @keyframes overlayIn {
@@ -1242,10 +1254,7 @@ function closeAnalyticsOverlay() {
 }
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
-  el.style.display = 'flex';
-  el.style.position = 'fixed';   
-  el.style.inset = '0';          
-  el.style.zIndex = '10000';     
+  el.classList.add('open');
   document.body.style.overflow = 'hidden';
   loadStaffList();
 }
@@ -1256,13 +1265,10 @@ function closeStaffOverlay() {
   el.style.transform = 'translateY(32px)';
   el.style.transition = 'all 0.3s ease';
   setTimeout(() => {
-    el.style.display = 'none';
+    el.classList.remove('open');
     el.style.opacity = '';
     el.style.transform = '';
     el.style.transition = '';
-    el.style.position = '';   
-    el.style.inset = '';      
-    el.style.zIndex = '';     
     document.body.style.overflow = '';
   }, 300);
 }
