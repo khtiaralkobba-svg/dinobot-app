@@ -1027,7 +1027,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
 </button>
 
 <!-- Staff Management Overlay -->
-<div id="staff-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;">
+<div id="staff-overlay" style="display:none;position:fixed;inset:0;z-index:10000;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;">
   <!-- Top bar -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(2,11,32,0.97);border-bottom:1px solid rgba(192,132,252,0.2);flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:12px;">
@@ -1217,6 +1217,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   function openAnalyticsOverlay() {
   const el = document.getElementById('analytics-overlay');
   el.style.display = 'flex';
+  el.style.position = 'fixed';   
+  el.style.inset = '0';           
+  el.style.zIndex = '10000';     
   document.body.style.overflow = 'hidden';
   updateAnalyticsUI();
 }
@@ -1231,12 +1234,18 @@ function closeAnalyticsOverlay() {
     el.style.opacity = '';
     el.style.transform = '';
     el.style.transition = '';
+    el.style.position = '';   
+    el.style.inset = '';      
+    el.style.zIndex = '';     
     document.body.style.overflow = '';
   }, 300);
 }
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
   el.style.display = 'flex';
+  el.style.position = 'fixed';   
+  el.style.inset = '0';          
+  el.style.zIndex = '10000';     
   document.body.style.overflow = 'hidden';
   loadStaffList();
 }
@@ -1251,6 +1260,9 @@ function closeStaffOverlay() {
     el.style.opacity = '';
     el.style.transform = '';
     el.style.transition = '';
+    el.style.position = '';   
+    el.style.inset = '';      
+    el.style.zIndex = '';     
     document.body.style.overflow = '';
   }, 300);
 }
