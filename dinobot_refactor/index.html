@@ -4555,10 +4555,15 @@ function openCartFromAnywhere() {
   <!-- Top bar -->
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);flex-shrink:0;">
     <div id="dashboard-hero-row" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Operational Control</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">LIVE <span style="color:var(--orange);">FLOOR MAP</span></div>
-      </div>
+  <div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Operational Control</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">LIVE <span style="color:var(--orange);">FLOOR MAP</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> ALL SYSTEMS OPERATIONAL</div>
+    <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+  </div>
+</div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> ALL SYSTEMS OPERATIONAL</div>
         <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
@@ -4583,8 +4588,6 @@ function openCartFromAnywhere() {
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(239,68,68,0.4);margin-bottom:4px;">DESTINATION</div>
         <span class="dest-script" id="dest-label">—</span>
       </div>
-      <button onclick="closeMapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;width:100%;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
-    </div>
   </div>
   <div id="estop-warning">⚠ WARNING: All robot motors disabled</div>
 </div>
