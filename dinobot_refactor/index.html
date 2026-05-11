@@ -1254,7 +1254,15 @@ function closeAnalyticsOverlay() {
 }
   function openStaffOverlay() {
   const el = document.getElementById('staff-overlay');
-  el.classList.add('open');
+  el.style.display = 'flex';
+  el.style.position = 'fixed';
+  el.style.inset = '0';
+  el.style.zIndex = '10000';
+  el.style.flexDirection = 'column';
+  el.style.overflowY = 'auto';
+  el.style.overflowX = 'hidden';
+  el.style.background = '#020b1a';
+  el.style.animation = 'overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards';
   document.body.style.overflow = 'hidden';
   loadStaffList();
 }
@@ -1265,7 +1273,7 @@ function closeStaffOverlay() {
   el.style.transform = 'translateY(32px)';
   el.style.transition = 'all 0.3s ease';
   setTimeout(() => {
-    el.classList.remove('open');
+    el.style.display = 'none';
     el.style.opacity = '';
     el.style.transform = '';
     el.style.transition = '';
