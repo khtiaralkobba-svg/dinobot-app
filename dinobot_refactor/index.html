@@ -6,6 +6,14 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  #staff-overlay, #analytics-overlay {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
 #analytics-overlay::-webkit-scrollbar { display: none; }
 #analytics-overlay { scrollbar-width: none; -ms-overflow-style: none; }
 #map-overlay::-webkit-scrollbar { display: none; }
@@ -989,10 +997,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     </div>
  
     <!-- MANAGER CONTROL CENTER -->
-    <div id="control-center">
-      <div class="cc-layer cc-layer-operational">
-        <div class="cc-layer-tag">🟧 OPERATIONAL</div>
-      </div>
       <!-- ANALYTICS PANEL -->
        <button onclick="openMapOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)';this.querySelector('.btn-glow').style.opacity='1';" onmouseout="this.style.borderColor='var(--border)';this.querySelector('.btn-glow').style.opacity='0';">
   <div class="btn-glow" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,107,26,0.04),transparent);opacity:0;transition:opacity 0.3s;pointer-events:none;"></div>
