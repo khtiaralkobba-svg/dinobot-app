@@ -4798,9 +4798,7 @@ async function confirmPickup() {
   btn.disabled = true;
   btn.textContent = 'RELEASING ROBOT...';
   try {
-    // Route through backend instead of calling localhost:5000 directly
-    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST' }).catch(() => {});
-    
+    await fetch('http://localhost:5000/pickup', { method: 'POST' }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
         method: 'PATCH',
@@ -4808,7 +4806,7 @@ async function confirmPickup() {
         body: JSON.stringify({ status: 'delivered' })
       });
       updateSessionOrderStatus(_pickupOrderRef, 'delivered');
-      _shownPickupScreens.add(_pickupOrderRef);
+       _shownPickupScreens.add(_pickupOrderRef);
     }
     btn.textContent = '✓ ENJOY YOUR MEAL!';
     btn.style.background = 'linear-gradient(135deg, #FF6B1A, #ff8c3a)';
