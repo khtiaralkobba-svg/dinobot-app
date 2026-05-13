@@ -90,12 +90,12 @@ app.post('/api/groq', async (req, res) => {
   }
 });
 // ── Robot proxy (so mobile clients don't need localhost:5000) ────────────────
-const ROBOT_URL = 'http://localhost:5000';
-
 app.post('/api/robot/pickup', async (req, res) => {
   try {
-    await fetch(`${ROBOT_URL}/pickup`, { method: 'POST' });
-  } catch { /* robot offline — silent fail */ }
+    await fetch('http://localhost:5000/pickup', { method: 'POST' });
+  } catch (err) {
+    console.log('[robot proxy] robot offline:', err.message);
+  }
   res.json({ ok: true });
 });
 // ── Socket.io ─────────────────────────────────────────────────────────────────
