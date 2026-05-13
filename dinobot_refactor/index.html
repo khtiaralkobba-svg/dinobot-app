@@ -3869,21 +3869,26 @@ function applyStatusToTimeline(ref, status, tableNum) {
     trackingInterval = setInterval(async () => {
       if (!ref) return;
       try {
-        // Poll order status
-        const res = await fetch(API_BASE + '/api/orders/' + ref);
-        const data = await res.json();
+        const [orderRes, robotRes] = await Promise.all([
+          fetch(API_BASE + '/api/orders/' + ref),
+          fetch('http://localhost:5000/status')
+        ]);
+        const data = await orderRes.json();
         const status = data.order.status;
+        const order = sessionOrders.find(o => o.order_ref === ref);
+        const tableNum = order ? order.table_number : null;
         updateSessionOrderStatus(ref, status);
+        applyStatusToTimeline(ref, status, tableNum);
         if (['delivered','cancelled'].includes(status)) clearInterval(trackingInterval);
 
-        
-        const robotRes = await fetch('http://localhost:5000/status');
-        const robotData = await robotRes.json();
-        robotX = robotData.x_norm;
-        robotY = robotData.y_norm;
-        robotAngle = robotData.theta;
+        if (robotRes.ok) {
+          const robotData = await robotRes.json();
+          robotX = robotData.x_norm;
+          robotY = robotData.y_norm;
+          robotAngle = robotData.theta;
+        }
       } catch {}
-    }, 1000);  
+    }, 300);
   }
  
   function initTrackMap(ref) {
