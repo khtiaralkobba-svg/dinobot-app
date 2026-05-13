@@ -4763,8 +4763,10 @@ function openCartFromAnywhere() {
     }
   }
 let _pickupOrderRef = null;
-
+const _shownPickupScreens = new Set();
 function showPickupScreen(ref) {
+  if (_shownPickupScreens.has(ref)) return;  
+  _shownPickupScreens.add(ref);
   _pickupOrderRef = ref;
   const order = sessionOrders.find(o => o.order_ref === ref);
   if (!order) return;
@@ -4803,6 +4805,7 @@ async function confirmPickup() {
         body: JSON.stringify({ status: 'delivered' })
       });
       updateSessionOrderStatus(_pickupOrderRef, 'delivered');
+       _shownPickupScreens.add(_pickupOrderRef);
     }
     btn.textContent = '✓ ENJOY YOUR MEAL!';
     btn.style.background = 'linear-gradient(135deg, #FF6B1A, #ff8c3a)';
