@@ -1960,19 +1960,16 @@ let announcedOrders = new Set();
             card.style.transition = 'opacity 0.4s, transform 0.4s';
             card.style.opacity = '0';
             card.style.transform = 'translateX(20px)';
-            setTimeout(() => {
-              card.remove();
-              if (kitchenOrders[order.order_ref]) {
-                clearInterval(kitchenOrders[order.order_ref].timerInterval);
-                clearInterval(kitchenOrders[order.order_ref].waitInterval);
-                delete kitchenOrders[order.order_ref];
-              }
-              resortColumns();
-            }, 420);
+            setTimeout(() => { card.remove(); }, 420);
+          }
+          // Always clean up state, regardless of robot busy status
+          if (kitchenOrders[order.order_ref]) {
+            clearInterval(kitchenOrders[order.order_ref].timerInterval);
+            clearInterval(kitchenOrders[order.order_ref].waitInterval);
+            delete kitchenOrders[order.order_ref];
           }
           return;
         }
-
         const existing = kitchenOrders[order.order_ref];
         if (!existing) {
           renderKitchenOrder(order);
@@ -3347,38 +3344,29 @@ function initMap() {
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
         } else if (data.state === 'IDLE') {
         currentTarget = null;
-        // Robot just docked — sweep away any delivered/dispatched cards
         if (robotBusy) {
           robotBusy = false;
           setAllDispatchButtons(true);
-          Object.entries(kitchenOrders).forEach(([ref, order]) => {
-            if (['dispatched','delivering','delivered'].includes(order.status)) {
-              const card = document.getElementById('order-' + ref);
-              if (card) {
-                card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                card.style.opacity = '0';
-                card.style.transform = 'translateX(20px)';
-                setTimeout(() => {
-                card.remove();
-                if (kitchenOrders[ref]) {
-                  clearInterval(kitchenOrders[ref].timerInterval);
-                  clearInterval(kitchenOrders[ref].waitInterval);
-                  delete kitchenOrders[ref];
-                }
-                resortColumns();
-              }, 420);
-            } else {
-              if (kitchenOrders[ref]) {
-                clearInterval(kitchenOrders[ref].timerInterval);
-                clearInterval(kitchenOrders[ref].waitInterval);
-                delete kitchenOrders[ref];
-              }
+          // Sweep ALL dispatched/delivering/delivered cards now that robot is docked
+          const toRemove = Object.entries(kitchenOrders)
+            .filter(([, o]) => ['dispatched','delivering','delivered'].includes(o.status))
+            .map(([ref]) => ref);
+          toRemove.forEach(ref => {
+            const card = document.getElementById('order-' + ref);
+            if (card) {
+              card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+              card.style.opacity = '0';
+              card.style.transform = 'translateX(20px)';
+              setTimeout(() => card.remove(), 420);
             }
-          }
-        });
-        showToast('⬡ Robot back at dock — order complete');
+            clearInterval(kitchenOrders[ref]?.timerInterval);
+            clearInterval(kitchenOrders[ref]?.waitInterval);
+            delete kitchenOrders[ref];
+          });
+          setTimeout(() => resortColumns(), 450);
+          showToast('⬡ Robot back at dock — order complete');
+        }
       }
-    }
         
 
         const kitchState = document.getElementById('kitch-robot-state');
