@@ -26,7 +26,7 @@
   background: #020b1a;
   flex-direction: column;
   animation: overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
-  overflow: hidden;
+  overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -4552,7 +4552,7 @@ function openCartFromAnywhere() {
 </button>
 <div id="map-overlay">
   <!-- Top bar -->
-  <div style="position:static;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);flex-shrink:0;">
+  <div style="position:static;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(10,28,80,0.35) 0%,transparent 60%);">
     <div id="dashboard-hero-row" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Operational Control</div>
