@@ -29,6 +29,33 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
 });
 
+// ── Robot proxy (for mobile clients) ─────────────────────────────────────────
+const ROBOT_URL = process.env.ROBOT_URL || 'http://localhost:5000';
+
+app.post('/api/robot/:action', async (req, res) => {
+  try {
+    const response = await fetch(`${ROBOT_URL}/${req.params.action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: Object.keys(req.body).length ? JSON.stringify(req.body) : undefined
+    });
+    const data = await response.json().catch(() => ({}));
+    res.json(data);
+  } catch {
+    res.json({ ok: true }); // silent fail if Python offline
+  }
+});
+
+app.get('/api/robot/status', async (req, res) => {
+  try {
+    const response = await fetch(`${ROBOT_URL}/status`);
+    const data = await response.json();
+    res.json(data);
+  } catch {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
 // ── Auth routes ───────────────────────────────────────────────────────────────
 const {
   login,
