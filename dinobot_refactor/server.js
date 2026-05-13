@@ -89,7 +89,15 @@ app.post('/api/groq', async (req, res) => {
     return res.status(500).json({ error: 'Groq API failed' });
   }
 });
+// ── Robot proxy (so mobile clients don't need localhost:5000) ────────────────
+const ROBOT_URL = 'http://localhost:5000';
 
+app.post('/api/robot/pickup', async (req, res) => {
+  try {
+    await fetch(`${ROBOT_URL}/pickup`, { method: 'POST' });
+  } catch { /* robot offline — silent fail */ }
+  res.json({ ok: true });
+});
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
@@ -105,10 +113,3 @@ io.on('connection', socket => {
 });
 
 app.set('io', io);
-
-// ── Start ─────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-  console.log(`🚀 Dinobot running at http://localhost:${PORT}`);
-});
