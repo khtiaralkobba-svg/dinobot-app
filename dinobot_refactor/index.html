@@ -6,6 +6,122 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+  /* ── PICKUP ANIMATION ─────────────────────────────────── */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes robotBounce {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-16px); }
+}
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 20px rgba(74,222,128,0.3); }
+  50%     { box-shadow: 0 0 60px rgba(74,222,128,0.7); }
+}
+@keyframes itemReveal {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+#pickup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(2,11,26,0.97);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  backdrop-filter: blur(8px);
+}
+#pickup-overlay.show { display: flex; }
+.pickup-box {
+  width: 100%;
+  max-width: 560px;
+  padding: 48px 40px;
+  background: linear-gradient(160deg, #071828, #061422);
+  border: 1px solid rgba(74,222,128,0.4);
+  clip-path: polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%);
+  animation: slideUpFade 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+  box-shadow: 0 0 80px rgba(74,222,128,0.15);
+}
+.pickup-robot-icon {
+  font-size: 80px;
+  text-align: center;
+  animation: robotBounce 1.8s ease-in-out infinite;
+  display: block;
+  margin-bottom: 16px;
+}
+.pickup-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  letter-spacing: 4px;
+  color: #4ADE80;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.pickup-subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+.pickup-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.pickup-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(5,20,60,0.6);
+  border: 1px solid rgba(74,222,128,0.12);
+  border-left: 3px solid #4ADE80;
+  clip-path: polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  opacity: 0;
+}
+.pickup-item.revealed {
+  animation: itemReveal 0.4s ease forwards;
+}
+.pickup-item-emoji { font-size: 28px; flex-shrink: 0; }
+.pickup-item-name  { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; color: var(--text); flex: 1; }
+.pickup-item-qty   { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #4ADE80; }
+.pickup-item-price { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--orange); }
+.pickup-btn {
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #4ADE80, #22c55e);
+  color: #000;
+  border: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 5px;
+  cursor: pointer;
+  clip-path: polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  animation: glowPulse 2s ease-in-out infinite;
+  transition: all 0.2s;
+}
+.pickup-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.pickup-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.pickup-table-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(74,222,128,0.6);
+  text-align: center;
+  margin-top: 16px;
+  text-transform: uppercase;
+}
   .cursor, .cursor-ring { z-index: 99999 !important; }
   #staff-overlay.open {
   z-index: 15000 !important;
@@ -3533,7 +3649,6 @@ function applyStatusToTimeline(ref, status, tableNum) {
           if (eta && d.estimatedMinutes) {
             eta.textContent = '~' + d.estimatedMinutes + ' min';
           }
-          // Show queue info strip
           let strip = document.getElementById('pred-strip-' + ref);
           const etaStrip = document.querySelector('#track-detail .track-eta-strip');
           if (!strip && etaStrip) {
@@ -3552,7 +3667,6 @@ function applyStatusToTimeline(ref, status, tableNum) {
           if (eta) eta.textContent = STATUS_ETA[status] || '—';
         });
     } else {
-      // For all other statuses remove the pred strip and use static ETA
       if (eta) eta.textContent = STATUS_ETA[status] || '—';
       const strip = document.getElementById('pred-strip-' + ref);
       if (strip) strip.remove();
@@ -3564,7 +3678,19 @@ function applyStatusToTimeline(ref, status, tableNum) {
         const sub = document.getElementById('ts-enroute-sub-' + ref);
         if (sub) sub.textContent = 'Heading to Table ' + tableNum;
       }
-      if (status === 'delivered') { markDone('ts-enroute'); markDone('ts-delivered'); }
+
+      // ── Show pickup screen when robot arrives ──
+      if (status === 'delivering') {
+        showPickupScreen(ref);
+      }
+
+      // ── Hide pickup screen and mark delivered ──
+      if (status === 'delivered') {
+        markDone('ts-enroute');
+        markDone('ts-delivered');
+        const overlay = document.getElementById('pickup-overlay');
+        if (overlay) overlay.classList.remove('show');
+      }
     }
 
     const badge = document.getElementById('olc-badge-' + ref);
@@ -4522,6 +4648,75 @@ function openCartFromAnywhere() {
       if (statusEl) statusEl.textContent = '● ONLINE';
     }
   }
+  let _pickupOrderRef = null;
+
+function showPickupScreen(ref) {
+  _pickupOrderRef = ref;
+  const order = sessionOrders.find(o => o.order_ref === ref);
+  if (!order) return;
+
+  // Populate items
+  const list = document.getElementById('pickup-items-list');
+  list.innerHTML = '';
+  (order.items || []).forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'pickup-item';
+    el.innerHTML = `
+      <span class="pickup-item-emoji">${item.emoji || '🍽️'}</span>
+      <span class="pickup-item-name">${item.name}</span>
+      <span class="pickup-item-qty">${item.qty}×</span>
+      <span class="pickup-item-price">$${(item.qty * item.unitPrice).toFixed(2)}</span>
+    `;
+    list.appendChild(el);
+    // Staggered reveal animation
+    setTimeout(() => el.classList.add('revealed'), 200 + i * 120);
+  });
+
+  document.getElementById('pickup-table-tag').textContent = `⬡ Table ${order.table_number} · ${order.order_ref}`;
+
+  const overlay = document.getElementById('pickup-overlay');
+  overlay.classList.add('show');
+
+  // Reset button
+  const btn = document.getElementById('pickup-confirm-btn');
+  btn.disabled = false;
+  btn.textContent = '✓ I\'VE TAKEN MY ORDER';
+}
+
+async function confirmPickup() {
+  const btn = document.getElementById('pickup-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'RELEASING ROBOT...';
+
+  try {
+    // Tell robot to return
+    await fetch('http://localhost:5000/pickup', { method: 'POST' }).catch(() => {});
+
+    // Update order status
+    if (_pickupOrderRef) {
+      await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'delivered' })
+      });
+      updateSessionOrderStatus(_pickupOrderRef, 'delivered');
+    }
+
+    // Hide overlay with a thank you message first
+    btn.textContent = '✓ ENJOY YOUR MEAL!';
+    btn.style.background = 'linear-gradient(135deg, #FF6B1A, #ff8c3a)';
+    setTimeout(() => {
+      document.getElementById('pickup-overlay').classList.remove('show');
+      showToast('✓ Enjoy your meal! 🎓');
+      _pickupOrderRef = null;
+    }, 1500);
+
+  } catch (err) {
+    showToast('✗ Failed — try again');
+    btn.disabled = false;
+    btn.textContent = '✓ I\'VE TAKEN MY ORDER';
+  }
+}
 </script>
 <button id="chat-fab" onclick="toggleRobotChat()" title="Chat with DINO">
   🤖
@@ -4753,6 +4948,19 @@ function openCartFromAnywhere() {
       <div class="ab-row"><span class="ab-label">Robot Dispatches</span><span class="ab-val blue" id="an-dispatches" style="color:#60A5FA">0</span></div>
       <div class="ab-row"><span class="ab-label">Avg Wait (Incoming)</span><span class="ab-val" id="an-avg-wait">—</span></div>
     </div>
+  </div>
+</div>
+<!-- PICKUP OVERLAY -->
+<div id="pickup-overlay">
+  <div class="pickup-box">
+    <span class="pickup-robot-icon">🤖</span>
+    <div class="pickup-title">YOUR ORDER IS HERE!</div>
+    <div class="pickup-subtitle">Robot is waiting at your table</div>
+    <div class="pickup-items" id="pickup-items-list"></div>
+    <button class="pickup-btn" id="pickup-confirm-btn" onclick="confirmPickup()">
+      ✓ I'VE TAKEN MY ORDER
+    </button>
+    <div class="pickup-table-tag" id="pickup-table-tag"></div>
   </div>
 </div>
 </body>
