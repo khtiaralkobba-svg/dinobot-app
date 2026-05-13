@@ -3881,13 +3881,21 @@ function applyStatusToTimeline(ref, status, tableNum) {
     trackingInterval = setInterval(async () => {
       if (!ref) return;
       try {
+        // Poll order status
         const res = await fetch(API_BASE + '/api/orders/' + ref);
         const data = await res.json();
         const status = data.order.status;
         updateSessionOrderStatus(ref, status);
         if (['delivered','cancelled'].includes(status)) clearInterval(trackingInterval);
+
+        
+        const robotRes = await fetch('http://localhost:5000/status');
+        const robotData = await robotRes.json();
+        robotX = robotData.x_norm;
+        robotY = robotData.y_norm;
+        robotAngle = robotData.theta;
       } catch {}
-    }, 5000);
+    }, 1000);  
   }
  
   function initTrackMap(ref) {
