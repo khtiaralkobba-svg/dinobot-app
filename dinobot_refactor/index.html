@@ -4798,7 +4798,11 @@ async function confirmPickup() {
   btn.disabled = true;
   btn.textContent = 'RELEASING ROBOT...';
   try {
-    await fetch('http://localhost:5000/pickup', { method: 'POST' }).catch(() => {});
+    const ROBOT_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5000'
+      : 'http://YOUR_PC_LOCAL_IP:5000';  // e.g. 'http://192.168.1.45:5000'
+
+  await fetch(ROBOT_BASE + '/pickup', { method: 'POST' }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
         method: 'PATCH',
