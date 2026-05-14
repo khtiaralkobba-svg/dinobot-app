@@ -4798,11 +4798,9 @@ async function confirmPickup() {
   btn.disabled = true;
   btn.textContent = 'RELEASING ROBOT...';
   try {
-    const ROBOT_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:5000'
-      : 'http://YOUR_PC_LOCAL_IP:5000';  // e.g. 'http://192.168.1.45:5000'
+    // Route through backend — works from mobile too
+    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST' }).catch(() => {});
 
-  await fetch(ROBOT_BASE + '/pickup', { method: 'POST' }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
         method: 'PATCH',
@@ -4810,7 +4808,7 @@ async function confirmPickup() {
         body: JSON.stringify({ status: 'delivered' })
       });
       updateSessionOrderStatus(_pickupOrderRef, 'delivered');
-       _shownPickupScreens.add(_pickupOrderRef);
+      _shownPickupScreens.add(_pickupOrderRef);
     }
     btn.textContent = '✓ ENJOY YOUR MEAL!';
     btn.style.background = 'linear-gradient(135deg, #FF6B1A, #ff8c3a)';
