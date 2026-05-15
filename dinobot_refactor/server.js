@@ -110,7 +110,10 @@ robotProxyRoutes.forEach(({ path: robotPath, method }) => {
     try {
       const response = await fetch(ROBOT_URL + robotPath, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: method === 'POST' ? JSON.stringify(req.body) : undefined,
       });
       const data = await response.json().catch(() => ({}));
