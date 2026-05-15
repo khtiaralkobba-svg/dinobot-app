@@ -19,6 +19,14 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ── Robot URL (set when robot registers itself) ───────────────────────────────
+let robotUrl = null;
+
+async function proxyToRobot(path, options = {}) {
+  if (!robotUrl) throw new Error('Robot not registered');
+  return fetch(`${robotUrl}${path}`, options);
+}
+
 // ── Serve index.html ──────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -27,6 +35,15 @@ app.get('/', (req, res) => {
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
+});
+
+// ── Robot self-registration ───────────────────────────────────────────────────
+app.post('/api/robot/register', (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'No URL provided' });
+  robotUrl = url;
+  console.log('[robot] registered at:', robotUrl);
+  res.json({ ok: true });
 });
 
 // ── Auth routes ───────────────────────────────────────────────────────────────
@@ -56,11 +73,9 @@ app.use('/api/orders', ordersRouter);
 app.post('/api/groq', async (req, res) => {
   try {
     const { message, system } = req.body;
-
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: 'GROQ_API_KEY not configured on server' });
     }
-
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,20 +83,17 @@ app.post('/api/groq', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model:       'llama-3.3-70b-versatile',
         messages:    [{ role: 'system', content: system }, ...message],
         max_tokens:  500,
         temperature: 0.8
       })
     });
-
     const data = await response.json();
-
     if (!response.ok) {
       console.error('Groq API error:', JSON.stringify(data));
       return res.status(500).json({ reply: 'Sorry, try again!', error: data });
     }
-
     const reply = data.choices?.[0]?.message?.content || 'Sorry, try again!';
     return res.json({ reply });
   } catch (err) {
@@ -89,84 +101,116 @@ app.post('/api/groq', async (req, res) => {
     return res.status(500).json({ error: 'Groq API failed' });
   }
 });
-// ── Robot proxy (forwards to local Python server) ─────────────────────────────
-const ROBOT_URL = 'http://localhost:5000';
 
-app.post('/api/robot/pickup', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/pickup`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
-});
-
+// ── Robot proxy routes ────────────────────────────────────────────────────────
 app.post('/api/robot/dispatch', async (req, res) => {
   try {
-    const r = await fetch(`${ROBOT_URL}/dispatch`, {
+    const r = await proxyToRobot('/dispatch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
     });
     const data = await r.json();
-    res.json(data);
-  } catch (err) { res.status(503).json({ error: 'Robot offline' }); }
-});
-
-app.post('/api/robot/recall', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/recall`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
-});
-
-app.post('/api/robot/stop', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/stop`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
-});
-
-app.post('/api/robot/pause', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/pause`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
-});
-
-app.post('/api/robot/resume', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/resume`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
+    res.status(r.status).json(data);
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
 });
 
 app.get('/api/robot/status', async (req, res) => {
   try {
-    const r = await fetch(`${ROBOT_URL}/status`);
+    const r = await proxyToRobot('/status');
     const data = await r.json();
     res.json(data);
-  } catch (err) { res.status(503).json({ error: 'Robot offline' }); }
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
+app.post('/api/robot/recall', async (req, res) => {
+  try {
+    await proxyToRobot('/recall', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
+app.post('/api/robot/stop', async (req, res) => {
+  try {
+    await proxyToRobot('/stop', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
+app.post('/api/robot/pause', async (req, res) => {
+  try {
+    await proxyToRobot('/pause', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
+app.post('/api/robot/resume', async (req, res) => {
+  try {
+    await proxyToRobot('/resume', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
+});
+
+app.post('/api/robot/pickup', async (req, res) => {
+  try {
+    await proxyToRobot('/pickup', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
 });
 
 app.post('/api/robot/manual/start', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/manual/start`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
+  try {
+    await proxyToRobot('/manual/start', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
 });
 
 app.post('/api/robot/manual/stop', async (req, res) => {
-  try { await fetch(`${ROBOT_URL}/manual/stop`, { method: 'POST' }); } catch (err) {}
-  res.json({ ok: true });
+  try {
+    await proxyToRobot('/manual/stop', { method: 'POST' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
 });
 
 app.post('/api/robot/manual/move', async (req, res) => {
   try {
-    const r = await fetch(`${ROBOT_URL}/manual/move`, {
+    const r = await proxyToRobot('/manual/move', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body)
     });
     const data = await r.json();
     res.json(data);
-  } catch (err) { res.status(503).json({ error: 'Robot offline' }); }
+  } catch (err) {
+    res.status(503).json({ error: 'Robot offline' });
+  }
 });
+
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
-
   socket.on('join', room => {
     socket.join(room);
     console.log(`[socket] ${socket.id} joined: ${room}`);
   });
-
   socket.on('disconnect', reason => {
     console.log('[socket] disconnected:', socket.id, reason);
   });
@@ -176,7 +220,6 @@ app.set('io', io);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
   console.log(`🚀 Dinobot running at http://localhost:${PORT}`);
 });
