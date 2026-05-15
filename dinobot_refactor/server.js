@@ -90,7 +90,7 @@ app.post('/api/groq', async (req, res) => {
   }
 });
 // ── Robot proxy routes ────────────────────────────────────────────────────────
-const ROBOT_URL = 'http://localhost:5000';
+const ROBOT_URL = process.env.ROBOT_URL || 'http://localhost:5000';
 
 const robotProxyRoutes = [
   { path: '/pickup',       method: 'POST' },
