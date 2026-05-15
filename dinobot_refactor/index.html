@@ -2685,7 +2685,6 @@ function startKitchenRobotPolling() {
     });
   }
  
-  const ROBOT_URL = 'http://localhost:5000';
  
   async function dispatchRobot(ref, tableNum) {
     if (!window._pythonOnline) { showToast('✗ Robot server offline — start the Python script first'); return; }
@@ -2698,7 +2697,7 @@ function startKitchenRobotPolling() {
         body: JSON.stringify({ status:'dispatched' })
       });
       if (!res.ok) throw new Error('Failed to update order');
-      const robotRes = await fetch(ROBOT_URL + '/dispatch', {
+      const robotRes = await fetch(API_BASE + '/api/robot/dispatch', {
         method:'POST', headers: authHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ order_ref:ref, table_number:tableNum })
       });
@@ -3871,7 +3870,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
       try {
         const [orderRes, robotRes] = await Promise.all([
           fetch(API_BASE + '/api/orders/' + ref),
-          fetch('http://localhost:5000/status')
+          fetch(API_BASE + '/api/robot/status')
         ]);
         const data = await orderRes.json();
         const status = data.order.status;
