@@ -2696,7 +2696,7 @@ function startKitchenRobotPolling() {
         body: JSON.stringify({ status:'dispatched' })
       });
       if (!res.ok) throw new Error('Failed to update order');
-      const robotRes = await fetch(ROBOT_URL + '/dispatch', {
+      const robotRes = await fetch(`${API_BASE}/api/robot/dispatch`, {
         method:'POST', headers: authHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ order_ref:ref, table_number:tableNum })
       });
