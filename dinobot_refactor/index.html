@@ -2407,7 +2407,7 @@ function startKitchenRobotPolling() {
     if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
     window._kitchenRobotPoll = setInterval(async () => {
         try {
-            const res  = await fetch('http://localhost:5000/status');
+            const res  = await fetch(API_BASE + '/api/robot/status');
             const data = await res.json();
             window._pythonOnline = true;
 
@@ -2656,8 +2656,8 @@ function startKitchenRobotPolling() {
       resortColumns();
       showToast('⬡ Reset ' + data.affected + ' stuck orders — robot ready');
       // Tell Python robot to stop and return to dock
-      fetch('http://localhost:5000/stop', { method: 'POST' })
-        .then(() => fetch('http://localhost:5000/recall', { method: 'POST' }))
+      fetch(API_BASE + '/api/robot/stop', { method: 'POST' })
+        .then(() => fetch(API_BASE + '/api/robot/recall', { method: 'POST' }))
         .catch(() => {}); // silent fail if Python offline
 
       // Full reload after DOM clears
@@ -2684,8 +2684,6 @@ function startKitchenRobotPolling() {
       }
     });
   }
- 
-  const ROBOT_URL = 'http://localhost:5000';
  
   async function dispatchRobot(ref, tableNum) {
     if (!window._pythonOnline) { showToast('✗ Robot server offline — start the Python script first'); return; }
@@ -3196,7 +3194,7 @@ function connectSocket(room) {
 
     // ── Dispatch robot with order_ref ──
     try {
-      const res = await fetch('http://localhost:5000/dispatch', {
+      const res = await fetch(API_BASE + '/api/robot/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table_number: tableId, order_ref: orderRef })  // ← added order_ref
@@ -3226,7 +3224,7 @@ function connectSocket(room) {
     document.getElementById('speed-val').textContent='95 cm/s'; document.getElementById('speed-bar').style.width='90%';
     addActivity('dot-robot','UNIT-01 recalled to <strong>Dock</strong>'); showToast('⬡ UNIT-01 recalling to dock');
     // ── Tell real robot to return ──
-    fetch('http://localhost:5000/recall', { method: 'POST' }).catch(() => {});
+    fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
   }
  
   function pauseUnit() {
@@ -3239,11 +3237,11 @@ function connectSocket(room) {
         document.getElementById('speed-val').textContent = '0 cm/s';
         document.getElementById('speed-bar').style.width = '0%';
         addActivity('dot-status', 'UNIT-01 <strong>paused</strong>');
-        fetch('http://localhost:5000/pause', { method: 'POST' }).catch(() => {});
+        fetch(API_BASE + '/api/robot/pause', { method: 'POST' }).catch(() => {});
     } else {
         btn.textContent = '⬡ PAUSE UNIT';
         addActivity('dot-status', 'UNIT-01 <strong>resumed</strong>');
-        fetch('http://localhost:5000/resume', { method: 'POST' }).catch(() => {});
+        fetch(API_BASE + '/api/robot/resume', { method: 'POST' }).catch(() => {});
     }
 }
  
@@ -3260,7 +3258,7 @@ function connectSocket(room) {
         document.getElementById('speed-bar').style.width='0%';
         addActivity('dot-system','🛑 <strong>EMERGENCY STOP</strong> activated');
         // ── Stop real robot ──
-        fetch('http://localhost:5000/stop', { method: 'POST' }).catch(() => {});
+        fetch(API_BASE + '/api/robot/stop', { method: 'POST' }).catch(() => {});
     } else {
         btn.classList.remove('active'); 
         btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
@@ -3268,7 +3266,7 @@ function connectSocket(room) {
         setRobotState('DOCKED — STANDBY','—','#4ADE80');
         addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
         // Resume robot (returns to IDLE/dock-ready state)
-        fetch('http://localhost:5000/recall', { method: 'POST' }).catch(() => {});
+        fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     }
 }
  
@@ -3292,7 +3290,7 @@ function initMap() {
     if (window._robotPollInterval) clearInterval(window._robotPollInterval);
     window._robotPollInterval = setInterval(async () => {
       try {
-        const res = await fetch('http://localhost:5000/status');
+        const res = await fetch(API_BASE + '/api/robot/status');
         if (!res.ok) throw new Error('Robot server not ready');
         const data = await res.json();
 
@@ -3536,7 +3534,7 @@ function toggleManual() {
     dpad.style.pointerEvents = 'auto';
     setRobotState('MANUAL OVERRIDE', 'Operator', '#FBB924');
     // Tell Python to enter manual mode
-    fetch('http://localhost:5000/manual/start', { method: 'POST' }).catch(() => {});
+    fetch(API_BASE + '/api/robot/manual/start', { method: 'POST' }).catch(() => {});
   } else {
     toggle.classList.remove('active');
     toggle.textContent = '⬡ ENABLE MANUAL CONTROL';
@@ -3544,7 +3542,7 @@ function toggleManual() {
     dpad.style.pointerEvents = 'none';
     stopMove();
     // Tell Python to exit manual mode
-    fetch('http://localhost:5000/manual/stop', { method: 'POST' }).catch(() => {});
+    fetch(API_BASE + '/api/robot/manual/stop', { method: 'POST' }).catch(() => {});
     setRobotState('DOCKED — STANDBY', '—', '#4ADE80');
   }
 }
@@ -3563,7 +3561,7 @@ function moveRobot(dir) {
   targetX = robotX; targetY = robotY;
 
   // Send to Python
-  fetch('http://localhost:5000/manual/move', {
+  fetch(API_BASE + '/api/robot/manual/move', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ direction: dir, speed: speedLevel })
@@ -3574,7 +3572,7 @@ function moveRobot(dir) {
 // ── REPLACE manualStop() ──
 function manualStop() {
   stopMove();
-  fetch('http://localhost:5000/manual/move', {
+  fetch(API_BASE + '/api/robot/manual/move', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ direction: 'stop', speed: 1 })
@@ -3594,7 +3592,7 @@ function stopMove() {
   manualTimer = null;
   highlightDpad(null, false);
   if (manualActive) {
-    fetch('http://localhost:5000/manual/move', {
+    fetch(API_BASE + '/api/robot/manual/move', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ direction: 'stop', speed: 1 })
@@ -3871,7 +3869,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
       try {
         const [orderRes, robotRes] = await Promise.all([
           fetch(API_BASE + '/api/orders/' + ref),
-          fetch('http://localhost:5000/status')
+          fetch(API_BASE + '/api/robot/status')
         ]);
         const data = await orderRes.json();
         const status = data.order.status;
@@ -4798,7 +4796,7 @@ async function confirmPickup() {
   btn.disabled = true;
   btn.textContent = 'RELEASING ROBOT...';
   try {
-    await fetch('http://localhost:5000/pickup', { method: 'POST' }).catch(() => {});
+    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST' }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
         method: 'PATCH',

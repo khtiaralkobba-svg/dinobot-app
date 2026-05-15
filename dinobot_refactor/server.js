@@ -89,7 +89,37 @@ app.post('/api/groq', async (req, res) => {
     return res.status(500).json({ error: 'Groq API failed' });
   }
 });
+// ── Robot proxy routes ────────────────────────────────────────────────────────
+const ROBOT_URL = 'http://localhost:5000';
 
+const robotProxyRoutes = [
+  { path: '/pickup',       method: 'POST' },
+  { path: '/dispatch',     method: 'POST' },
+  { path: '/recall',       method: 'POST' },
+  { path: '/stop',         method: 'POST' },
+  { path: '/pause',        method: 'POST' },
+  { path: '/resume',       method: 'POST' },
+  { path: '/status',       method: 'GET'  },
+  { path: '/manual/start', method: 'POST' },
+  { path: '/manual/stop',  method: 'POST' },
+  { path: '/manual/move',  method: 'POST' },
+];
+
+robotProxyRoutes.forEach(({ path: robotPath, method }) => {
+  app[method.toLowerCase()]('/api/robot' + robotPath, async (req, res) => {
+    try {
+      const response = await fetch(ROBOT_URL + robotPath, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: method === 'POST' ? JSON.stringify(req.body) : undefined,
+      });
+      const data = await response.json().catch(() => ({}));
+      res.status(response.status).json(data);
+    } catch (err) {
+      res.status(502).json({ error: 'Robot server unreachable' });
+    }
+  });
+});
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
