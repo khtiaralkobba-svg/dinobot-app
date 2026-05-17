@@ -83,10 +83,6 @@ router.get(
 router.get(
   '/all',
   authenticateToken,
-  async (req, res, next) => {
-    console.log('[/all] req.user:', JSON.stringify(req.user));
-    next();
-  },
   authorizeRoles('manager'),
   async (req, res) => {
     try {
@@ -158,12 +154,6 @@ router.patch('/:orderRef/cancel', cancelOrder);
 router.patch('/:orderRef/status', async (req, res, next) => {
   const { status } = req.body;
 
-    // ← ADD THIS TEMPORARILY
-  console.log('[AUTH] x-robot-secret:', req.headers['x-robot-secret']);
-  console.log('[AUTH] ROBOT_SECRET env:', process.env.ROBOT_SECRET);
-  console.log('[AUTH] match:', req.headers['x-robot-secret'] === process.env.ROBOT_SECRET);
-
-  // Allow robot with secret key
   if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
     return next();
   }
