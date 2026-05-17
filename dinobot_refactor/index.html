@@ -6,6 +6,12 @@
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <style>
+#reset-stuck-btn,
+#reset-stuck-btn:disabled {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
   /* ── PICKUP ANIMATION ─────────────────────────────────── */
 @keyframes slideUpFade {
   from { opacity: 0; transform: translateY(40px); }
@@ -4900,8 +4906,7 @@ async function confirmPickup() {
         <div style="display:flex;flex-direction:column;gap:6px;">
           <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
           <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-          <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
-        </div>
+         <button id="reset-stuck-btn" onclick="event.stopPropagation();resetStuckOrders();" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;pointer-events:auto !important;opacity:1 !important;cursor:pointer !important;">⬡ RESET STUCK</button>
       </div>
       <div>
         <div class="op-section-title">⬡ Telemetry</div>
