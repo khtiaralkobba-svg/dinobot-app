@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dinobot — Autonomous Campus Dining</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<script>
+  if (localStorage.getItem('dinobotTheme') === 'light') {
+    document.documentElement.classList.add('light-mode-early');
+  }
+</script>
 <style>
   /* ── PICKUP ANIMATION ─────────────────────────────────── */
 @keyframes slideUpFade {
@@ -208,6 +213,89 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     --text: #dce8f8;
     --text-dim: rgba(180, 210, 245, 0.5);
     --hex-size: 60px;
+  }
+    body.light-mode {
+      --orange: #E85A0A;
+      --orange-bright: #CC4D00;
+      --orange-glow: rgba(232, 90, 10, 0.3);
+      --black: #f0ede8;
+      --dark: #e8e4de;
+      --darker: #ece9e3;
+      --panel: #e2ddd7;
+      --border: rgba(180, 90, 20, 0.22);
+      --border-bright: rgba(180, 90, 20, 0.55);
+      --text: #1a1208;
+      --text-dim: rgba(60, 35, 10, 0.6);
+    }
+
+  body.light-mode nav {
+    background: rgba(240, 237, 232, 0.96);
+  }
+
+  body.light-mode .hex-bg {
+    opacity: 0.04;
+  }
+
+  body.light-mode .panel,
+  body.light-mode .feature-card,
+  body.light-mode .stat-card,
+  body.light-mode .analytics-card,
+  body.light-mode .order-ticket,
+  body.light-mode .activity-item,
+  body.light-mode .confirm-card,
+  body.light-mode .track-status-card,
+  body.light-mode .order-list-card,
+  body.light-mode .pickup-box {
+    background: linear-gradient(160deg, #e8e2da, #dfd9d0);
+  }
+
+  body.light-mode .form-input {
+    background: rgba(240, 235, 226, 0.8);
+    color: #1a1208;
+  }
+
+  body.light-mode #cine-loader {
+    background: #f0ede8;
+  }
+
+  body.light-mode .telem-box {
+    background: rgba(220, 215, 205, 0.8);
+  }
+
+  body.light-mode #pickup-overlay {
+    background: rgba(240, 237, 232, 0.97);
+  }
+
+  body.light-mode .chat-bubble-bot {
+    background: rgba(220, 215, 205, 0.8);
+    color: #1a1208;
+  }
+
+  body.light-mode #robot-chat-panel {
+    background: linear-gradient(160deg, #e8e2da, #dfd9d0);
+  }
+
+  body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.08); }
+  body.light-mode .kitch-col-head-prep { background: rgba(251,185,36,0.08); }
+  body.light-mode .kitch-col-head-ready{ background: rgba(74,222,128,0.08); }
+
+  body.light-mode #map-overlay,
+  body.light-mode #staff-overlay,
+  body.light-mode #analytics-overlay {
+    background: #f0ede8;
+  }
+
+  body.light-mode .staff-row {
+    background: rgba(220, 215, 205, 0.6);
+  }
+
+  body.light-mode .scanline { opacity: 0.06; }
+  html.light-mode-early body { background: #f0ede8; }
+
+  body.light-mode {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -5%, rgba(220, 180, 140, 0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 100%, rgba(200, 160, 120, 0.3) 0%, transparent 55%);
   }
   #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
@@ -1058,6 +1146,11 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     <li><a href="#" id="nav-home" class="active" onclick="showPage('home'); return false;">Home</a></li>
     <li><a href="#" id="nav-student" onclick="showPage('student'); return false;">Order Now</a></li>
     <li><a href="#" class="nav-cta" id="nav-dashboard" onclick="showPage('dashboard'); return false;">Login →</a></li>
+    <li>
+      <button id="theme-toggle" onclick="toggleTheme()" style="color:var(--text-dim);background:transparent;border:1px solid var(--border);padding:8px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">
+        ☀ LIGHT
+      </button>
+    </li>
   </ul>
 </nav>
  
@@ -1341,6 +1434,21 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   </div>
 </div>
 <script>
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    document.documentElement.classList.remove('light-mode-early');
+    localStorage.setItem('dinobotTheme', isLight ? 'light' : 'dark');
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = isLight ? '🌙 DARK' : '☀ LIGHT';
+  }
+
+(function applyStoredTheme() {
+  if (localStorage.getItem('dinobotTheme') === 'light') {
+    document.body.classList.add('light-mode');
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = '🌙 DARK';
+  }
+})();
   function openAnalyticsOverlay() {
   const el = document.getElementById('analytics-overlay');
   el.style.display = 'flex';
