@@ -2624,75 +2624,38 @@ function startKitchenRobotPolling() {
   let robotBusy = false;
  
   async function resetStuckOrders() {
-  // Step 1: Collect stuck refs locally first
   let stuckRefs = Object.entries(kitchenOrders)
     .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
     .map(([ref]) => ref);
 
-  // Step 2: If none locally, fetch from server (manager view)
   if (stuckRefs.length === 0) {
     try {
       const res = await fetch(API_BASE + '/api/orders', { headers: authHeaders() });
       const data = await res.json();
-      console.log('[resetStuck] All orders:', data.orders?.map(o => ({ref: o.order_ref, status: o.status})));
       stuckRefs = (data.orders || [])
         .filter(o => ['dispatched', 'delivering'].includes(o.status))
         .map(o => o.order_ref);
-      console.log('[resetStuck] Stuck refs found:', stuckRefs);
     } catch (e) {
-      showToast('✗ Could not fetch orders from server');
-      return;
+      showToast('✗ Could not fetch orders from server'); return;
     }
   }
 
   if (stuckRefs.length === 0) {
-    showToast('⬡ No stuck dispatched orders to remove');
-    return;
+    showToast('⬡ No stuck dispatched orders to remove'); return;
   }
 
-  // Step 3: Remove cards from DOM with animation
-  stuckRefs.forEach(ref => {
-    const card = document.getElementById('order-' + ref);
-    if (card) {
-      card.style.transition = 'opacity 0.3s, transform 0.3s';
-      card.style.opacity = '0';
-      card.style.transform = 'translateX(20px)';
-      setTimeout(() => card.remove(), 320);
-    }
-    if (kitchenOrders[ref]?.timerInterval) clearInterval(kitchenOrders[ref].timerInterval);
-    if (kitchenOrders[ref]?.waitInterval)  clearInterval(kitchenOrders[ref].waitInterval);
-    delete kitchenOrders[ref];
-  });
-
-  // Step 4: Reset robot busy state immediately
+  // Just recall — do NOT cancel, do NOT remove cards
+  // Normal delivery flow continues after robot unsticks
   robotBusy = false;
   setAllDispatchButtons(true);
-  setTimeout(() => resortColumns(), 350);
-  showToast('⬡ Removed ' + stuckRefs.length + ' stuck order'
-    + (stuckRefs.length > 1 ? 's' : '') + ' — robot ready');
+  showToast('⬡ Robot recalled — delivery will continue normally');
 
-  // Step 5: Cancel each stuck order on the server
-  for (const ref of stuckRefs) {
-    try {
-      await fetch(API_BASE + '/api/orders/' + ref + '/status', {
-        method: 'PATCH',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ status: 'cancelled' })
-      });
-      console.log('[resetStuck] Cancelled on server:', ref);
-    } catch (e) {
-      console.warn('[resetStuck] Server patch failed for', ref, e);
-    }
-  }
-
-  // Step 6: Tell robot to stop and return to dock
   try {
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
   } catch (e) {
-    console.warn('[resetStuck] Robot recall failed (offline?):', e);
+    console.warn('[resetStuck] Robot recall failed:', e);
   }
 
-  // Step 7: Reload fresh state from server after DOM settles
   setTimeout(() => loadKitchenOrders(), 600);
 }
   function setAllDispatchButtons(enabled) {
@@ -4882,7 +4845,6 @@ async function confirmPickup() {
 
     <!-- Critical row -->
 <div style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);pointer-events:auto;">
-<div style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);">
   <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
   <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
     <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="position:relative;z-index:1;">
