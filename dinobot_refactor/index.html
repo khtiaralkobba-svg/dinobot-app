@@ -385,6 +385,46 @@ body.light-mode .track-eta-val { color: #E8620A; }
 
 /* Pred strip */
 body.light-mode #pred-strip-* { color: #b45309; border-color: rgba(180,83,9,0.3); }
+/* Strong bright status colors */
+body.light-mode .dot-order { background: #16a34a; box-shadow: 0 0 6px #16a34a; }
+body.light-mode .dot-status { background: #E8620A; box-shadow: 0 0 6px #E8620A; }
+body.light-mode .dot-robot { background: #2563eb; box-shadow: 0 0 6px #2563eb; }
+body.light-mode .dot-system { background: #7c3aed; box-shadow: 0 0 6px #7c3aed; }
+
+/* Timeline dots stronger */
+body.light-mode .track-step.done .track-step-dot { background: #dcfce7; border-color: #16a34a; color: #16a34a; box-shadow: 0 0 10px rgba(22,163,74,0.4); }
+body.light-mode .track-step.done .track-step-title { color: #15803d; }
+body.light-mode .track-step.done::after { background: #16a34a; }
+body.light-mode .track-step.active .track-step-dot { background: #fff7ed; border-color: #E8620A; box-shadow: 0 0 14px rgba(232,98,10,0.5); }
+body.light-mode .track-step.active .track-step-title { color: #c2410c; }
+
+/* Step progress bar dots */
+body.light-mode .step-item.done .step-dot { background: #dcfce7; border-color: #16a34a; color: #15803d; box-shadow: 0 0 10px rgba(22,163,74,0.3); }
+
+/* Order status badges stronger */
+body.light-mode .olc-status-new { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
+body.light-mode .olc-status-prep { color: #b45309; border-color: #b45309; background: rgba(180,83,9,0.08); }
+body.light-mode .olc-status-ready { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.08); }
+body.light-mode .olc-status-dispatched,
+body.light-mode .olc-status-delivering { color: #6d28d9; border-color: #6d28d9; background: rgba(109,40,217,0.08); }
+body.light-mode .olc-status-delivered { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.06); }
+body.light-mode .olc-status-cancelled { color: #b91c1c; border-color: #b91c1c; background: rgba(185,28,28,0.08); }
+
+/* Cancel button */
+body.light-mode #cancel-btn-* { background: #dc2626 !important; color: #fff !important; box-shadow: 0 0 24px rgba(220,38,38,0.4) !important; }
+body.light-mode .student-btn[style*="ef4444"] { background: #dc2626 !important; box-shadow: 0 0 24px rgba(220,38,38,0.4) !important; }
+
+/* Ticket action buttons */
+body.light-mode .ticket-action-new { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
+body.light-mode .ticket-action-prep { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.08); }
+
+/* Kitchen column count badges */
+body.light-mode .kitch-col-count-new { color: #1d4ed8; background: rgba(29,78,216,0.12); }
+body.light-mode .kitch-col-count-prep { color: #b45309; background: rgba(180,83,9,0.12); }
+body.light-mode .kitch-col-count-ready { color: #15803d; background: rgba(21,128,61,0.12); }
+body.light-mode .kitch-col-title-new { color: #1d4ed8; }
+body.light-mode .kitch-col-title-prep { color: #b45309; }
+body.light-mode .kitch-col-title-ready { color: #15803d; }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
