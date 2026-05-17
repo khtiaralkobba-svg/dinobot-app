@@ -2634,9 +2634,11 @@ function startKitchenRobotPolling() {
     try {
       const res = await fetch(API_BASE + '/api/orders', { headers: authHeaders() });
       const data = await res.json();
+      console.log('[resetStuck] All orders:', data.orders?.map(o => ({ref: o.order_ref, status: o.status})));
       stuckRefs = (data.orders || [])
         .filter(o => ['dispatched', 'delivering'].includes(o.status))
         .map(o => o.order_ref);
+      console.log('[resetStuck] Stuck refs found:', stuckRefs);
     } catch (e) {
       showToast('✗ Could not fetch orders from server');
       return;
@@ -2685,7 +2687,6 @@ function startKitchenRobotPolling() {
 
   // Step 6: Tell robot to stop and return to dock
   try {
-    await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
   } catch (e) {
     console.warn('[resetStuck] Robot recall failed (offline?):', e);
