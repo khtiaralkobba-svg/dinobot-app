@@ -2458,7 +2458,9 @@ function startKitchenRobotPolling() {
   function startAnalyticsPolling() {
     if (_analyticsInterval) clearInterval(_analyticsInterval);
     loadAnalyticsFromDB();
-    _analyticsInterval = setInterval(loadAnalyticsFromDB, 10000);
+    _analyticsInterval = setInterval(() => {
+      if (currentRole === 'manager') loadAnalyticsFromDB();
+    }, 10000);
   }
  
   // ── Smooth card transition between columns ──
@@ -3007,55 +3009,46 @@ function getKitchenPrediction(ref) {
     }
   }
   // ── Load analytics from DB on login ──────────────────────
-  async function loadAnalyticsFromDB() {
-    try {
-      const res = await fetch(API_BASE + '/api/orders/all', {
-        headers: authHeaders({ 'Content-Type': 'application/json' })
-      });
-      const res2 = !res.ok ? await fetch(API_BASE + '/api/orders', {
-        headers: authHeaders({ 'Content-Type': 'application/json' })
-      }) : res;
-      const data = await res2.json();
-      const orders = data.orders || [];
+ async function loadAnalyticsFromDB() {
+  if (currentRole !== 'manager') return;
+  try {
+    const res = await fetch(API_BASE + '/api/orders/all', {
+      headers: authHeaders({ 'Content-Type': 'application/json' })
+    });
+    const res2 = !res.ok ? await fetch(API_BASE + '/api/orders', {
+      headers: authHeaders({ 'Content-Type': 'application/json' })
+    }) : res;
+    const data = await res2.json();
+    const orders = data.orders || [];
 
-      // Reset analytics before seeding
-      analytics.prepTimes       = [];
-      analytics.lateOrders      = 0;
-      analytics.totalOrders     = 0;
-      analytics.completedOrders = 0;
-      analytics.cancelledOrders = 0;
-      analytics.dispatches      = 0;
-      analytics.fastestPrep     = null;
-      analytics.slowestPrep     = null;
-      analytics.waitTimes       = [];
+    analytics.prepTimes       = [];
+    analytics.lateOrders      = 0;
+    analytics.totalOrders     = 0;
+    analytics.completedOrders = 0;
+    analytics.cancelledOrders = 0;
+    analytics.dispatches      = 0;
+    analytics.fastestPrep     = null;
+    analytics.slowestPrep     = null;
+    analytics.waitTimes       = [];
 
-     orders.forEach(order => {
-  // Count ALL orders toward total — no skipping
-  analytics.totalOrders++;
+    orders.forEach(order => {
+      analytics.totalOrders++;
+      if (order.status === 'cancelled') {
+        analytics.cancelledOrders++;
+        return;
+      }
+      if (['ready','dispatched','delivering','delivered'].includes(order.status)) {
+        analytics.completedOrders++;
+      }
+      if (['dispatched','delivering','delivered'].includes(order.status)) {
+        analytics.dispatches++;
+      }
+    });
 
-  // Cancelled
-  if (order.status === 'cancelled') {
-    analytics.cancelledOrders++;
-    return;
+    updateAnalyticsUI();
+  } catch (err) {
+    console.error('[loadAnalyticsFromDB]', err);
   }
-
-  // Completed = ready and beyond
-  if (['ready','dispatched','delivering','delivered'].includes(order.status)) {
-    analytics.completedOrders++;
-  }
-
-  // Dispatches
-  if (['dispatched','delivering','delivered'].includes(order.status)) {
-    analytics.dispatches++;
-  }
-
-  // ... rest of your code stays EXACTLY the same
-});
-
-      updateAnalyticsUI();
-    } catch (err) {
-      console.error('[loadAnalyticsFromDB]', err);
-    }
 }
  /* ── WEBSOCKET SYNC ─────────────────────────────────── */
 function connectSocket(room) {
