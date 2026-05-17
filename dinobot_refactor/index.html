@@ -564,6 +564,38 @@ body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
 /* Unit-01 state label */
 body.light-mode [style*="UNIT-01 STATE"] { color: rgba(20,8,0,0.5) !important; }
 body.light-mode [style*="DESTINATION"] { color: rgba(20,8,0,0.4) !important; }
+/* Fix estop dark background */
+body.light-mode .cc-layer-critical { 
+  background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(253,248,242,0.8) 100%) !important; 
+  border-color: rgba(239,68,68,0.25) !important;
+}
+
+/* Fix dpad dark panel */
+body.light-mode #map-overlay .telem-box,
+body.light-mode #map-overlay [style*="background:rgba(2,8,26"],
+body.light-mode #map-overlay [style*="background: rgba(2,8,26"] { 
+  background: rgba(240,232,220,0.6) !important; 
+  border-color: rgba(180,80,0,0.15) !important; 
+}
+
+/* Dpad buttons */
+body.light-mode #map-overlay .dpad-btn,
+body.light-mode #dpad .dpad-btn { 
+  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  border-color: rgba(180,80,0,0.25) !important; 
+  color: #1C0F00 !important; 
+}
+
+/* Manual control wrapper background */
+body.light-mode #map-overlay > div:last-child > div > div:last-child {
+  background: rgba(240,232,220,0.6) !important;
+  border-color: rgba(180,80,0,0.15) !important;
+}
+
+/* UNIT-01 STATE and DESTINATION labels */
+body.light-mode #map-overlay [style*="font-family:'Share Tech Mono'"] { 
+  color: rgba(20,8,0,0.6) !important; 
+}
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
