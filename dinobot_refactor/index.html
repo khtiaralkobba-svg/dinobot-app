@@ -710,6 +710,128 @@ body.light-mode .estop-btn {
   border-color: rgba(239,68,68,0.5) !important;
   background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%) !important;
 }
+/* Staff overlay main sections */
+body.light-mode #staff-overlay > div:last-child { background: transparent !important; }
+body.light-mode #staff-overlay > div:last-child > div { background: transparent !important; }
+
+/* Create account + live status panels */
+body.light-mode #staff-overlay [style*="rgba(192,132,252,0.15)"] { 
+  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(253,248,242,0.8) 100%) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+
+/* Staff list table panel */
+body.light-mode #staff-overlay [style*="rgba(192,132,252,0.02)"] { 
+  background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(253,248,242,0.7) 100%) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+
+/* Staff overlay header */
+body.light-mode #staff-overlay > div:first-child { 
+  background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+
+/* Header text */
+body.light-mode #staff-overlay [style*="ACCESS CONTROL"] { color: #E8620A !important; }
+body.light-mode #staff-overlay [style*="STAFF"] { color: #1C0F00 !important; }
+
+/* Form inputs */
+body.light-mode #staff-name,
+body.light-mode #staff-username,
+body.light-mode #staff-password { 
+  background: rgba(240,232,220,0.8) !important; 
+  border-color: rgba(180,80,0,0.25) !important; 
+  color: #1C0F00 !important; 
+}
+
+/* Generate button */
+body.light-mode #staff-overlay [onclick="generateStaffPassword()"] { 
+  background: rgba(232,98,10,0.1) !important; 
+  border-color: rgba(180,80,0,0.4) !important; 
+  color: #E8620A !important; 
+}
+
+/* Create account button */
+body.light-mode #staff-overlay [onclick="createStaffAccount()"] { 
+  background: rgba(232,98,10,0.12) !important; 
+  border-color: rgba(180,80,0,0.4) !important; 
+  color: #c2410c !important; 
+  font-weight: 700 !important;
+}
+
+/* Role tag */
+body.light-mode #staff-overlay [style*="ROLE: KITCHEN"] { 
+  background: rgba(240,232,220,0.8) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+  color: rgba(20,8,0,0.6) !important; 
+}
+
+/* Staff list header */
+body.light-mode #staff-list-table > div:first-child { 
+  color: rgba(180,80,0,0.6) !important; 
+  border-color: rgba(180,80,0,0.15) !important; 
+}
+
+/* Staff rows */
+body.light-mode .staff-row { 
+  background: linear-gradient(160deg, rgba(232,98,10,0.06), rgba(240,232,220,0.4)) !important; 
+  border-color: rgba(180,80,0,0.15) !important; 
+  border-left-color: rgba(180,80,0,0.3) !important; 
+}
+body.light-mode .staff-cell { color: #1C0F00 !important; }
+
+/* Action buttons */
+body.light-mode .staff-btn-disable { color: #92400e !important; border-color: rgba(180,83,9,0.4) !important; background: rgba(180,83,9,0.08) !important; }
+body.light-mode .staff-btn-enable { color: #15803d !important; border-color: rgba(22,163,74,0.4) !important; background: rgba(22,163,74,0.08) !important; }
+body.light-mode .staff-btn-delete { color: #b91c1c !important; border-color: rgba(185,28,28,0.4) !important; background: rgba(185,28,28,0.08) !important; }
+
+/* Section tags */
+body.light-mode #staff-overlay [style*="CREATE NEW"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #FDF8F2 !important; }
+body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #FDF8F2 !important; }
+/* Analytics overlay header */
+body.light-mode #analytics-overlay > div:first-child { 
+  background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+
+/* Analytics cards */
+body.light-mode .analytics-card { 
+  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+body.light-mode .ac-label { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .ac-sub { color: rgba(20,8,0,0.6) !important; }
+body.light-mode .ac-bar-label { color: rgba(20,8,0,0.6) !important; }
+body.light-mode .ac-bar-track { background: rgba(180,80,0,0.12) !important; }
+
+/* Session breakdown rows */
+body.light-mode .ab-row { 
+  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
+body.light-mode .ab-label { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .ab-val { color: #1C0F00 !important; }
+
+/* Analytics section title */
+body.light-mode .analytics-section-title { color: rgba(180,80,0,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
+
+/* Header text colors */
+body.light-mode #analytics-overlay [style*="PERFORMANCE"] { color: #E8620A !important; }
+body.light-mode #analytics-overlay [style*="SYSTEM"] { color: #1C0F00 !important; }
+body.light-mode #analytics-overlay [style*="LIVE DATA"] { color: #16a34a !important; }
+
+/* Analytics layer wrapper */
+body.light-mode #analytics-overlay > div:last-child { background: transparent !important; }
+body.light-mode .analytics-layer { 
+  background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(253,248,242,0.6) 100%) !important; 
+  border-color: rgba(180,80,0,0.15) !important; 
+}
+body.light-mode .analytics-layer .cc-layer-tag { 
+  background: #FDF8F2 !important; 
+  color: rgba(180,80,0,0.7) !important; 
+  border-color: rgba(180,80,0,0.2) !important; 
+}
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
