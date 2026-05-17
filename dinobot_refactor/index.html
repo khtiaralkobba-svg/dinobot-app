@@ -4869,7 +4869,7 @@ async function confirmPickup() {
 <div style="position:relative;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);">
   <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
   <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
-    <button id="estop-btn" onclick="toggleEStop()" class="estop-btn">
+    <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="position:relative;z-index:1;">
       <span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>
     </button>
     <div style="text-align:center;min-width:200px;display:flex;flex-direction:column;align-items:center;gap:8px;">
@@ -4885,37 +4885,37 @@ async function confirmPickup() {
 </div>
 
     <!-- Dispatch + Unit Control + Telemetry -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-      <div>
-        <div class="op-section-title">⬡ Dispatch</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-          <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
-          <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
-          <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
-          <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
-          <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
-          <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
-          <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
-          <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
-        </div>
-      </div>
-      <div>
-        <div class="op-section-title">⬡ Unit Control</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
-          <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="position:relative;z-index:1;">⬡ PAUSE UNIT</button>
-         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;position:relative;z-index:2;">⬡ RESET STUCK</button>
-        </div>
-      </div>
-      <div>
-        <div class="op-section-title">⬡ Telemetry</div>
-        <div class="telem-box">
-          <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
-          <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
-          <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
-        </div>
-      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;">
+  <div>
+    <div class="op-section-title">⬡ Dispatch</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
+      <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
+      <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
+      <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
+      <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
+      <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
+      <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
+      <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
     </div>
+  </div>
+  <div style="position:relative;z-index:2;">
+    <div class="op-section-title">⬡ Unit Control</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
+      <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="position:relative;z-index:1;">⬡ PAUSE UNIT</button>
+      <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;position:relative;z-index:3;">⬡ RESET STUCK</button>
+    </div>
+  </div>
+  <div>
+    <div class="op-section-title">⬡ Telemetry</div>
+    <div class="telem-box">
+      <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
+      <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
+    </div>
+  </div>
+</div>
 
     <!-- Map + Manual Override -->
     <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;">
