@@ -214,27 +214,27 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     --text-dim: rgba(180, 210, 245, 0.5);
     --hex-size: 60px;
   }
-   body.light-mode {
-  --orange: #D94F00;
-  --orange-bright: #F05A00;
-  --orange-glow: rgba(217, 79, 0, 0.25);
-  --black: #EEF2F7;
-  --dark: #E4EAF2;
-  --darker: #E8EDF5;
-  --panel: #DAE2ED;
-  --border: rgba(30, 60, 120, 0.15);
-  --border-bright: rgba(30, 60, 120, 0.4);
-  --text: #0D1B2E;
-  --text-dim: rgba(20, 45, 90, 0.55);
+  body.light-mode {
+  --orange: #E8620A;
+  --orange-bright: #FF7520;
+  --orange-glow: rgba(232, 98, 10, 0.3);
+  --black: #E8F4FF;
+  --dark: #DCF0FF;
+  --darker: #E4F2FF;
+  --panel: #D0E8FA;
+  --border: rgba(0, 80, 160, 0.15);
+  --border-bright: rgba(0, 80, 160, 0.4);
+  --text: #0A1F3A;
+  --text-dim: rgba(10, 40, 90, 0.55);
   background-image:
-    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(100, 140, 220, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(80, 120, 200, 0.12) 0%, transparent 55%);
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(100, 180, 255, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(60, 150, 230, 0.2) 0%, transparent 55%);
 }
 
-body.light-mode nav { background: rgba(220, 228, 240, 0.96); }
+html.light-mode-early body { background: #E8F4FF; }
+body.light-mode nav { background: rgba(210, 235, 255, 0.96); }
 body.light-mode .hex-bg { opacity: 0.04; }
-body.light-mode .scanline { opacity: 0.06; }
-html.light-mode-early body { background: #EEF2F7; }
+body.light-mode .scanline { opacity: 0.04; }
 
 body.light-mode .panel,
 body.light-mode .feature-card,
@@ -249,119 +249,100 @@ body.light-mode .pickup-box,
 body.light-mode .auth-fields.panel,
 body.light-mode .menu-item,
 body.light-mode .table-btn {
-  background: linear-gradient(160deg, #dce4f0, #d0daea);
-  border-color: rgba(30, 60, 120, 0.15);
+  background: linear-gradient(160deg, #cce6fa, #bfddF5);
+  border-color: rgba(0, 80, 160, 0.14);
 }
 
-body.light-mode .form-input { background: rgba(220, 228, 240, 0.8); color: #0D1B2E; }
-body.light-mode #cine-loader { background: #EEF2F7; }
-body.light-mode .telem-box { background: rgba(200, 212, 230, 0.8); }
-body.light-mode #pickup-overlay { background: rgba(220, 228, 240, 0.97); }
-body.light-mode .chat-bubble-bot { background: rgba(200, 212, 230, 0.8); color: #0D1B2E; }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #dce4f0, #d0daea); }
+body.light-mode .form-input { background: rgba(200, 230, 252, 0.8); color: #0A1F3A; }
+body.light-mode #cine-loader { background: #E8F4FF; }
+body.light-mode .telem-box { background: rgba(180, 220, 248, 0.8); }
+body.light-mode #pickup-overlay { background: rgba(210, 235, 255, 0.97); }
+body.light-mode .chat-bubble-bot { background: rgba(180, 220, 248, 0.8); color: #0A1F3A; }
+body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #cce6fa, #bfddf5); }
 body.light-mode #map-overlay,
 body.light-mode #staff-overlay,
-body.light-mode #analytics-overlay { background: #EEF2F7; }
-body.light-mode .staff-row { background: rgba(200, 212, 230, 0.6); }
+body.light-mode #analytics-overlay { background: #E8F4FF; }
+body.light-mode .staff-row { background: rgba(180, 220, 248, 0.6); }
 
-body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.08); }
-body.light-mode .kitch-col-head-prep { background: rgba(251,185,36,0.08); }
-body.light-mode .kitch-col-head-ready{ background: rgba(74,222,128,0.08); }
-body.light-mode .kitch-col-empty { color: rgba(20,45,90,0.2); }
+body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.1); }
+body.light-mode .kitch-col-head-prep { background: rgba(251,185,36,0.1); }
+body.light-mode .kitch-col-head-ready{ background: rgba(74,222,128,0.1); }
+body.light-mode .kitch-col-empty { color: rgba(10,40,90,0.2); }
+body.light-mode .kitch-robot-bar { background: rgba(180,220,248,0.95); border-color: rgba(0,80,160,0.2); }
+body.light-mode .krb-eyebrow { color: rgba(10,40,90,0.5); border-color: rgba(0,80,160,0.12); }
+body.light-mode .krb-label { color: rgba(10,40,90,0.4); }
+body.light-mode .krb-val { color: #0A1F3A; }
+body.light-mode .krb-cell { border-color: rgba(0,80,160,0.1); }
 
-body.light-mode .table-btn .t-num { color: #0D1B2E; }
-body.light-mode .table-btn .t-label { color: rgba(20,45,90,0.5); }
-body.light-mode .table-btn.selected { background: rgba(217,79,0,0.1); }
+body.light-mode .table-btn .t-num { color: #0A1F3A; }
+body.light-mode .table-btn .t-label { color: rgba(10,40,90,0.5); }
+body.light-mode .table-btn.selected { background: rgba(232,98,10,0.12); }
 
-body.light-mode .step-dot { background: #dce4f0; border-color: rgba(30,60,120,0.25); color: rgba(20,45,90,0.5); }
-body.light-mode .step-bar::before { background: rgba(30,60,120,0.15); }
+body.light-mode .step-dot { background: #cce6fa; border-color: rgba(0,80,160,0.25); color: rgba(10,40,90,0.5); }
+body.light-mode .step-bar::before { background: rgba(0,80,160,0.15); }
 
-body.light-mode .menu-item-name { color: #0D1B2E; }
-body.light-mode .menu-item-desc { color: rgba(20,45,90,0.6); }
+body.light-mode .menu-item-name { color: #0A1F3A; }
+body.light-mode .menu-item-desc { color: rgba(10,40,90,0.6); }
+body.light-mode .menu-cat-btn { border-color: rgba(0,80,160,0.2); color: rgba(10,40,90,0.5); }
+body.light-mode .menu-cat-btn.active { border-color: #E8620A; color: #E8620A; background: rgba(232,98,10,0.07); }
 
-body.light-mode .hero-badge { background: rgba(217,79,0,0.08); border-color: rgba(30,60,120,0.3); }
-body.light-mode .hero-title .line2 { -webkit-text-stroke: 1px rgba(20,45,90,0.3); }
-body.light-mode .feature-hex { background: rgba(217,79,0,0.08); }
-body.light-mode .section-tag { color: #D94F00; }
-body.light-mode .section-title span { -webkit-text-stroke: 1px rgba(20,45,90,0.25); }
+body.light-mode .hero-badge { background: rgba(232,98,10,0.08); border-color: rgba(0,80,160,0.3); }
+body.light-mode .hero-title .line2 { -webkit-text-stroke: 1px rgba(10,40,90,0.3); }
+body.light-mode .hero-sub { color: rgba(10,40,90,0.65); }
+body.light-mode .feature-hex { background: rgba(232,98,10,0.08); }
+body.light-mode .section-tag { color: #E8620A; }
+body.light-mode .section-title span { -webkit-text-stroke: 1px rgba(10,40,90,0.25); }
 
-body.light-mode .nav-links a { color: rgba(20,45,90,0.6); }
+body.light-mode .nav-links a { color: rgba(10,40,90,0.6); }
 body.light-mode .nav-links a:hover,
-body.light-mode .nav-links a.active { color: #D94F00; }
+body.light-mode .nav-links a.active { color: #E8620A; }
+body.light-mode .logo-text { color: #0A1F3A; }
 
-body.light-mode .role-pill { background: linear-gradient(160deg, #dce4f0, #d0daea); border-color: rgba(30,60,120,0.2); color: rgba(20,45,90,0.6); }
+body.light-mode .role-pill { background: linear-gradient(160deg, #cce6fa, #bfddf5); border-color: rgba(0,80,160,0.2); color: rgba(10,40,90,0.6); }
 
-body.light-mode .cart-table td { color: #0D1B2E; border-color: rgba(30,60,120,0.08); }
-body.light-mode .cart-table th { color: rgba(20,45,90,0.5); }
+body.light-mode .cart-table td { color: #0A1F3A; border-color: rgba(0,80,160,0.08); }
+body.light-mode .cart-table th { color: rgba(10,40,90,0.5); }
+body.light-mode .cart-qty-btn { background: rgba(180,220,248,0.5); border-color: rgba(0,80,160,0.2); color: #E8620A; }
 
-body.light-mode .dispatch-btn { background: rgba(200,212,230,0.8); border-color: rgba(30,60,120,0.2); color: rgba(20,45,90,0.6); }
-/* Krb robot bar in kitchen */
-body.light-mode .kitch-robot-bar { background: rgba(200,212,230,0.95); border-color: rgba(30,60,120,0.2); }
-body.light-mode .krb-eyebrow { color: rgba(20,45,90,0.5); border-color: rgba(30,60,120,0.12); }
-body.light-mode .krb-label { color: rgba(20,45,90,0.4); }
-body.light-mode .krb-val { color: #0D1B2E; }
-body.light-mode .krb-cell { border-color: rgba(30,60,120,0.1); }
+body.light-mode .confirm-row { border-color: rgba(0,80,160,0.08); color: #0A1F3A; }
+body.light-mode .confirm-row-label { color: rgba(10,40,90,0.5); }
 
-/* Order tickets in kitchen */
-body.light-mode .ticket-id { color: #D94F00; }
-body.light-mode .ticket-table { color: rgba(20,45,90,0.5); }
-body.light-mode .ticket-items { color: rgba(20,45,90,0.75); border-color: rgba(30,60,120,0.08); }
-body.light-mode .ticket-received { color: rgba(20,45,90,0.4); border-color: rgba(30,60,120,0.08); }
-body.light-mode .ticket-timer.idle { color: rgba(20,45,90,0.2); }
+body.light-mode .olc-ref { color: #E8620A; }
+body.light-mode .olc-meta { color: rgba(10,40,90,0.4); }
 
-/* Activity feed */
-body.light-mode .activity-item { border-color: rgba(30,60,120,0.15); border-left-color: rgba(30,60,120,0.3); }
-body.light-mode .activity-msg { color: #0D1B2E; }
-body.light-mode .activity-time { color: rgba(20,45,90,0.4); }
+body.light-mode .track-step-dot { background: #cce6fa; border-color: rgba(0,80,160,0.25); }
+body.light-mode .track-step::after { background: rgba(0,80,160,0.15); }
+body.light-mode .track-step-title { color: rgba(10,40,90,0.5); }
+body.light-mode .track-step-sub { color: rgba(10,40,90,0.4); }
+body.light-mode .track-eta-strip { background: rgba(232,98,10,0.05); border-color: rgba(232,98,10,0.15); }
+body.light-mode .track-table-tag { color: rgba(10,40,90,0.4); }
+body.light-mode #map-container { background: rgba(180,220,248,0.5); border-color: rgba(0,80,160,0.15); }
+body.light-mode .track-map-wrap { background: rgba(180,220,248,0.5); border-color: rgba(0,80,160,0.15); }
 
-/* Tracking timeline */
-body.light-mode .track-step-dot { background: #dce4f0; border-color: rgba(30,60,120,0.25); }
-body.light-mode .track-step::after { background: rgba(30,60,120,0.15); }
-body.light-mode .track-step-title { color: rgba(20,45,90,0.5); }
-body.light-mode .track-step-sub { color: rgba(20,45,90,0.4); }
-body.light-mode .track-eta-strip { background: rgba(217,79,0,0.05); border-color: rgba(217,79,0,0.15); }
-body.light-mode .track-table-tag { color: rgba(20,45,90,0.4); }
+body.light-mode .dispatch-btn { background: rgba(180,220,248,0.8); border-color: rgba(0,80,160,0.2); color: rgba(10,40,90,0.6); }
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #cce6fa, #bfddf5); border-color: rgba(0,80,160,0.2); color: #0A1F3A; }
+body.light-mode .manual-mode-toggle { border-color: rgba(0,80,160,0.3); color: rgba(10,40,90,0.6); }
 
-/* Cart qty controls */
-body.light-mode .cart-qty-btn { background: rgba(200,212,230,0.5); border-color: rgba(30,60,120,0.2); color: #D94F00; }
+body.light-mode .activity-item { border-color: rgba(0,80,160,0.15); border-left-color: rgba(0,80,160,0.3); }
+body.light-mode .activity-msg { color: #0A1F3A; }
+body.light-mode .activity-time { color: rgba(10,40,90,0.4); }
 
-/* Menu category buttons */
-body.light-mode .menu-cat-btn { border-color: rgba(30,60,120,0.2); color: rgba(20,45,90,0.5); }
-body.light-mode .menu-cat-btn.active { border-color: #D94F00; color: #D94F00; background: rgba(217,79,0,0.06); }
+body.light-mode .ticket-id { color: #E8620A; }
+body.light-mode .ticket-table { color: rgba(10,40,90,0.5); }
+body.light-mode .ticket-items { color: rgba(10,40,90,0.75); border-color: rgba(0,80,160,0.08); }
+body.light-mode .ticket-received { color: rgba(10,40,90,0.4); border-color: rgba(0,80,160,0.08); }
+body.light-mode .ticket-timer.idle { color: rgba(10,40,90,0.2); }
 
-/* Stats bar */
-body.light-mode .stat-card { border-color: rgba(30,60,120,0.15); }
-body.light-mode .stat-label { color: rgba(20,45,90,0.5); }
+body.light-mode .stat-card { border-color: rgba(0,80,160,0.15); }
+body.light-mode .stat-label { color: rgba(10,40,90,0.5); }
 
-/* Confirm card rows */
-body.light-mode .confirm-row { border-color: rgba(30,60,120,0.08); color: #0D1B2E; }
-body.light-mode .confirm-row-label { color: rgba(20,45,90,0.5); }
+body.light-mode #robot-chat-input { background: rgba(180,220,248,0.6); border-color: rgba(0,80,160,0.2); color: #0A1F3A; }
+body.light-mode #robot-chat-input::placeholder { color: rgba(10,40,90,0.4); }
+body.light-mode .chat-bubble-user { background: rgba(232,98,10,0.08); border-color: rgba(0,80,160,0.2); color: #0A1F3A; }
 
-/* Order list cards */
-body.light-mode .olc-ref { color: #D94F00; }
-body.light-mode .olc-meta { color: rgba(20,45,90,0.4); }
-
-/* Chat panel input */
-body.light-mode #robot-chat-input { background: rgba(200,212,230,0.6); border-color: rgba(30,60,120,0.2); color: #0D1B2E; }
-body.light-mode #robot-chat-input::placeholder { color: rgba(20,45,90,0.4); }
-body.light-mode .chat-bubble-user { background: rgba(217,79,0,0.08); border-color: rgba(30,60,120,0.2); color: #0D1B2E; }
-
-/* Map container */
-body.light-mode #map-container { background: rgba(200,212,230,0.5); border-color: rgba(30,60,120,0.15); }
-body.light-mode .track-map-wrap { background: rgba(200,212,230,0.5); border-color: rgba(30,60,120,0.15); }
-
-/* Manual control dpad */
-body.light-mode .dpad-btn { background: linear-gradient(160deg, #dce4f0, #d0daea); border-color: rgba(30,60,120,0.2); color: #0D1B2E; }
-body.light-mode .manual-mode-toggle { border-color: rgba(30,60,120,0.3); color: rgba(20,45,90,0.6); }
-
-/* Pickup items */
-body.light-mode .pickup-item { background: rgba(200,212,230,0.5); }
-body.light-mode .pickup-item-name { color: #0D1B2E; }
-body.light-mode .pickup-table-tag { color: rgba(74,222,128,0.7); }
-
-/* Hero sub text */
-body.light-mode .hero-sub { color: rgba(20,45,90,0.6); }
-body.light-mode .logo-text { color: #0D1B2E; }  
+body.light-mode .pickup-item { background: rgba(180,220,248,0.5); }
+body.light-mode .pickup-item-name { color: #0A1F3A; }
+body.light-mode .pickup-table-tag { color: rgba(74,222,128,0.8); } 
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
