@@ -471,6 +471,31 @@ body.light-mode .dash-subtitle { color: #E8620A; }
 body.light-mode .dash-title { color: #1C0F00; }
 body.light-mode #clock { color: rgba(20,8,0,0.6); }
 body.light-mode .system-status { color: #16a34a; }
+/* Control center buttons */
+body.light-mode .cc-layer-operational { background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(240,232,220,0.6) 100%); border-color: rgba(180,80,0,0.2); }
+body.light-mode .cc-layer-critical { background: linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(240,232,220,0.6) 100%); }
+
+/* Live floor map, staff management, analytics buttons */
+body.light-mode #control-center button[onclick="openMapOverlay()"],
+body.light-mode #control-center button[onclick="openStaffOverlay()"],
+body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] {
+  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important;
+  border-color: rgba(180,80,0,0.2) !important;
+}
+
+body.light-mode #control-center button[onclick="openMapOverlay()"] div,
+body.light-mode #control-center button[onclick="openStaffOverlay()"] div,
+body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] div { color: #1C0F00 !important; }
+
+body.light-mode #control-center button[onclick="openMapOverlay()"] .btn-glow,
+body.light-mode #control-center button[onclick="openStaffOverlay()"] .btn-glow,
+body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] .btn-glow { background: linear-gradient(90deg, rgba(232,98,10,0.06), transparent) !important; }
+
+/* Arrow hex circles */
+body.light-mode #control-center button > div:last-child > div:last-child { background: rgba(232,98,10,0.1) !important; border-color: rgba(180,80,0,0.3) !important; color: #E8620A !important; }
+
+/* Icon hex */
+body.light-mode #control-center button > div > div:first-child { background: rgba(232,98,10,0.08) !important; }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
