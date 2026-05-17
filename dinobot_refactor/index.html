@@ -2624,57 +2624,52 @@ function startKitchenRobotPolling() {
   let robotBusy = false;
  
   async function resetStuckOrders() {
+    let removedCount = 0;
+
+    // Step 1: Remove stuck dispatched/delivering orders from DOM immediately
+    Object.entries(kitchenOrders).forEach(([ref, order]) => {
+      if (['dispatched', 'delivering'].includes(order.status)) {
+        const card = document.getElementById('order-' + ref);
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(20px)';
+          setTimeout(() => card.remove(), 320);
+        }
+        if (order.timerInterval) clearInterval(order.timerInterval);
+        if (order.waitInterval)  clearInterval(order.waitInterval);
+        delete kitchenOrders[ref];
+        removedCount++;
+      }
+    });
+
+    if (removedCount === 0) {
+      showToast('⬡ No stuck dispatched orders to remove');
+      return;
+    }
+
+    // Step 2: Reset robot busy state
+    robotBusy = false;
+    setAllDispatchButtons(true);
+    setTimeout(() => resortColumns(), 350);
+    showToast('⬡ Removed ' + removedCount + ' stuck order' + (removedCount > 1 ? 's' : '') + ' — robot ready');
+
+    // Step 3: Try to patch server + tell robot to dock (silent fail if offline)
+    Object.keys(kitchenOrders).forEach(ref => {});
     try {
-      const res = await fetch(API_BASE + '/api/orders/reset-stuck', { 
+      await fetch(API_BASE + '/api/orders/reset-stuck', {
         method: 'POST',
         headers: authHeaders({ 'Content-Type': 'application/json' })
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        showToast('✗ ' + (err.error || err.message || 'Failed to reset orders'));
-        return;
-      }
-      const data = await res.json();
+    } catch {}
 
-      // Force-remove all dispatched/delivering cards from DOM and state
-      let removedCount = 0;
-      Object.entries(kitchenOrders).forEach(([ref, order]) => {
-        if (['dispatched', 'delivering'].includes(order.status)) {
-          const card = document.getElementById('order-' + ref);
-          if (card) {
-            card.style.transition = 'opacity 0.3s, transform 0.3s';
-            card.style.opacity = '0';
-            card.style.transform = 'translateX(20px)';
-            setTimeout(() => card.remove(), 320);
-          }
-          if (order.timerInterval) clearInterval(order.timerInterval);
-          if (order.waitInterval)  clearInterval(order.waitInterval);
-          delete kitchenOrders[ref];
-          removedCount++;
-        }
-      });
+    try {
+      await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
+      await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
+    } catch {}
 
-      if (removedCount === 0) {
-        showToast('⬡ No stuck dispatched orders found');
-        robotBusy = false;
-        setAllDispatchButtons(true);
-        resortColumns();
-        return;
-      }
-
-      robotBusy = false;
-      setAllDispatchButtons(true);
-      resortColumns();
-      showToast('⬡ Removed ' + removedCount + ' stuck dispatched order' + (removedCount > 1 ? 's' : '') + ' — robot ready');
-      // Tell Python robot to stop and return to dock
-      fetch(API_BASE + '/api/robot/stop', { method: 'POST' })
-        .then(() => fetch(API_BASE + '/api/robot/recall', { method: 'POST' }))
-        .catch(() => {}); // silent fail if Python offline
-
-      // Full reload after DOM clears
-      setTimeout(() => loadKitchenOrders(), 400);
-
-    } catch (err) { showToast('✗ Failed to reset orders'); }
+    // Step 4: Reload from server after DOM settles
+    setTimeout(() => loadKitchenOrders(), 500);
   }
  
   function setAllDispatchButtons(enabled) {
