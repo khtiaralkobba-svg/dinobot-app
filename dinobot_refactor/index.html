@@ -2622,7 +2622,8 @@ function startKitchenRobotPolling() {
     }
 
   }
- 
+  let robotBusy = false;
+  
   async function resetStuckOrders() {
   let stuckRefs = Object.entries(kitchenOrders)
     .filter(([, o]) => ['dispatched', 'delivering', 'ready'].includes(o.status))
