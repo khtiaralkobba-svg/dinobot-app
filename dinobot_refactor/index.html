@@ -357,6 +357,34 @@ body.light-mode .pickup-item-name { color: #1C0F00; }
 body.light-mode .pickup-table-tag { color: #16a34a; }
 body.light-mode .kitch-col-head-ready { background: rgba(74,222,128,0.15); }
 body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
+/* Stronger status colors in light mode */
+body.light-mode .track-step.done .track-step-dot { background: rgba(22,163,74,0.2); border-color: #16a34a; }
+body.light-mode .track-step.done .track-step-title { color: #16a34a; }
+body.light-mode .track-step.done::after { background: #16a34a; }
+body.light-mode .track-step.active .track-step-dot { background: rgba(232,98,10,0.15); border-color: #E8620A; box-shadow: 0 0 16px rgba(232,98,10,0.3); }
+body.light-mode .track-step.active .track-step-title { color: #E8620A; }
+body.light-mode .track-step.active::after { background: linear-gradient(to bottom, #E8620A, rgba(180,80,0,0.15)); }
+
+/* Step dots on progress bar */
+body.light-mode .step-item.done .step-dot { background: rgba(22,163,74,0.15); border-color: #16a34a; color: #16a34a; }
+body.light-mode .step-item.active .step-dot { background: #E8620A; border-color: #E8620A; color: #000; }
+
+/* Status badges */
+body.light-mode .olc-status-new { color: #1d6db5; border-color: rgba(29,109,181,0.5); }
+body.light-mode .olc-status-prep { color: #b45309; border-color: rgba(180,83,9,0.5); }
+body.light-mode .olc-status-ready { color: #16a34a; border-color: rgba(22,163,74,0.5); }
+body.light-mode .olc-status-dispatched,
+body.light-mode .olc-status-delivering { color: #7c3aed; border-color: rgba(124,58,237,0.5); }
+body.light-mode .olc-status-delivered { color: #16a34a; border-color: rgba(22,163,74,0.3); }
+body.light-mode .olc-status-cancelled { color: #dc2626; border-color: rgba(220,38,38,0.3); }
+
+/* Predictive ETA strip */
+body.light-mode .track-eta-strip { background: rgba(232,98,10,0.08); border-color: rgba(232,98,10,0.3); }
+body.light-mode .track-eta-label { color: rgba(20,8,0,0.7); }
+body.light-mode .track-eta-val { color: #E8620A; }
+
+/* Pred strip */
+body.light-mode #pred-strip-* { color: #b45309; border-color: rgba(180,83,9,0.3); }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
