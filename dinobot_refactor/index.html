@@ -2637,24 +2637,35 @@ function startKitchenRobotPolling() {
       const data = await res.json();
 
       // Force-remove all dispatched/delivering cards from DOM and state
+      let removedCount = 0;
       Object.entries(kitchenOrders).forEach(([ref, order]) => {
         if (['dispatched', 'delivering'].includes(order.status)) {
           const card = document.getElementById('order-' + ref);
           if (card) {
-            card.style.transition = 'opacity 0.2s';
+            card.style.transition = 'opacity 0.3s, transform 0.3s';
             card.style.opacity = '0';
-            setTimeout(() => card.remove(), 220);
+            card.style.transform = 'translateX(20px)';
+            setTimeout(() => card.remove(), 320);
           }
           if (order.timerInterval) clearInterval(order.timerInterval);
           if (order.waitInterval)  clearInterval(order.waitInterval);
           delete kitchenOrders[ref];
+          removedCount++;
         }
       });
+
+      if (removedCount === 0) {
+        showToast('⬡ No stuck dispatched orders found');
+        robotBusy = false;
+        setAllDispatchButtons(true);
+        resortColumns();
+        return;
+      }
 
       robotBusy = false;
       setAllDispatchButtons(true);
       resortColumns();
-      showToast('⬡ Reset ' + data.affected + ' stuck orders — robot ready');
+      showToast('⬡ Removed ' + removedCount + ' stuck dispatched order' + (removedCount > 1 ? 's' : '') + ' — robot ready');
       // Tell Python robot to stop and return to dock
       fetch(API_BASE + '/api/robot/stop', { method: 'POST' })
         .then(() => fetch(API_BASE + '/api/robot/recall', { method: 'POST' }))
