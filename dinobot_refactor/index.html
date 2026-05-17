@@ -1709,13 +1709,13 @@ function animateOverlayMap() {
   ctx.clearRect(0, 0, W, H);
 
   // Grid
-  ctx.strokeStyle = 'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
+  ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
   for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
   for (let j = 0; j < H; j += 40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
 
   // Route lines
   const jx = 0.42*W, jy = 0.5*H;
-  ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
+  ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(180,80,0,0.25)':'rgba(255,107,26,0.15)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
   ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
   tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
   ctx.setLineDash([]);
@@ -1723,16 +1723,17 @@ function animateOverlayMap() {
   // Tables
   tables.forEach(t => {
     const tx=t.x*W, ty=t.y*H, isT=currentTarget&&currentTarget.id===t.id;
-    ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
+    const isLightOv=document.body.classList.contains('light-mode');
+    ctx.fillStyle=isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA'); ctx.shadowColor=isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isT?16:8;
     ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
+    ctx.shadowBlur=0; ctx.fillStyle=isLightOv?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
     ctx.fillText('T'+t.id, tx, ty+22);
   });
 
   // Dock
-  ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
+  ctx.fillStyle='#16a34a'; ctx.shadowColor='#16a34a'; ctx.shadowBlur=document.body.classList.contains('light-mode')?6:14;
   ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 9, 0, Math.PI*2); ctx.fill();
-  ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
+  ctx.shadowBlur=0; ctx.fillStyle=document.body.classList.contains('light-mode')?'rgba(20,8,0,0.7)':'rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
   ctx.fillText('DOCK', dockX*W, dockY*H+22);
 
   // Robot
@@ -1908,15 +1909,15 @@ function syncOverlayState() {
     }catch(e){}
 
     ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
-    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
-    for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+    ctx.strokeStyle=window.opener?.document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
 
     const jx=0.42*W,jy=0.5*H;
-    ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
-    ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
-    tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
-    ctx.setLineDash([]);
+    ctx.strokeStyle=window.opener?.document.body.classList.contains('light-mode')?'rgba(180,80,0,0.25)':'rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
+tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
+ctx.setLineDash([]);
 
     tables.forEach(t=>{
       const tx=t.x*W,ty=t.y*H,isT=target&&target.id===t.id;
@@ -3704,13 +3705,13 @@ function initMap() {
     ctx.clearRect(0,0,W,H);
 
     // ── Grid ──
-    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    ctx.strokeStyle = document.body.classList.contains('light-mode') ? 'rgba(180,80,0,0.12)' : 'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
     for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
     for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
 
     // ── Route lines ──
     const jx=0.42*W,jy=0.5*H;
-    ctx.strokeStyle='rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
+    ctx.strokeStyle = document.body.classList.contains('light-mode') ? 'rgba(180,80,0,0.2)' : 'rgba(255,107,26,0.15)'; ctx.lineWidth=2; ctx.setLineDash([6,6]);
     ctx.beginPath(); ctx.moveTo(dockX*W,dockY*H); ctx.lineTo(jx,jy); ctx.stroke();
     tables.forEach(t=>{ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(t.x*W,t.y*H);ctx.stroke();});
     ctx.setLineDash([]);
@@ -3718,15 +3719,16 @@ function initMap() {
     // ── Tables ──
     tables.forEach(t=>{
       const tx=t.x*W,ty=t.y*H,isTarget=currentTarget&&currentTarget.id===t.id;
-      ctx.fillStyle=isTarget?'#C084FC':'#60A5FA'; ctx.shadowColor=isTarget?'#C084FC':'#60A5FA'; ctx.shadowBlur=isTarget?14:8;
+      const isLight=document.body.classList.contains('light-mode');
+ctx.fillStyle=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowColor=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isTarget?14:8;ur=isTarget?14:8;
       ctx.beginPath(); ctx.arc(tx,ty,isTarget?9:7,0,Math.PI*2); ctx.fill();
-      ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
+      ctx.shadowBlur=0; ctx.fillStyle=document.body.classList.contains('light-mode')?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
     });
 
     // ── Dock ──
-    ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=12;
+    ctx.fillStyle='#16a34a'; ctx.shadowColor='#16a34a'; ctx.shadowBlur = document.body.classList.contains('light-mode') ? 6 : 12;
     ctx.beginPath(); ctx.arc(dockX*W,dockY*H,8,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.7)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('DOCK',dockX*W,dockY*H+20);
+    ctx.shadowBlur=0; ctx.fillStyle=document.body.classList.contains('light-mode')?'rgba(20,8,0,0.7)':'rgba(74,222,128,0.7)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('DOCK',dockX*W,dockY*H+20);
 
     // ── Robot ──
     const rx=robotX*W, ry=robotY*H, rs=11;
@@ -4180,9 +4182,9 @@ function applyStatusToTimeline(ref, status, tableNum) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle='rgba(5,22,65,0.9)'; ctx.lineWidth=1;
-    for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
-    for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
+    ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
+for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
     tables.forEach(t => {
       const tx=t.x*W, ty=t.y*H, isTarget=tableNum===t.id;
       ctx.save();
