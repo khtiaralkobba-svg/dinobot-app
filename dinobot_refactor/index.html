@@ -2084,29 +2084,24 @@ let announcedOrders = new Set();
       updateAgeBadge(ref, mins);
 
       // ── Predictive delay warning — shown BEFORE alert thresholds ──
+      // ── Predictive delay warning — shown in timer label ──
+      const timerLabel = document.getElementById('timer-' + ref)?.nextElementSibling;
       if (mins < ALERT.WARN) {
         const prediction = getKitchenPrediction(ref);
-        let predBadge = document.getElementById('pred-badge-' + ref);
-        if (!predBadge) {
-          const received = document.querySelector('#order-' + ref + ' .ticket-received');
-          if (received) {
-            predBadge = document.createElement('div');
-            predBadge.id = 'pred-badge-' + ref;
-            received.after(predBadge);
-          }
-        }
-        if (predBadge) {
-          if (prediction && prediction.willBeLateIn <= 3 && prediction.willBeLateIn > 0) {
-            predBadge.textContent = `⚡ WILL BE LATE IN ${Math.ceil(prediction.willBeLateIn)} MIN`;
-            predBadge.className = 'ticket-wait ticket-wait-warn';
-          } else if (prediction && prediction.remaining > 0) {
-            predBadge.textContent = `⬡ EST. DONE IN ${Math.ceil(prediction.remaining)} MIN`;
-            predBadge.className = 'ticket-wait ticket-wait-ok';
+        if (timerLabel && prediction) {
+          if (prediction.willBeLateIn <= 3 && prediction.willBeLateIn > 0) {
+            timerLabel.textContent = `late in ${Math.ceil(prediction.willBeLateIn)} min`;
+            timerLabel.style.color = '#FBB924';
+          } else if (prediction.remaining > 0) {
+            timerLabel.textContent = `done in ~${Math.ceil(prediction.remaining)} min`;
+            timerLabel.style.color = '';
+          } else {
+            timerLabel.textContent = 'prep time';
+            timerLabel.style.color = '';
           }
         }
       } else {
-        const predBadge = document.getElementById('pred-badge-' + ref);
-        if (predBadge) predBadge.remove();
+        if (timerLabel) { timerLabel.textContent = 'prep time'; timerLabel.style.color = ''; }
       }
 
       if (currentRole === 'kitchen') {
@@ -2138,24 +2133,13 @@ let announcedOrders = new Set();
  
   // ── Age badge inside each ticket ─────────────────────────
   function updateAgeBadge(ref, mins) {
-    let badge = document.getElementById('age-badge-' + ref);
-    if (!badge) {
-      const received = document.querySelector('#order-' + ref + ' .ticket-received');
-      if (!received) return;
-      badge = document.createElement('div');
-      badge.id = 'age-badge-' + ref;
-      received.after(badge);
-    }
-    const m = Math.floor(mins), s = Math.floor((mins % 1) * 60);
-    const timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    let label, cls;
-    if (mins >= ALERT.CRIT)      { label = '🔴 CRITICAL'; cls = 'ticket-age-crit'; }
-    else if (mins >= ALERT.LATE) { label = '🟠 LATE'; cls = 'ticket-age-late'; }
-    else if (mins >= ALERT.WARN) { label = '🟡 RUNNING LONG'; cls = 'ticket-age-warn'; }
-    else                          { label = '⬡ IN PREP'; cls = 'ticket-age-ok'; }
-    badge.textContent = `${label} — ${timeStr}`;
-    badge.className = 'ticket-age ' + cls;
-  }
+    const timerEl = document.getElementById('timer-' + ref);
+    if (!timerEl) return;
+    if (mins >= ALERT.CRIT)      timerEl.className = 'ticket-timer late';
+    else if (mins >= ALERT.LATE) timerEl.className = 'ticket-timer late';
+    else if (mins >= ALERT.WARN) timerEl.className = 'ticket-timer warn';
+    else                          timerEl.className = 'ticket-timer ok';
+}
  
   // ── Global alert bar + screen vignette engine ─────────────
   function runAlertEngine() {
@@ -2536,8 +2520,8 @@ function startAnalyticsPolling() {
  
       // Clear prep alert badges when moving to ready/dispatched
       if (['ready','dispatched','delivering'].includes(newStatus)) {
-        const ageBadge = document.getElementById('age-badge-' + ref);
-        if (ageBadge) ageBadge.remove();
+        const timerLabel = document.getElementById('timer-' + ref)?.nextElementSibling;
+        if (timerLabel) { timerLabel.textContent = 'prep time'; timerLabel.style.color = ''; }
         card.classList.remove('order-ticket-warn','order-ticket-late','order-ticket-crit');
       }
 
