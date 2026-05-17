@@ -500,6 +500,41 @@ body.light-mode .cc-layer-operational { background: linear-gradient(135deg, rgba
 body.light-mode .cc-layer-operational .cc-layer-tag { background: #FDF8F2 !important; color: rgba(180,80,0,0.8) !important; border-color: rgba(180,80,0,0.25) !important; }
 body.light-mode .cc-layer-critical .cc-layer-tag { background: #FDF8F2 !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
 body.light-mode .cc-layer-monitoring .cc-layer-tag { background: #FDF8F2 !important; color: rgba(29,78,216,0.7) !important; border-color: rgba(29,78,216,0.2) !important; }
+/* Map overlay panels */
+body.light-mode #map-overlay > div:first-child { background: linear-gradient(160deg, rgba(232,98,10,0.08) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
+
+/* Emergency stop layer */
+body.light-mode .cc-layer-critical { background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(240,232,220,0.5) 100%) !important; }
+body.light-mode .estop-btn { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.04) 100%) !important; border-color: rgba(239,68,68,0.4) !important; }
+
+/* Dispatch, unit control, telemetry sections */
+body.light-mode .op-section-title { color: #E8620A; }
+body.light-mode .mon-section-title { color: rgba(29,78,216,0.6); }
+body.light-mode .op-btn-blue { background: rgba(29,78,216,0.08) !important; border-color: rgba(29,78,216,0.3) !important; color: #1d4ed8 !important; }
+body.light-mode .op-btn-yellow { background: rgba(180,83,9,0.08) !important; border-color: rgba(180,83,9,0.3) !important; color: #92400e !important; }
+body.light-mode #reset-stuck-btn { background: rgba(239,68,68,0.06) !important; border-color: rgba(239,68,68,0.3) !important; color: #b91c1c !important; }
+
+/* State badge */
+body.light-mode .state-ok { color: #15803d !important; background: rgba(22,163,74,0.1) !important; border-color: rgba(22,163,74,0.4) !important; }
+body.light-mode .state-warn { color: #92400e !important; background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.4) !important; }
+
+/* Telemetry box */
+body.light-mode .metric-header span:first-child { color: rgba(20,8,0,0.7); }
+body.light-mode .metric-bar { background: rgba(180,80,0,0.1); }
+
+/* Dispatch buttons */
+body.light-mode .dispatch-btn { background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
+body.light-mode .dispatch-btn:hover { border-color: rgba(180,80,0,0.5) !important; color: #E8620A !important; }
+body.light-mode .dispatch-btn.active { background: linear-gradient(135deg, #E8620A, rgba(232,98,10,0.7)) !important; color: #fff !important; border-color: #E8620A !important; }
+
+/* Dpad */
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
+body.light-mode .dpad-center { background: rgba(180,80,0,0.06) !important; border-color: rgba(180,80,0,0.1) !important; }
+body.light-mode .manual-mode-toggle { background: rgba(180,83,9,0.06) !important; border-color: rgba(180,83,9,0.3) !important; color: #92400e !important; }
+body.light-mode .manual-mode-toggle.active { background: rgba(180,83,9,0.15) !important; border-color: #92400e !important; }
+
+/* Legend */
+body.light-mode .legend-item { color: rgba(20,8,0,0.7); }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
