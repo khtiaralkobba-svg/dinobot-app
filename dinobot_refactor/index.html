@@ -535,6 +535,35 @@ body.light-mode .manual-mode-toggle.active { background: rgba(180,83,9,0.15) !im
 
 /* Legend */
 body.light-mode .legend-item { color: rgba(20,8,0,0.7); }
+/* Emergency stop button area */
+body.light-mode .estop-btn { 
+  background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(239,68,68,0.02) 100%) !important; 
+  border-color: rgba(239,68,68,0.4) !important;
+  color: #b91c1c !important;
+  text-shadow: none !important;
+}
+body.light-mode .estop-icon { color: #b91c1c; }
+body.light-mode #estop-warning { color: #b91c1c; }
+
+/* Robot state badge area */
+body.light-mode #robot-state-badge { background: rgba(240,232,220,0.8) !important; }
+body.light-mode .dest-script { color: #E8620A !important; filter: none !important; }
+body.light-mode #dest-label { color: #E8620A; }
+
+/* Map canvas container */
+body.light-mode #map-container { background: rgba(240,232,220,0.6) !important; border-color: rgba(180,80,0,0.2) !important; }
+
+/* Dpad panel */
+body.light-mode #map-overlay > div:last-child > div:nth-child(2) > div:last-child { background: rgba(240,232,220,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
+
+/* Manual speed slider area */
+body.light-mode .manual-speed-wrap { color: rgba(20,8,0,0.6); }
+body.light-mode .manual-kbd-hint { color: rgba(180,80,0,0.35); }
+body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
+
+/* Unit-01 state label */
+body.light-mode [style*="UNIT-01 STATE"] { color: rgba(20,8,0,0.5) !important; }
+body.light-mode [style*="DESTINATION"] { color: rgba(20,8,0,0.4) !important; }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
