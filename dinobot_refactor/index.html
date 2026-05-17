@@ -3318,11 +3318,9 @@ function initMap() {
         if (!res.ok) throw new Error('Robot server not ready');
         const data = await res.json();
 
-        robotX = data.x_norm;
-        robotY = data.y_norm;
+        targetX = data.x_norm;
+        targetY = data.y_norm;
         robotAngle = data.theta;
-        targetX = robotX;
-        targetY = robotY;
         window._robotNavMode = data.nav_mode || 'NORMAL';
         window._robotRisk    = data.risk || 0;
 
