@@ -2624,17 +2624,31 @@ function startKitchenRobotPolling() {
   let robotBusy = false;
  
   async function resetStuckOrders() {
-  // Step 1: Collect stuck refs BEFORE any deletion
-  const stuckRefs = Object.entries(kitchenOrders)
+  // Step 1: Collect stuck refs locally first
+  let stuckRefs = Object.entries(kitchenOrders)
     .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
     .map(([ref]) => ref);
+
+  // Step 2: If none locally, fetch from server (manager view)
+  if (stuckRefs.length === 0) {
+    try {
+      const res = await fetch(API_BASE + '/api/orders', { headers: authHeaders() });
+      const data = await res.json();
+      stuckRefs = (data.orders || [])
+        .filter(o => ['dispatched', 'delivering'].includes(o.status))
+        .map(o => o.order_ref);
+    } catch (e) {
+      showToast('✗ Could not fetch orders from server');
+      return;
+    }
+  }
 
   if (stuckRefs.length === 0) {
     showToast('⬡ No stuck dispatched orders to remove');
     return;
   }
 
-  // Step 2: Remove cards from DOM with animation
+  // Step 3: Remove cards from DOM with animation
   stuckRefs.forEach(ref => {
     const card = document.getElementById('order-' + ref);
     if (card) {
@@ -2648,14 +2662,14 @@ function startKitchenRobotPolling() {
     delete kitchenOrders[ref];
   });
 
-  // Step 3: Reset robot busy state immediately
+  // Step 4: Reset robot busy state immediately
   robotBusy = false;
   setAllDispatchButtons(true);
   setTimeout(() => resortColumns(), 350);
   showToast('⬡ Removed ' + stuckRefs.length + ' stuck order'
     + (stuckRefs.length > 1 ? 's' : '') + ' — robot ready');
 
-  // Step 4: Cancel each stuck order on the server (now stuckRefs is populated)
+  // Step 5: Cancel each stuck order on the server
   for (const ref of stuckRefs) {
     try {
       await fetch(API_BASE + '/api/orders/' + ref + '/status', {
@@ -2669,7 +2683,7 @@ function startKitchenRobotPolling() {
     }
   }
 
-  // Step 5: Tell robot to stop and return to dock
+  // Step 6: Tell robot to stop and return to dock
   try {
     await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
@@ -2677,7 +2691,7 @@ function startKitchenRobotPolling() {
     console.warn('[resetStuck] Robot recall failed (offline?):', e);
   }
 
-  // Step 6: Reload fresh state from server after DOM settles
+  // Step 7: Reload fresh state from server after DOM settles
   setTimeout(() => loadKitchenOrders(), 600);
 }
   function setAllDispatchButtons(enabled) {
