@@ -4863,9 +4863,10 @@ async function confirmPickup() {
   </div>
 
  <!-- Scrollable body -->
-  <div style="display:flex;flex-direction:column;padding:16px;gap:12px;">
+  <div style="display:flex;flex-direction:column;padding:16px;gap:12px;pointer-events:none;">
 
     <!-- Critical row -->
+<div style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);pointer-events:auto;">
 <div style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);">
   <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
   <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
@@ -4885,7 +4886,7 @@ async function confirmPickup() {
 </div>
 
     <!-- Dispatch + Unit Control + Telemetry -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;pointer-events:auto;">
   <div>
     <div class="op-section-title">⬡ Dispatch</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
@@ -4918,7 +4919,7 @@ async function confirmPickup() {
 </div>
 
     <!-- Map + Manual Override -->
-    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;">
+    <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;pointer-events:auto;">
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Live Floor Map</div>
         <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
