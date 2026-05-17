@@ -2623,12 +2623,24 @@ function startKitchenRobotPolling() {
 
   }
  
-  let robotBusy = false;
- 
   async function resetStuckOrders() {
-  const stuckRefs = Object.entries(kitchenOrders)
+  let stuckRefs = Object.entries(kitchenOrders)
     .filter(([, o]) => ['dispatched', 'delivering', 'ready'].includes(o.status))
     .map(([ref]) => ref);
+
+  if (stuckRefs.length === 0) {
+    try {
+      const res = await fetch(API_BASE + '/api/orders', {
+        headers: authHeaders({ 'Content-Type': 'application/json' })
+      });
+      const data = await res.json();
+      stuckRefs = (data.orders || [])
+        .filter(o => ['dispatched', 'delivering', 'ready'].includes(o.status))
+        .map(o => o.order_ref);
+    } catch (e) {
+      showToast('✗ Could not fetch orders'); return;
+    }
+  }
 
   if (stuckRefs.length === 0) {
     showToast('⬡ No stuck orders to reset'); return;
