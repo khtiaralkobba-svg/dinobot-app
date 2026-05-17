@@ -596,6 +596,12 @@ body.light-mode #map-overlay > div:last-child > div > div:last-child {
 body.light-mode #map-overlay [style*="font-family:'Share Tech Mono'"] { 
   color: rgba(20,8,0,0.6) !important; 
 }
+body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(253,248,242,0.95) 60%) !important; border-color: rgba(239,68,68,0.3) !important; }
+body.light-mode #map-controls-grid { background: transparent; }
+body.light-mode #map-controls-grid > div { background: rgba(240,232,220,0.4); }
+body.light-mode #dpad-panel { background: rgba(240,232,220,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode #activityFeed { background: transparent; }
+body.light-mode #activityFeed .activity-item { background: rgba(240,232,220,0.6); }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
@@ -5269,7 +5275,7 @@ async function confirmPickup() {
   <div style="display:flex;flex-direction:column;padding:16px;gap:12px;pointer-events:none;">
 
     <!-- Critical row -->
-<div style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);pointer-events:auto;">
+<div id="estop-layer" style="position:relative;z-index:1;padding:20px 24px;border:1px solid rgba(239,68,68,0.22);background:linear-gradient(135deg,rgba(239,68,68,0.06) 0%,rgba(2,8,26,0.8) 60%);pointer-events:auto;">
   <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(239,68,68,0.7);border:1px solid rgba(239,68,68,0.2);">🟥 CRITICAL</div>
   <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;">
     <button id="estop-btn" onclick="toggleEStop()" class="estop-btn" style="position:relative;z-index:1;">
@@ -5288,7 +5294,7 @@ async function confirmPickup() {
 </div>
 
     <!-- Dispatch + Unit Control + Telemetry -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;pointer-events:auto;">
+   <div id="map-controls-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;pointer-events:auto;">
   <div>
     <div class="op-section-title">⬡ Dispatch</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
@@ -5330,7 +5336,7 @@ async function confirmPickup() {
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Manual Override</div>
-        <div style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
+        <div id="dpad-panel" style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
           <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
           <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
             <div class="dpad-row">
