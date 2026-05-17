@@ -2657,15 +2657,22 @@ function startKitchenRobotPolling() {
     // Step 3: Try to patch server + tell robot to dock (silent fail if offline)
     Object.keys(kitchenOrders).forEach(ref => {});
     try {
-      await fetch(API_BASE + '/api/orders/reset-stuck', {
-        method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' })
-      });
+      // Patch each stuck order to cancelled on the server
+      const stuckRefs = Object.entries(kitchenOrders)
+        .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
+        .map(([ref]) => ref);
+      
+      for (const ref of stuckRefs) {
+        await fetch(API_BASE + '/api/orders/' + ref + '/status', {
+          method: 'PATCH',
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ status: 'cancelled' })
+        }).catch(() => {});
+      }
     } catch {}
 
     try {
       await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
-      await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
     } catch {}
 
     // Step 4: Reload from server after DOM settles
