@@ -297,6 +297,83 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
       radial-gradient(ellipse 80% 60% at 50% -5%, rgba(220, 180, 140, 0.4) 0%, transparent 60%),
       radial-gradient(ellipse 50% 40% at 100% 100%, rgba(200, 160, 120, 0.3) 0%, transparent 55%);
   }
+  /* Table selection buttons */
+body.light-mode .table-btn {
+  background: linear-gradient(160deg, #e0d8ce, #d6cec4);
+  border-color: rgba(180, 90, 20, 0.25);
+}
+body.light-mode .table-btn .t-num { color: #1a1208; }
+body.light-mode .table-btn .t-label { color: rgba(60, 35, 10, 0.5); }
+body.light-mode .table-btn.selected { background: rgba(232, 90, 10, 0.12); }
+
+/* Step dots on progress bar */
+body.light-mode .step-dot {
+  background: #e0d8ce;
+  border-color: rgba(180, 90, 20, 0.3);
+  color: rgba(60, 35, 10, 0.5);
+}
+body.light-mode .step-bar::before { background: rgba(180, 90, 20, 0.2); }
+
+/* Menu item cards */
+body.light-mode .menu-item {
+  background: linear-gradient(160deg, #e0d8ce, #d6cec4);
+  border-color: rgba(180, 90, 20, 0.2);
+}
+body.light-mode .menu-item-name { color: #1a1208; }
+body.light-mode .menu-item-desc { color: rgba(60, 35, 10, 0.6); }
+
+/* Hero badge */
+body.light-mode .hero-badge {
+  background: rgba(232, 90, 10, 0.08);
+  border-color: rgba(180, 90, 20, 0.4);
+}
+
+/* Hero outline text */
+body.light-mode .hero-title .line2 {
+  -webkit-text-stroke: 1px rgba(60, 35, 10, 0.4);
+}
+
+/* Feature cards */
+body.light-mode .feature-card {
+  background: linear-gradient(160deg, #e0d8ce, #d6cec4);
+}
+body.light-mode .feature-hex {
+  background: rgba(232, 90, 10, 0.08);
+}
+
+/* Section tag text */
+body.light-mode .section-tag { color: #E85A0A; }
+body.light-mode .section-title span {
+  -webkit-text-stroke: 1px rgba(60, 35, 10, 0.3);
+}
+
+/* Nav links */
+body.light-mode .nav-links a { color: rgba(60, 35, 10, 0.6); }
+body.light-mode .nav-links a:hover { color: #E85A0A; }
+body.light-mode .nav-links a.active { color: #E85A0A; }
+
+/* Auth panels */
+body.light-mode .auth-fields.panel { background: linear-gradient(160deg, #e0d8ce, #d6cec4); }
+body.light-mode .role-pill {
+  background: linear-gradient(160deg, #e0d8ce, #d6cec4);
+  border-color: rgba(180, 90, 20, 0.25);
+  color: rgba(60, 35, 10, 0.6);
+}
+
+/* Cart table */
+body.light-mode .cart-table td { color: #1a1208; border-color: rgba(180, 90, 20, 0.1); }
+body.light-mode .cart-table th { color: rgba(180, 90, 20, 0.6); }
+
+/* Dispatch buttons on map */
+body.light-mode .dispatch-btn {
+  background: rgba(220, 215, 205, 0.8);
+  border-color: rgba(180, 90, 20, 0.2);
+  color: rgba(60, 35, 10, 0.6);
+}
+
+/* Kitchen board columns */
+body.light-mode .kitch-col-empty { color: rgba(60, 35, 10, 0.2); }
+body.light-mode .order-ticket { background: linear-gradient(170deg, #e0d8ce, #d6cec4); }
   #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
