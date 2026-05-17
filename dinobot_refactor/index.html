@@ -1400,14 +1400,21 @@ function closeStaffOverlay() {
     document.body.style.overflow = '';
   }, 300);
 }
-  function openMapOverlay() {
+ function openMapOverlay() {
   document.getElementById('map-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  _gridCache = null;
+  _staticCache = null;
   setTimeout(() => initOverlayMap(), 100);
   syncOverlayState();
+  clearInterval(window._syncOverlayInterval);
+  window._syncOverlayInterval = setInterval(syncOverlayState, 200);
 }
 
 function closeMapOverlay() {
+  clearInterval(window._syncOverlayInterval);
+  cancelAnimationFrame(overlayMapFrame);
+  if (window._overlayResizeObs) window._overlayResizeObs.disconnect();
   const el = document.getElementById('map-overlay');
   el.style.animation = 'none';
   el.style.opacity = '0';
@@ -1424,60 +1431,160 @@ function closeMapOverlay() {
 }
 
 let overlayMapFrame = null;
+let _gridCache = null;
+let _staticCache = null;
+function buildGridCache(W, H) {
+  const offscreen = document.createElement('canvas');
+  offscreen.width = W;
+  offscreen.height = H;
+  const ctx = offscreen.getContext('2d');
+  ctx.strokeStyle = 'rgba(5,22,65,0.9)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < W; i += 40) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+  }
+  for (let j = 0; j < H; j += 40) {
+    ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(W, j); ctx.stroke();
+  }
+  return offscreen;
+}
+
+function buildStaticCache(W, H) {
+  const offscreen = document.createElement('canvas');
+  offscreen.width = W;
+  offscreen.height = H;
+  const ctx = offscreen.getContext('2d');
+
+  const jx = 0.42 * W, jy = 0.5 * H;
+  ctx.strokeStyle = 'rgba(255,107,26,0.15)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 6]);
+  ctx.beginPath(); ctx.moveTo(dockX * W, dockY * H); ctx.lineTo(jx, jy); ctx.stroke();
+  tables.forEach(t => {
+    ctx.beginPath(); ctx.moveTo(jx, jy); ctx.lineTo(t.x * W, t.y * H); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  tables.forEach(t => {
+    const tx = t.x * W, ty = t.y * H;
+    ctx.fillStyle = '#60A5FA';
+    ctx.shadowColor = '#60A5FA';
+    ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.arc(tx, ty, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(220,232,248,0.8)';
+    ctx.font = '11px Share Tech Mono,monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('T' + t.id, tx, ty + 22);
+  });
+
+  ctx.fillStyle = '#4ADE80';
+  ctx.shadowColor = '#4ADE80';
+  ctx.shadowBlur = 14;
+  ctx.beginPath(); ctx.arc(dockX * W, dockY * H, 9, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(74,222,128,0.8)';
+  ctx.font = '10px Share Tech Mono,monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('DOCK', dockX * W, dockY * H + 22);
+
+  return offscreen;
+}
 
 function initOverlayMap() {
   cancelAnimationFrame(overlayMapFrame);
   const canvas = document.getElementById('overlayMap');
   if (!canvas) return;
   const wrap = canvas.parentElement;
-  canvas.width = wrap.offsetWidth;
-  canvas.height = wrap.offsetHeight;
+
+  const resize = () => {
+    const w = wrap.offsetWidth, h = wrap.offsetHeight;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      _gridCache = null;
+      _staticCache = null;
+    }
+  };
+  resize();
+
+  if (!window._overlayResizeObs) {
+    window._overlayResizeObs = new ResizeObserver(resize);
+  } else {
+    window._overlayResizeObs.disconnect();
+  }
+  window._overlayResizeObs.observe(wrap);
+
   animateOverlayMap();
 }
 
 function animateOverlayMap() {
   const canvas = document.getElementById('overlayMap');
   if (!canvas || !document.getElementById('map-overlay').classList.contains('open')) return;
-  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+
+  // Smooth lerp robot position from poll data
+  if (window._robotTargetX !== undefined) {
+    robotX += (window._robotTargetX - robotX) * 0.18;
+    robotY += (window._robotTargetY - robotY) * 0.18;
+    let da = window._robotTargetAngle - robotAngle;
+    if (da > Math.PI) da -= 2 * Math.PI;
+    if (da < -Math.PI) da += 2 * Math.PI;
+    robotAngle += da * 0.18;
+  }
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Rebuild caches only when canvas size changes
+  if (!_gridCache || _gridCache.width !== W || _gridCache.height !== H) {
+    _gridCache = buildGridCache(W, H);
+  }
+  if (!_staticCache || _staticCache.width !== W || _staticCache.height !== H) {
+    _staticCache = buildStaticCache(W, H);
+  }
+
+  // One blit for grid, one for all static elements
   ctx.clearRect(0, 0, W, H);
+  ctx.drawImage(_gridCache, 0, 0);
+  ctx.drawImage(_staticCache, 0, 0);
 
-  // Grid
-  ctx.strokeStyle = 'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
-  for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
-  for (let j = 0; j < H; j += 40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
+  // Target table highlight (only the active one, drawn live on top)
+  if (currentTarget) {
+    const tx = currentTarget.x * W, ty = currentTarget.y * H;
+    ctx.fillStyle = '#C084FC';
+    ctx.shadowColor = '#C084FC';
+    ctx.shadowBlur = 16;
+    ctx.beginPath(); ctx.arc(tx, ty, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(220,232,248,0.8)';
+    ctx.font = '11px Share Tech Mono,monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('T' + currentTarget.id, tx, ty + 22);
+  }
 
-  // Route lines
-  const jx = 0.42*W, jy = 0.5*H;
-  ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
-  ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
-  tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
-  ctx.setLineDash([]);
-
-  // Tables
-  tables.forEach(t => {
-    const tx=t.x*W, ty=t.y*H, isT=currentTarget&&currentTarget.id===t.id;
-    ctx.fillStyle=isT?'#C084FC':'#60A5FA'; ctx.shadowColor=isT?'#C084FC':'#60A5FA'; ctx.shadowBlur=isT?16:8;
-    ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle='rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('T'+t.id, tx, ty+22);
-  });
-
-  // Dock
-  ctx.fillStyle='#4ADE80'; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=14;
-  ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 9, 0, Math.PI*2); ctx.fill();
-  ctx.shadowBlur=0; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
-  ctx.fillText('DOCK', dockX*W, dockY*H+22);
-
-  // Robot
+  // Robot (only truly moving element)
   const rs = 13;
-  ctx.save(); ctx.translate(robotX*W, robotY*H); ctx.rotate(robotAngle);
+  ctx.save();
+  ctx.translate(robotX * W, robotY * H);
+  ctx.rotate(robotAngle);
   ctx.beginPath();
-  for (let i=0;i<6;i++) { const a=(Math.PI/3)*i-Math.PI/2; i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs); }
+  for (let i = 0; i < 6; i++) {
+    const a = (Math.PI / 3) * i - Math.PI / 2;
+    i === 0
+      ? ctx.moveTo(Math.cos(a) * rs, Math.sin(a) * rs)
+      : ctx.lineTo(Math.cos(a) * rs, Math.sin(a) * rs);
+  }
   ctx.closePath();
-  ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=20;
-  ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
+  const robotColor = eStopActive ? '#ef4444' : '#FF6B1A';
+  ctx.fillStyle = robotColor;
+  ctx.shadowColor = robotColor;
+  ctx.shadowBlur = 20;
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
 
-  syncOverlayState();
   overlayMapFrame = requestAnimationFrame(animateOverlayMap);
 }
 
@@ -3238,6 +3345,7 @@ function connectSocket(room) {
     addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
     showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
     recordDispatch();
+    _staticCache = null;
   }
  
   function recallUnit() {
@@ -3249,6 +3357,7 @@ function connectSocket(room) {
     addActivity('dot-robot','UNIT-01 recalled to <strong>Dock</strong>'); showToast('⬡ UNIT-01 recalling to dock');
     // ── Tell real robot to return ──
     fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
+    _staticCache = null;
   }
  
   function pauseUnit() {
@@ -3318,9 +3427,9 @@ function initMap() {
         if (!res.ok) throw new Error('Robot server not ready');
         const data = await res.json();
 
-        robotX = data.x_norm;
-        robotY = data.y_norm;
-        robotAngle = data.theta;
+        window._robotTargetX     = data.x_norm;
+        window._robotTargetY     = data.y_norm;
+        window._robotTargetAngle = data.theta;
         targetX = robotX;
         targetY = robotY;
         window._robotNavMode = data.nav_mode || 'NORMAL';
