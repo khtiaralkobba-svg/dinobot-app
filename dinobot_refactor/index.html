@@ -1014,6 +1014,12 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   margin-top: 16px;
   text-transform: uppercase;
 }
+#reset-stuck-btn,
+#reset-stuck-btn:disabled {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
 </style>
 </style>
 </head>
@@ -3305,6 +3311,8 @@ function initMap() {
     document.querySelectorAll('.dispatch-btn').forEach(b => {
       b.title = 'Robot server offline — start the Python script first';
     });
+    const resetBtn = document.getElementById('reset-stuck-btn');
+    if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; }
 
     if (window._robotPollInterval) clearInterval(window._robotPollInterval);
     window._robotPollInterval = setInterval(async () => {
@@ -3395,10 +3403,8 @@ function initMap() {
 
         // ── Robot online — enable/disable based on busy state ──
         const estopBtn = document.getElementById('estop-btn');
-        const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
         if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
-        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = ''; resetBtn.title = 'Remove stuck dispatched orders'; }
-        // Robot is busy until it's fully back at dock
+       // Robot is busy until it's fully back at dock
         const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING', 'RETURNING', 'RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
         if (isRobotBusy !== robotBusy) {
           robotBusy = isRobotBusy;
@@ -3407,6 +3413,8 @@ function initMap() {
         document.querySelectorAll('.dispatch-btn').forEach(b => {
           b.title = isRobotBusy ? 'Robot is busy' : '';
         });
+        const resetBtn = document.getElementById('reset-stuck-btn');
+        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; }
 
       } catch {
           robotBusy = true;
@@ -3416,9 +3424,9 @@ function initMap() {
             b.title = 'Robot server offline — start the Python script first';
           });
           const estopBtn = document.getElementById('estop-btn');
-          const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
           if (estopBtn) { estopBtn.disabled = true; estopBtn.style.opacity = '0.35'; estopBtn.title = 'Robot offline'; }
-          if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = ''; resetBtn.title = 'Remove stuck dispatched orders'; }
+          const resetBtn = document.getElementById('reset-stuck-btn');
+          if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; resetBtn.title = ''; }
       }
     }, 150);
   }
@@ -4900,8 +4908,7 @@ async function confirmPickup() {
         <div style="display:flex;flex-direction:column;gap:6px;">
           <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
           <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
-        </div>
+         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;pointer-events:auto;cursor:pointer;">⬡ RESET STUCK</button>
       </div>
       <div>
         <div class="op-section-title">⬡ Telemetry</div>
