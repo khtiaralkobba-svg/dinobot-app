@@ -2673,7 +2673,6 @@ function startKitchenRobotPolling() {
   }
  
   function setAllDispatchButtons(enabled) {
-    // Target by data-dispatch attribute AND by text content as fallback
     document.querySelectorAll('[id^="action-"]').forEach(btn => {
       const isDispatchBtn = btn.dataset.dispatch === 'true' || 
                             btn.textContent.includes('Dispatch Robot') ||
@@ -2683,12 +2682,19 @@ function startKitchenRobotPolling() {
         btn.style.opacity = enabled ? '1' : '0.4';
         btn.style.pointerEvents = enabled ? '' : 'none';
         btn.title = enabled ? '' : 'Robot is busy — wait for it to return to dock';
-        // Also visually mark as busy when disabled
         if (!enabled) {
-          btn.dataset.dispatch = 'true'; // ensure future calls work too
+          btn.dataset.dispatch = 'true';
         }
       }
     });
+    // RESET STUCK is always enabled — never touch it
+    const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
+    if (resetBtn) {
+      resetBtn.disabled = false;
+      resetBtn.style.opacity = '1';
+      resetBtn.style.pointerEvents = '';
+      resetBtn.title = 'Remove stuck dispatched orders';
+    }
   }
  
   async function dispatchRobot(ref, tableNum) {
@@ -3384,7 +3390,7 @@ function initMap() {
         const estopBtn = document.getElementById('estop-btn');
         const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
         if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
-        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = ''; resetBtn.title = ''; }
+        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = ''; resetBtn.title = 'Remove stuck dispatched orders'; }
         // Robot is busy until it's fully back at dock
         const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING', 'RETURNING', 'RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
         if (isRobotBusy !== robotBusy) {
@@ -3405,7 +3411,7 @@ function initMap() {
           const estopBtn = document.getElementById('estop-btn');
           const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
           if (estopBtn) { estopBtn.disabled = true; estopBtn.style.opacity = '0.35'; estopBtn.title = 'Robot offline'; }
-          if (resetBtn) { resetBtn.disabled = true; resetBtn.style.opacity = '0.35'; resetBtn.title = 'Robot offline'; }
+          if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = ''; resetBtn.title = 'Remove stuck dispatched orders'; }
       }
     }, 150);
   }
