@@ -832,6 +832,26 @@ body.light-mode .analytics-layer .cc-layer-tag {
   color: rgba(180,80,0,0.7) !important; 
   border-color: rgba(180,80,0,0.2) !important; 
 }
+body.light-mode #staff-create-panel,
+body.light-mode #staff-status-panel,
+body.light-mode #staff-list-panel {
+  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(253,248,242,0.95) 100%) !important;
+  border-color: rgba(180,80,0,0.2) !important;
+}
+
+body.light-mode #staff-create-panel > div:first-child,
+body.light-mode #staff-status-panel > div:first-child,
+body.light-mode #staff-list-panel > div:first-child {
+  background: #FDF8F2 !important;
+  color: #E8620A !important;
+  border-color: rgba(180,80,0,0.25) !important;
+}
+
+body.light-mode #staff-online-list [style*="rgba(74,222,128"] {
+  background: rgba(22,163,74,0.06) !important;
+  border-color: rgba(22,163,74,0.2) !important;
+  border-left-color: #16a34a !important;
+}
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
@@ -5629,8 +5649,8 @@ async function confirmPickup() {
 
     <!-- Create + Online Status -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;min-height:300px;">
-      <div style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
-        <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(192,132,252,0.6);border:1px solid rgba(192,132,252,0.15);">⬡ CREATE NEW STAFF ACCOUNT</div>
+      <div id="staff-create-panel" style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
+  <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(192,132,252,0.6);border:1px solid rgba(192,132,252,0.15);">⬡ CREATE NEW STAFF ACCOUNT</div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
           <input id="staff-name" type="text" class="form-input" placeholder="Full Name">
           <input id="staff-username" type="text" class="form-input" placeholder="Username (e.g. KIT-001)">
@@ -5645,7 +5665,7 @@ async function confirmPickup() {
         </div>
       </div>
 
-      <div style="position:relative;padding:28px 30px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
+     <div id="staff-status-panel" style="position:relative;padding:28px 30px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);">
         <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(192,132,252,0.6);border:1px solid rgba(192,132,252,0.15);">⬡ LIVE KITCHEN STATUS</div>
         <div id="staff-online-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);padding:16px;text-align:center;">No active sessions</div>
@@ -5654,7 +5674,7 @@ async function confirmPickup() {
     </div>
 
     <!-- Staff List -->
-    <div style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);flex:1;">
+  <div id="staff-list-panel" style="position:relative;padding:40px 48px;border:1px solid rgba(192,132,252,0.15);background:linear-gradient(135deg,rgba(192,132,252,0.02) 0%,rgba(2,8,26,0.7) 100%);flex:1;">
       <div id="staff-list-table" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);padding:16px;text-align:center;">Loading staff…</div>
       </div>
