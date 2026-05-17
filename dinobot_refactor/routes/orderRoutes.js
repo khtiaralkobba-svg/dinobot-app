@@ -83,6 +83,10 @@ router.get(
 router.get(
   '/all',
   authenticateToken,
+  async (req, res, next) => {
+    console.log('[/all] req.user:', JSON.stringify(req.user));
+    next();
+  },
   authorizeRoles('manager'),
   async (req, res) => {
     try {
