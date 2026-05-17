@@ -1014,12 +1014,6 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   margin-top: 16px;
   text-transform: uppercase;
 }
-#reset-stuck-btn,
-#reset-stuck-btn:disabled {
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  cursor: pointer !important;
-}
 </style>
 </style>
 </head>
@@ -2630,61 +2624,62 @@ function startKitchenRobotPolling() {
   let robotBusy = false;
  
   async function resetStuckOrders() {
-    let removedCount = 0;
+  // Step 1: Collect stuck refs BEFORE any deletion
+  const stuckRefs = Object.entries(kitchenOrders)
+    .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
+    .map(([ref]) => ref);
 
-    // Step 1: Remove stuck dispatched/delivering orders from DOM immediately
-    Object.entries(kitchenOrders).forEach(([ref, order]) => {
-      if (['dispatched', 'delivering'].includes(order.status)) {
-        const card = document.getElementById('order-' + ref);
-        if (card) {
-          card.style.transition = 'opacity 0.3s, transform 0.3s';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(20px)';
-          setTimeout(() => card.remove(), 320);
-        }
-        if (order.timerInterval) clearInterval(order.timerInterval);
-        if (order.waitInterval)  clearInterval(order.waitInterval);
-        delete kitchenOrders[ref];
-        removedCount++;
-      }
-    });
-
-    if (removedCount === 0) {
-      showToast('⬡ No stuck dispatched orders to remove');
-      return;
-    }
-
-    // Step 2: Reset robot busy state
-    robotBusy = false;
-    setAllDispatchButtons(true);
-    setTimeout(() => resortColumns(), 350);
-    showToast('⬡ Removed ' + removedCount + ' stuck order' + (removedCount > 1 ? 's' : '') + ' — robot ready');
-
-    // Step 3: Try to patch server + tell robot to dock (silent fail if offline)
-    Object.keys(kitchenOrders).forEach(ref => {});
-    try {
-      // Patch each stuck order to cancelled on the server
-      const stuckRefs = Object.entries(kitchenOrders)
-        .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
-        .map(([ref]) => ref);
-      
-      for (const ref of stuckRefs) {
-        await fetch(API_BASE + '/api/orders/' + ref + '/status', {
-          method: 'PATCH',
-          headers: authHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ status: 'cancelled' })
-        }).catch(() => {});
-      }
-    } catch {}
-
-    try {
-      await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
-    } catch {}
-
-    // Step 4: Reload from server after DOM settles
-    setTimeout(() => loadKitchenOrders(), 500);
+  if (stuckRefs.length === 0) {
+    showToast('⬡ No stuck dispatched orders to remove');
+    return;
   }
- 
+
+  // Step 2: Remove cards from DOM with animation
+  stuckRefs.forEach(ref => {
+    const card = document.getElementById('order-' + ref);
+    if (card) {
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      setTimeout(() => card.remove(), 320);
+    }
+    if (kitchenOrders[ref]?.timerInterval) clearInterval(kitchenOrders[ref].timerInterval);
+    if (kitchenOrders[ref]?.waitInterval)  clearInterval(kitchenOrders[ref].waitInterval);
+    delete kitchenOrders[ref];
+  });
+
+  // Step 3: Reset robot busy state immediately
+  robotBusy = false;
+  setAllDispatchButtons(true);
+  setTimeout(() => resortColumns(), 350);
+  showToast('⬡ Removed ' + stuckRefs.length + ' stuck order'
+    + (stuckRefs.length > 1 ? 's' : '') + ' — robot ready');
+
+  // Step 4: Cancel each stuck order on the server (now stuckRefs is populated)
+  for (const ref of stuckRefs) {
+    try {
+      await fetch(API_BASE + '/api/orders/' + ref + '/status', {
+        method: 'PATCH',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ status: 'cancelled' })
+      });
+      console.log('[resetStuck] Cancelled on server:', ref);
+    } catch (e) {
+      console.warn('[resetStuck] Server patch failed for', ref, e);
+    }
+  }
+
+  // Step 5: Tell robot to stop and return to dock
+  try {
+    await fetch(API_BASE + '/api/robot/stop', { method: 'POST' });
+    await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
+  } catch (e) {
+    console.warn('[resetStuck] Robot recall failed (offline?):', e);
+  }
+
+  // Step 6: Reload fresh state from server after DOM settles
+  setTimeout(() => loadKitchenOrders(), 600);
+}
   function setAllDispatchButtons(enabled) {
   document.querySelectorAll('[id^="action-"]').forEach(btn => {
     const isDispatchBtn = btn.dataset.dispatch === 'true' ||
@@ -3311,8 +3306,6 @@ function initMap() {
     document.querySelectorAll('.dispatch-btn').forEach(b => {
       b.title = 'Robot server offline — start the Python script first';
     });
-    const resetBtn = document.getElementById('reset-stuck-btn');
-    if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; }
 
     if (window._robotPollInterval) clearInterval(window._robotPollInterval);
     window._robotPollInterval = setInterval(async () => {
@@ -3403,18 +3396,21 @@ function initMap() {
 
         // ── Robot online — enable/disable based on busy state ──
         const estopBtn = document.getElementById('estop-btn');
+        const resetBtn = document.getElementById('reset-stuck-btn');
         if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
-       // Robot is busy until it's fully back at dock
+
         const isRobotBusy = ['MOVING_TO_TABLE', 'DELIVERING', 'RETURNING', 'RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
         if (isRobotBusy !== robotBusy) {
           robotBusy = isRobotBusy;
           setAllDispatchButtons(!isRobotBusy);
         }
+
+        // Always re-enable reset button after setAllDispatchButtons
+        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; resetBtn.title = ''; }
+
         document.querySelectorAll('.dispatch-btn').forEach(b => {
           b.title = isRobotBusy ? 'Robot is busy' : '';
         });
-        const resetBtn = document.getElementById('reset-stuck-btn');
-        if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; }
 
       } catch {
           robotBusy = true;
@@ -3424,9 +3420,9 @@ function initMap() {
             b.title = 'Robot server offline — start the Python script first';
           });
           const estopBtn = document.getElementById('estop-btn');
-          if (estopBtn) { estopBtn.disabled = true; estopBtn.style.opacity = '0.35'; estopBtn.title = 'Robot offline'; }
           const resetBtn = document.getElementById('reset-stuck-btn');
-          if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; resetBtn.title = ''; }
+          if (estopBtn) { estopBtn.disabled = true; estopBtn.style.opacity = '0.35'; estopBtn.title = 'Robot offline'; }
+          if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = ''; resetBtn.title = 'Remove stuck dispatched orders'; }
       }
     }, 150);
   }
@@ -4908,7 +4904,8 @@ async function confirmPickup() {
         <div style="display:flex;flex-direction:column;gap:6px;">
           <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
           <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;pointer-events:auto;cursor:pointer;">⬡ RESET STUCK</button>
+         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
+        </div>
       </div>
       <div>
         <div class="op-section-title">⬡ Telemetry</div>
