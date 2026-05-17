@@ -319,10 +319,10 @@ body.light-mode .olc-meta { color: rgba(80,40,0,0.4); }
 
 body.light-mode .track-step-dot { background: #EFE6D8; border-color: rgba(180,80,0,0.25); }
 body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
-body.light-mode .track-step-title { color: rgba(80,40,0,0.5); }
-body.light-mode .track-step-sub { color: rgba(80,40,0,0.4); }
+body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
+body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
 body.light-mode .track-eta-strip { background: rgba(232,98,10,0.05); border-color: rgba(232,98,10,0.15); }
-body.light-mode .track-table-tag { color: rgba(80,40,0,0.4); }
+body.light-mode .track-table-tag { color: rgba(20,8,0,0.7); }
 body.light-mode #map-container { background: rgba(230,218,200,0.5); border-color: rgba(180,80,0,0.15); }
 body.light-mode .track-map-wrap { background: rgba(230,218,200,0.5); border-color: rgba(180,80,0,0.15); }
 
@@ -440,6 +440,17 @@ body.light-mode .kitch-col-count-ready { color: #15803d; background: rgba(22,163
 body.light-mode .ticket-action-prep { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.08); }
 body.light-mode .dot-order { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
 body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 10px #16a34a; }
+body.light-mode [id^="pred-strip-"] { 
+  color: #92400e !important; 
+  background: rgba(180,83,9,0.12) !important; 
+  border-color: rgba(180,83,9,0.4) !important; 
+  font-weight: 600;
+}
+body.light-mode .track-eta-val { color: #E8620A; font-weight: 700; }
+body.light-mode .track-eta-label { color: rgba(20,8,0,0.7); }
+body.light-mode .olc-status-prep { color: #92400e; border-color: #b45309; background: rgba(180,83,9,0.12); }
+body.light-mode .kitch-col-title-prep { color: #92400e; }
+body.light-mode .kitch-col-count-prep { color: #92400e; background: rgba(180,83,9,0.12); }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
