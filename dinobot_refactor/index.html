@@ -2457,14 +2457,14 @@ function startKitchenRobotPolling() {
         }
     }, 1000);
 }
-  let _analyticsInterval = null;
-  function startAnalyticsPolling() {
-    if (_analyticsInterval) clearInterval(_analyticsInterval);
-    loadAnalyticsFromDB();
-    _analyticsInterval = setInterval(() => {
-      if (currentRole === 'manager') loadAnalyticsFromDB();
-    }, 10000);
-  }
+ let _analyticsInterval = null;
+function startAnalyticsPolling() {
+  if (_analyticsInterval) clearInterval(_analyticsInterval);
+  if (currentRole === 'manager') loadAnalyticsFromDB();
+  _analyticsInterval = setInterval(() => {
+    if (currentRole === 'manager') loadAnalyticsFromDB();
+  }, 10000);
+}
  
   // ── Smooth card transition between columns ──
   let _kitchenTransitioning = new Set();
