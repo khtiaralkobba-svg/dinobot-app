@@ -2032,39 +2032,33 @@ let announcedOrders = new Set();
       const m = Math.floor(mins), s = Math.floor((mins % 1) * 60);
       const timeStr = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
 
-      let badge = document.getElementById('wait-badge-' + ref);
-      if (!badge) {
-        const received = card.querySelector('.ticket-received');
-        if (!received) return;
-        badge = document.createElement('div');
-        badge.id = 'wait-badge-' + ref;
-        received.after(badge);
+      const timerEl = document.getElementById('timer-' + ref);
+      const timerLabel = timerEl?.nextElementSibling;
+      if (timerEl) {
+        timerEl.textContent = timeStr;
+        if (timerLabel) timerLabel.textContent = 'wait time';
+        if (mins >= WAIT.CRIT)      timerEl.className = 'ticket-timer late';
+        else if (mins >= WAIT.WARN) timerEl.className = 'ticket-timer warn';
+        else                         timerEl.className = 'ticket-timer ok';
       }
 
-      let label, cls, borderCls;
+      card.classList.remove('wait-warn', 'wait-crit');
       if (mins >= WAIT.CRIT) {
-        label = '🔴 NOT ACKNOWLEDGED'; cls = 'ticket-wait ticket-wait-crit'; borderCls = 'wait-crit';
+        card.classList.add('wait-crit');
         if (currentRole === 'kitchen' && !order._waitCritSpoken) {
           order._waitCritSpoken = true;
           voiceNotAcknowledged(ref, order.table);
           sfxWarn();
         }
       } else if (mins >= WAIT.WARN) {
-        label = '🟡 WAITING'; cls = 'ticket-wait ticket-wait-warn'; borderCls = 'wait-warn';
+        card.classList.add('wait-warn');
         if (currentRole === 'kitchen' && !order._waitWarnSpoken) {
           order._waitWarnSpoken = true;
           speak(`Order for table ${order.table} is waiting`);
           sfxWarn();
         }
-      } else {
-        label = '⬡ WAITING'; cls = 'ticket-wait ticket-wait-ok'; borderCls = '';
       }
 
-      badge.textContent = `${label} — ${timeStr}`;
-      badge.className = cls;
-
-      card.classList.remove('wait-warn','wait-crit');
-      if (borderCls) card.classList.add(borderCls);
     }, 1000);
   }
  
@@ -2532,9 +2526,11 @@ function startAnalyticsPolling() {
       if (newStatus !== 'new' && order.waitInterval) {
         clearInterval(order.waitInterval);
         order.waitInterval = null;
-        // Clean up wait badge and border classes
-        const waitBadge = document.getElementById('wait-badge-' + ref);
-        if (waitBadge) waitBadge.remove();
+        // Reset timer display back to prep time label
+        const timerEl = document.getElementById('timer-' + ref);
+        const timerLabel = timerEl?.nextElementSibling;
+        if (timerEl) { timerEl.textContent = '—:——'; timerEl.className = 'ticket-timer idle'; }
+        if (timerLabel) timerLabel.textContent = 'prep time';
         card.classList.remove('wait-warn', 'wait-crit');
       }
  
