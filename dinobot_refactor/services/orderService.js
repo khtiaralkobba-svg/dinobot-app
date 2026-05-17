@@ -196,6 +196,30 @@ async function resetStuckOrders() {
   if (error) throw error;
   return data || [];
 }
+// ==========================
+// STUCK ORDERS
+// ==========================
+async function logStuckOrder({ order_ref, table_number, status_at_reset, reason, reset_by }) {
+  const { data, error } = await supabase
+    .from('stuck_orders')
+    .insert({ order_ref, table_number, status_at_reset, reason, reset_by })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function getStuckOrders() {
+  const { data, error } = await supabase
+    .from('stuck_orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) throw error;
+  return data || [];
+}
 
 module.exports = {
   createOrder,
@@ -203,5 +227,7 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   cancelOrder,
-  resetStuckOrders
+  resetStuckOrders,
+  logStuckOrder,
+  getStuckOrders
 };

@@ -39,6 +39,46 @@ router.post(
     }
   }
 );
+
+// ── Log stuck order to stuck_orders table ──
+router.post(
+  '/stuck',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    const { order_ref, table_number, reason, status_at_reset } = req.body;
+    if (!order_ref) return res.status(400).json({ error: 'order_ref required' });
+
+    try {
+      await orderService.logStuckOrder({
+        order_ref,
+        table_number,
+        status_at_reset,
+        reason: reason || 'Manual reset',
+        reset_by: req.user?.employee_id || req.user?.employeeId || 'unknown'
+      });
+      res.json({ success: true });
+    } catch (err) {
+      console.error('[stuck insert]', err);
+      res.status(500).json({ error: 'Failed to log stuck order' });
+    }
+  }
+);
+
+// ── View stuck orders log ──
+router.get(
+  '/stuck',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const rows = await orderService.getStuckOrders();
+      res.json({ stuck_orders: rows });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 // ── Get ALL orders (manager analytics — no pagination) ──
 router.get(
   '/all',

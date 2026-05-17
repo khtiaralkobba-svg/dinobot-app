@@ -2624,39 +2624,56 @@ function startKitchenRobotPolling() {
   let robotBusy = false;
  
   async function resetStuckOrders() {
-  let stuckRefs = Object.entries(kitchenOrders)
-    .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
+  const stuckRefs = Object.entries(kitchenOrders)
+    .filter(([, o]) => ['dispatched', 'delivering', 'ready'].includes(o.status))
     .map(([ref]) => ref);
 
   if (stuckRefs.length === 0) {
+    showToast('⬡ No stuck orders to reset'); return;
+  }
+
+  for (const ref of stuckRefs) {
     try {
-      const res = await fetch(API_BASE + '/api/orders', { headers: authHeaders() });
-      const data = await res.json();
-      stuckRefs = (data.orders || [])
-        .filter(o => ['dispatched', 'delivering'].includes(o.status))
-        .map(o => o.order_ref);
+      await fetch(API_BASE + '/api/orders/stuck', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          order_ref: ref,
+          table_number: kitchenOrders[ref]?.table,
+          reason: 'Manual reset by manager',
+          status_at_reset: kitchenOrders[ref]?.status
+        })
+      });
+
+      await fetch(API_BASE + '/api/orders/' + ref + '/status', {
+        method: 'PATCH',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ status: 'cancelled' })
+      });
     } catch (e) {
-      showToast('✗ Could not fetch orders from server'); return;
+      console.warn('[resetStuck] Failed for', ref, e);
     }
+
+    const card = document.getElementById('order-' + ref);
+    if (card) {
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(20px)';
+      setTimeout(() => card.remove(), 320);
+    }
+    if (kitchenOrders[ref]) {
+      clearInterval(kitchenOrders[ref].timerInterval);
+      clearInterval(kitchenOrders[ref].waitInterval);
+    }
+    delete kitchenOrders[ref];
   }
 
-  if (stuckRefs.length === 0) {
-    showToast('⬡ No stuck dispatched orders to remove'); return;
-  }
-
-  // Just recall — do NOT cancel, do NOT remove cards
-  // Normal delivery flow continues after robot unsticks
   robotBusy = false;
   setAllDispatchButtons(true);
-  showToast('⬡ Robot recalled — delivery will continue normally');
+  try { await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }); } catch {}
 
-  try {
-    await fetch(API_BASE + '/api/robot/recall', { method: 'POST' });
-  } catch (e) {
-    console.warn('[resetStuck] Robot recall failed:', e);
-  }
-
-  setTimeout(() => loadKitchenOrders(), 600);
+  setTimeout(() => resortColumns(), 400);
+  showToast(`⬡ ${stuckRefs.length} stuck order(s) logged and removed`);
 }
   function setAllDispatchButtons(enabled) {
   document.querySelectorAll('[id^="action-"]').forEach(btn => {
