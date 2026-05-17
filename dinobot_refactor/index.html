@@ -2680,29 +2680,29 @@ function startKitchenRobotPolling() {
   }
  
   function setAllDispatchButtons(enabled) {
-    document.querySelectorAll('[id^="action-"]').forEach(btn => {
-      const isDispatchBtn = btn.dataset.dispatch === 'true' || 
-                            btn.textContent.includes('Dispatch Robot') ||
-                            btn.textContent.includes('Robot En Route');
-      if (isDispatchBtn) {
-        btn.disabled = !enabled;
-        btn.style.opacity = enabled ? '1' : '0.4';
-        btn.style.pointerEvents = enabled ? '' : 'none';
-        btn.title = enabled ? '' : 'Robot is busy — wait for it to return to dock';
-        if (!enabled) {
-          btn.dataset.dispatch = 'true';
-        }
-      }
-    });
-    // RESET STUCK is always enabled — never touch it
-    const resetBtn = document.querySelector('button[onclick="resetStuckOrders()"]');
-    if (resetBtn) {
-      resetBtn.disabled = false;
-      resetBtn.style.opacity = '1';
-      resetBtn.style.pointerEvents = '';
-      resetBtn.title = 'Remove stuck dispatched orders';
+  document.querySelectorAll('[id^="action-"]').forEach(btn => {
+    const isDispatchBtn = btn.dataset.dispatch === 'true' ||
+                          btn.textContent.includes('Dispatch Robot') ||
+                          btn.textContent.includes('Robot En Route');
+    if (isDispatchBtn) {
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? '1' : '0.4';
+      btn.style.pointerEvents = enabled ? '' : 'none';
+      btn.title = enabled ? '' : 'Robot is busy — wait for it to return to dock';
+      if (!enabled) btn.dataset.dispatch = 'true';
     }
+  });
+
+  // RESET STUCK: always clickable, no matter what
+  const resetBtn = document.getElementById('reset-stuck-btn');
+  if (resetBtn) {
+    resetBtn.disabled = false;
+    resetBtn.style.opacity = '1';
+    resetBtn.style.pointerEvents = 'auto';
+    resetBtn.style.cursor = 'pointer';
+    resetBtn.title = '';
   }
+}
  
   async function dispatchRobot(ref, tableNum) {
     if (!window._pythonOnline) { showToast('✗ Robot server offline — start the Python script first'); return; }
@@ -4900,7 +4900,7 @@ async function confirmPickup() {
         <div style="display:flex;flex-direction:column;gap:6px;">
           <button onclick="recallUnit()" class="op-btn op-btn-blue">⬡ RECALL TO DOCK</button>
           <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow">⬡ PAUSE UNIT</button>
-          <button onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
+         <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;letter-spacing:2px;">⬡ RESET STUCK</button>
         </div>
       </div>
       <div>
