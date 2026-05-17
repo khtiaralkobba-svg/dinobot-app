@@ -4188,16 +4188,20 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
     tables.forEach(t => {
       const tx=t.x*W, ty=t.y*H, isTarget=tableNum===t.id;
       ctx.save();
-      ctx.fillStyle=isTarget?'#C084FC':'rgba(96,165,250,0.25)'; ctx.shadowColor=isTarget?'#C084FC':'#60A5FA'; ctx.shadowBlur=isTarget?14:6;
+      const isLightTr=document.body.classList.contains('light-mode');
+      ctx.fillStyle=isTarget?(isLightTr?'#7c3aed':'#C084FC'):(isLightTr?'rgba(29,78,216,0.2)':'rgba(96,165,250,0.25)'); ctx.shadowColor=isTarget?(isLightTr?'#7c3aed':'#C084FC'):(isLightTr?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isTarget?14:6;
       ctx.fillRect(tx-12,ty-8,24,16);
-      ctx.fillStyle=isTarget?'#fff':'rgba(255,255,255,0.4)'; ctx.shadowBlur=0; ctx.font='bold 8px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle=isLightTr?'rgba(20,8,0,0.8)':'rgba(255,255,255,0.4)'; ctx.shadowBlur=0; ctx.font='bold 8px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('T'+t.id,tx,ty); ctx.restore();
     });
-    ctx.save(); ctx.fillStyle='rgba(74,222,128,0.2)'; ctx.strokeStyle='#4ADE80'; ctx.lineWidth=1; ctx.shadowColor='#4ADE80'; ctx.shadowBlur=10;
+    const isLightDock=document.body.classList.contains('light-mode');
+    ctx.save(); ctx.fillStyle=isLightDock?'rgba(22,163,74,0.15)':'rgba(74,222,128,0.2)'; ctx.strokeStyle=isLightDock?'#16a34a':'#4ADE80'; ctx.lineWidth=1; ctx.shadowColor=isLightDock?'#16a34a':'#4ADE80'; ctx.shadowBlur=isLightDock?4:10;
     ctx.fillRect(dockX*W-14,dockY*H-10,28,20); ctx.strokeRect(dockX*W-14,dockY*H-10,28,20);
+    ctx.fillStyle=isLightDock?'rgba(20,8,0,0.7)':'#4ADE80'; ctx.shadowBlur=0; ctx.font='8px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('DOCK',dockX*W,dockY*H); ctx.restore();
     ctx.fillStyle='#4ADE80'; ctx.shadowBlur=0; ctx.font='8px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('DOCK',dockX*W,dockY*H); ctx.restore();
+    const isLightRobot=document.body.classList.contains('light-mode');
     ctx.save(); ctx.translate(robotX*W,robotY*H); ctx.rotate(robotAngle+Math.PI/2);
-    ctx.shadowColor='#FF6B1A'; ctx.shadowBlur=20; ctx.fillStyle='#FF6B1A';
+    ctx.shadowColor=isLightRobot?'#c2410c':'#FF6B1A'; ctx.shadowBlur=isLightRobot?8:20; ctx.fillStyle=isLightRobot?'#E8620A':'#FF6B1A';
     ctx.beginPath(); ctx.moveTo(0,-10); ctx.lineTo(6,6); ctx.lineTo(0,2); ctx.lineTo(-6,6); ctx.closePath(); ctx.fill(); ctx.restore();
     trackMapFrame = requestAnimationFrame(() => animateTrackMap(ref, tableNum));
   }
