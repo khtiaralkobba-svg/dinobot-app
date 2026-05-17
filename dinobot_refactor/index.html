@@ -1742,17 +1742,21 @@ let announcedOrders = new Set();
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
       }
     });
+    if (!res.ok) {
+      animateCounter('counter-1', 0, 800);
+      animateCounter('counter-2', 0, 800);
+      animateCounter('counter-3', 0, 800);
+      return;
+    }
     const data = await res.json();
     const orders = data.orders || [];
 
-    // Orders delivered today
     const today = new Date().toDateString();
     const deliveredToday = orders.filter(o =>
       o.status === 'delivered' &&
       new Date(o.placed_at).toDateString() === today
     ).length;
 
-    // Avg delivery time (placed_at → delivered, in minutes)
     const deliveredWithTimes = orders.filter(o =>
       o.status === 'delivered' && o.placed_at && o.delivered_at
     );
@@ -1762,7 +1766,6 @@ let announcedOrders = new Set();
         }, 0) / deliveredWithTimes.length)
       : 0;
 
-    // Unique tables served today
     const tablesServed = new Set(
       orders
         .filter(o => new Date(o.placed_at).toDateString() === today)
@@ -1779,7 +1782,7 @@ let announcedOrders = new Set();
     animateCounter('counter-3', 0, 800);
   }
 }, 3200);
- 
+
   /* ── TOAST ─────────────────────────────────────────────── */
   function showToast(msg) {
     const existing = document.querySelector('.toast'); if (existing) existing.remove();
@@ -2623,7 +2626,7 @@ function startKitchenRobotPolling() {
 
   }
   let robotBusy = false;
-  
+
   async function resetStuckOrders() {
   let stuckRefs = Object.entries(kitchenOrders)
     .filter(([, o]) => ['dispatched', 'delivering', 'ready'].includes(o.status))
