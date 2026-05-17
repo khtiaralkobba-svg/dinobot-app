@@ -2062,39 +2062,6 @@ function closeAnalyticsOverlay() {
   el.style.minHeight = '100vh';
   el.style.zIndex = '10000';
   document.body.style.overflow = 'hidden';
-
-  const isLight = document.body.classList.contains('light-mode');
-  if (isLight) {
-    el.style.background = '#FDF8F2';
-    const panels = ['staff-create-panel', 'staff-status-panel', 'staff-list-panel'];
-    panels.forEach(id => {
-      const p = document.getElementById(id);
-      if (p) {
-        p.style.background = 'linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(253,248,242,0.98) 100%)';
-        p.style.borderColor = 'rgba(180,80,0,0.2)';
-        const tag = p.querySelector('[style*="background:#030f20"]');
-        if (tag) { tag.style.background = '#FDF8F2'; tag.style.color = '#E8620A'; tag.style.borderColor = 'rgba(180,80,0,0.25)'; }
-      }
-    });
-    const body = document.getElementById('staff-body');
-    if (body) body.style.background = '#FDF8F2';
-    const grid = document.getElementById('staff-grid-top');
-    if (grid) grid.style.background = 'transparent';
-    const header = el.querySelector('[style*="rgba(20,10,60"]');
-    if (header) { header.style.background = 'linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%)'; header.style.borderColor = 'rgba(180,80,0,0.2)'; }
-  }
-
-  loadStaffList();
-}.style.inset = '0';
-  el.style.top = '0';
-  el.style.left = '0';
-  el.style.right = '0';
-  el.style.bottom = '0';
-  el.style.width = '100vw';
-  el.style.height = '100vh';
-  el.style.minHeight = '100vh';
-  el.style.zIndex = '10000';
-  document.body.style.overflow = 'hidden';
   loadStaffList();
 }
 
