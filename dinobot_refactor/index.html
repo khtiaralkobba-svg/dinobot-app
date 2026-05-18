@@ -3704,7 +3704,6 @@ function initMap() {
     if (mapAnimFrame) cancelAnimationFrame(mapAnimFrame); 
     animateMap();
 
-    // ── Disable dispatch until robot server confirms online ──
     robotBusy = true;
     setAllDispatchButtons(false);
     setRobotState('OFFLINE', '—', '#ef4444');
@@ -3765,59 +3764,49 @@ function initMap() {
           robotState = 'RETURNING';
           targetX = dockX; targetY = dockY; currentTarget = null;
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-          // ── Robot en route too long alarm ──
-if (['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state)) {
-  if (!window._routeStartTime) {
-    window._routeStartTime = Date.now();
-  } else {
-    const mins = (Date.now() - window._routeStartTime) / 60000;
-    if (mins >= 5 && !window._routeAlarmFired) {
-      window._routeAlarmFired = true;
-      // Visual toast
-      showToast('⚠ ROBOT HAS BEEN EN ROUTE FOR 5+ MINUTES');
-      // Red vignette flash
-      const v = document.getElementById('crit-vignette');
-      if (v) { v.classList.add('show'); setTimeout(() => v.classList.remove('show'), 8000); }
-      // Audio alarm
-      playCritAlert();
-      // Voice
-      speak('Warning. The robot has been en route for over 5 minutes. Please check Unit 01.', { priority: true });
-      // Activity feed
-      addActivity('dot-system', '⚠ <strong>ROBOT DELAY</strong> — Unit-01 has been en route for 5+ minutes');
-    }
-  }
-} else {
-  // Reset when robot returns
-  window._routeStartTime = null;
-  window._routeAlarmFired = false;
-}
         } else if (data.state === 'IDLE') {
-        currentTarget = null;
-        if (robotBusy) {
-          robotBusy = false;
-          setAllDispatchButtons(true);
-          // Sweep ALL dispatched/delivering/delivered cards now that robot is docked
-          const toRemove = Object.entries(kitchenOrders)
-            .filter(([, o]) => ['dispatched','delivering','delivered'].includes(o.status))
-            .map(([ref]) => ref);
-          toRemove.forEach(ref => {
-            const card = document.getElementById('order-' + ref);
-            if (card) {
-              card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-              card.style.opacity = '0';
-              card.style.transform = 'translateX(20px)';
-              setTimeout(() => card.remove(), 420);
-            }
-            clearInterval(kitchenOrders[ref]?.timerInterval);
-            clearInterval(kitchenOrders[ref]?.waitInterval);
-            delete kitchenOrders[ref];
-          });
-          setTimeout(() => resortColumns(), 450);
-          showToast('⬡ Robot back at dock — order complete');
+          currentTarget = null;
+          if (robotBusy) {
+            robotBusy = false;
+            setAllDispatchButtons(true);
+            const toRemove = Object.entries(kitchenOrders)
+              .filter(([, o]) => ['dispatched','delivering','delivered'].includes(o.status))
+              .map(([ref]) => ref);
+            toRemove.forEach(ref => {
+              const card = document.getElementById('order-' + ref);
+              if (card) {
+                card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(20px)';
+                setTimeout(() => card.remove(), 420);
+              }
+              clearInterval(kitchenOrders[ref]?.timerInterval);
+              clearInterval(kitchenOrders[ref]?.waitInterval);
+              delete kitchenOrders[ref];
+            });
+            setTimeout(() => resortColumns(), 450);
+            showToast('⬡ Robot back at dock — order complete');
+          }
         }
-      }
-        
 
+        // ── Route timer: alarm if robot takes 5+ min en route ──
+        if (['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state)) {
+          if (!window._routeStartTime) window._routeStartTime = Date.now();
+          const routeMins = (Date.now() - window._routeStartTime) / 60000;
+          if (routeMins >= 5 && !window._routeAlarmFired) {
+            window._routeAlarmFired = true;
+            showToast('⚠ ROBOT HAS BEEN EN ROUTE FOR 5+ MINUTES');
+            const v = document.getElementById('crit-vignette');
+            if (v) { v.classList.add('show'); setTimeout(() => v.classList.remove('show'), 8000); }
+            playCritAlert();
+            speak('Warning. The robot has been en route for over 5 minutes. Please check Unit 01.', { priority: true });
+            addActivity('dot-system', '⚠ <strong>ROBOT DELAY</strong> — Unit-01 en route for 5+ minutes');
+          }
+        } else {
+          window._routeStartTime = null;
+          window._routeAlarmFired = false;
+        }
+        
         const kitchState = document.getElementById('kitch-robot-state');
         const kitchDest  = document.getElementById('kitch-robot-dest');
         const kitchBat   = document.getElementById('kitch-robot-bat');
@@ -3825,7 +3814,6 @@ if (['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state)) {
         if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
         if (kitchBat)   kitchBat.textContent   = data.battery + '%';
 
-        // ── Robot online — enable/disable based on busy state ──
         const estopBtn = document.getElementById('estop-btn');
         const resetBtn = document.getElementById('reset-stuck-btn');
         if (estopBtn) { estopBtn.disabled = false; estopBtn.style.opacity = ''; estopBtn.title = ''; }
@@ -3836,7 +3824,6 @@ if (['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state)) {
           setAllDispatchButtons(!isRobotBusy);
         }
 
-        // Always re-enable reset button after setAllDispatchButtons
         if (resetBtn) { resetBtn.disabled = false; resetBtn.style.opacity = '1'; resetBtn.style.pointerEvents = 'auto'; resetBtn.style.cursor = 'pointer'; resetBtn.title = ''; }
 
         document.querySelectorAll('.dispatch-btn').forEach(b => {
