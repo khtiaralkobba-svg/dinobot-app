@@ -3512,7 +3512,7 @@ function connectSocket(room) {
 
       // ── Always update student tracking view ──
       updateSessionOrderStatus(order_ref, status);
-      if ((status === 'delivering' || status === 'dispatched') && !_shownPickupScreens.has(order_ref)) {
+      if (status === 'delivering' && !_shownPickupScreens.has(order_ref)) {
         showPickupScreen(order_ref);
       }
 
