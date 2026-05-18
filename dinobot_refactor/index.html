@@ -214,7 +214,24 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     --text-dim: rgba(180, 210, 245, 0.5);
     --hex-size: 60px;
   }
-  body.light-mode {
+ /*
+=================================================================
+  DINOBOT — COMPLETE GRAY LIGHT MODE CSS
+  
+  HOW TO USE:
+  In your HTML file, find the entire block that starts with:
+      body.light-mode {
+        --orange: #E8620A;
+  
+  DELETE everything from that line all the way down to the
+  closing brace of the last light-mode rule before the next
+  non-light-mode CSS section.
+  
+  Then paste THIS entire file's contents in its place.
+=================================================================
+*/
+
+body.light-mode {
   --orange: #E8620A;
   --orange-bright: #FF7520;
   --orange-glow: rgba(232, 98, 10, 0.3);
@@ -230,106 +247,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     radial-gradient(ellipse 80% 60% at 50% -5%, rgba(232, 98, 10, 0.06) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 100% 100%, rgba(232, 98, 10, 0.04) 0%, transparent 55%);
 }
-/* Core background variables — beige → neutral gray */
-body.light-mode {
-  --black: #EBEBEB !important;
-  --dark: #E1E1E1 !important;
-  --darker: #E4E4E4 !important;
-  --panel: #D8D8D8 !important;
-}
- 
-/* Early apply (before body renders) */
-html.light-mode-early body { background: #EBEBEB !important; }
- 
-/* Navigation */
-body.light-mode nav { background: rgba(235, 235, 235, 0.96) !important; }
- 
-/* Loader */
-body.light-mode #cine-loader { background: #EBEBEB !important; }
- 
-/* Full-screen overlays */
-body.light-mode #map-overlay,
-body.light-mode #staff-overlay,
-body.light-mode #analytics-overlay { background: #EBEBEB !important; }
-body.light-mode #staff-body { background: #EBEBEB !important; }
- 
-/* Pickup overlay */
-body.light-mode #pickup-overlay { background: rgba(235, 235, 235, 0.97) !important; }
- 
-/* All panel / card surfaces */
-body.light-mode .panel,
-body.light-mode .feature-card,
-body.light-mode .stat-card,
-body.light-mode .order-ticket,
-body.light-mode .confirm-card,
-body.light-mode .track-status-card,
-body.light-mode .order-list-card,
-body.light-mode .pickup-box,
-body.light-mode .auth-fields.panel,
-body.light-mode .menu-item,
-body.light-mode .table-btn { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
- 
-/* Analytics cards + breakdown rows */
-body.light-mode .analytics-card { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
-body.light-mode .ab-row         { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
- 
-/* Telemetry box */
-body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE) !important; }
- 
-/* D-pad panel + buttons */
-body.light-mode #dpad-panel { background: linear-gradient(160deg, #E0E0E0, #D4D4D4) !important; }
-body.light-mode .dpad-btn   { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
- 
-/* Staff rows */
-body.light-mode .staff-row {
-  background: linear-gradient(160deg, rgba(232,98,10,0.06), rgba(220,220,220,0.4)) !important;
-}
- 
-/* Chat panel */
-body.light-mode .chat-bubble-bot { background: rgba(212, 212, 212, 0.9) !important; }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
-body.light-mode #robot-chat-panel > div:first-child { background: rgba(220, 215, 210, 0.8) !important; }
-body.light-mode #robot-chat-panel > div:last-child  { background: rgba(215, 215, 215, 0.9) !important; }
-body.light-mode #robot-chat-input { background: rgba(215, 215, 215, 0.9) !important; }
-body.light-mode #chat-fab { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
- 
-/* Form inputs */
-body.light-mode .form-input { background: rgba(215, 215, 215, 0.8) !important; }
- 
-/* Staff management panels */
-body.light-mode #staff-create-panel,
-body.light-mode #staff-status-panel,
-body.light-mode #staff-list-panel {
-  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(235,235,235,0.98) 100%) !important;
-}
-body.light-mode #staff-create-panel > div:first-child,
-body.light-mode #staff-status-panel > div:first-child,
-body.light-mode #staff-list-panel > div:first-child { background: #EBEBEB !important; }
- 
-/* Layer tags (cc-layer-tag chips) */
-body.light-mode .cc-layer-operational .cc-layer-tag,
-body.light-mode .cc-layer-critical .cc-layer-tag,
-body.light-mode .cc-layer-monitoring .cc-layer-tag,
-body.light-mode #estop-layer .cc-layer-tag { background: #EBEBEB !important; }
- 
-/* Map container */
-body.light-mode #map-container { background: rgba(215, 215, 215, 0.5) !important; }
- 
-/* Activity feed items */
-body.light-mode #activityFeed .activity-item { background: rgba(215, 215, 215, 0.6) !important; }
- 
-/* E-stop layer */
-body.light-mode #estop-layer {
-  background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(235,235,235,1) 100%) !important;
-}
- 
-/* Dispatch buttons */
-body.light-mode .dispatch-btn {
-  background: linear-gradient(160deg, rgba(232,98,10,0.12), rgba(220,220,220,0.6)) !important;
-}
 
-html.light-mode-early body { background: #F2F2F0; }
-body.light-mode nav { background: rgba(242, 242, 240, 0.96); }
+html.light-mode-early body { background: #EBEBEB; }
+body.light-mode nav { background: rgba(235, 235, 235, 0.96); }
 body.light-mode .hex-bg { opacity: 0.12; }
 body.light-mode .scanline { opacity: 0.04; }
 
@@ -346,33 +266,32 @@ body.light-mode .pickup-box,
 body.light-mode .auth-fields.panel,
 body.light-mode .menu-item,
 body.light-mode .table-btn {
-  background: linear-gradient(160deg, #E8E8E5, #DCDCDA);
+  background: linear-gradient(160deg, #DCDCDC, #D0D0D0);
   border-color: rgba(180, 80, 0, 0.18);
 }
 
-body.light-mode .form-input { background: rgba(220, 220, 218, 0.8); color: #1C0F00; }
-body.light-mode #cine-loader { background: #F2F2F0; }
-body.light-mode .telem-box { background: rgba(215, 215, 213, 0.8); }
-body.light-mode #pickup-overlay { background: rgba(253, 248, 242, 0.97); }
-body.light-mode .chat-bubble-bot { background: rgba(215, 215, 213, 0.8); color: #1C0F00; }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #E4E4E1,#D8D8D5); }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #E8E8E5, #DCDCDA) !important; }
-body.light-mode #robot-chat-panel > div:first-child { background: rgba(235, 220, 205, 0.8) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .form-input { background: rgba(215,215,215,0.8); color: #1C0F00; }
+body.light-mode #cine-loader { background: #EBEBEB; }
+body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE); }
+body.light-mode #pickup-overlay { background: rgba(235,235,235,0.97); }
+body.light-mode .chat-bubble-bot { background: rgba(212,212,212,0.9); color: #1C0F00; }
+body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+body.light-mode #robot-chat-panel > div:first-child { background: rgba(218,218,218,0.8) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode #robot-chat-panel > div:first-child div { color: #1C0F00 !important; }
 body.light-mode #robot-chat-messages { background: transparent !important; }
-body.light-mode .chat-bubble-bot { background: rgba(225, 210, 190, 0.9) !important; color: #1C0F00 !important; border-color: rgba(180,80,0,0.15) !important; }
-body.light-mode #robot-chat-panel > div:last-child { background: rgba(218,218,216,0.9) !important;border-color: rgba(180,80,0,0.15) !important; }
-body.light-mode #robot-chat-panel > div:nth-last-child(2) { background: rgba(235,220,205,0.6) !important; color: rgba(40,15,0,0.5) !important; }
+body.light-mode .chat-bubble-bot { background: rgba(212,212,212,0.9) !important; color: #1C0F00 !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode #robot-chat-panel > div:last-child { background: rgba(215,215,215,0.9) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode #robot-chat-panel > div:nth-last-child(2) { background: rgba(218,218,218,0.6) !important; color: rgba(40,15,0,0.5) !important; }
 body.light-mode #map-overlay,
 body.light-mode #staff-overlay,
-body.light-mode #analytics-overlay { background: #F2F2F0; }
-body.light-mode .staff-row { background: rgba(230, 218, 200, 0.6); }
+body.light-mode #analytics-overlay { background: #EBEBEB; }
+body.light-mode .staff-row { background: rgba(218,218,218,0.6); }
 
 body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.1); }
 body.light-mode .kitch-col-head-prep { background: rgba(251,185,36,0.1); }
 body.light-mode .kitch-col-head-ready{ background: rgba(74,222,128,0.1); }
 body.light-mode .kitch-col-empty { color: rgba(80,40,0,0.2); }
-body.light-mode .kitch-robot-bar { background: rgba(215,215,213,0.95);border-color: rgba(180,80,0,0.2); }
+body.light-mode .kitch-robot-bar { background: rgba(215,215,215,0.95); border-color: rgba(180,80,0,0.2); }
 body.light-mode .krb-eyebrow { color: rgba(80,40,0,0.5); border-color: rgba(180,80,0,0.12); }
 body.light-mode .krb-label { color: rgba(80,40,0,0.4); }
 body.light-mode .krb-val { color: #1C0F00; }
@@ -382,7 +301,7 @@ body.light-mode .table-btn .t-num { color: #1C0F00; }
 body.light-mode .table-btn .t-label { color: rgba(80,40,0,0.5); }
 body.light-mode .table-btn.selected { background: rgba(232,98,10,0.12); }
 
-body.light-mode .step-dot { background: #E4E4E1; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
+body.light-mode .step-dot { background: #DCDCDC; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
 body.light-mode .step-bar::before { background: rgba(180,80,0,0.15); }
 
 body.light-mode .menu-item-name { color: #1C0F00; }
@@ -402,11 +321,11 @@ body.light-mode .nav-links a:hover { color: #E8620A; background: rgba(232,98,10,
 body.light-mode .nav-links a.active { color: #E8620A; background: rgba(232,98,10,0.12); border-color: rgba(180,80,0,0.35); }
 body.light-mode .logo-text { color: #1C0F00; }
 
-body.light-mode .role-pill {background: linear-gradient(160deg, #E6E6E4, #DADADB);border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
+body.light-mode .role-pill { background: linear-gradient(160deg, #E0E0E0, #D3D3D3); border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
 
 body.light-mode .cart-table td { color: #1C0F00; border-color: rgba(180,80,0,0.3); }
 body.light-mode .cart-table th { color: rgba(20,8,0,0.8); font-weight: 700; }
-body.light-mode .cart-qty-btn { background: rgba(215,215,213,0.5); border-color: rgba(180,80,0,0.2); color: #E8620A; }
+body.light-mode .cart-qty-btn { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.2); color: #E8620A; }
 
 body.light-mode .confirm-row { border-color: rgba(180,80,0,0.08); color: #1C0F00; }
 body.light-mode .confirm-row-label { color: rgba(80,40,0,0.5); }
@@ -414,17 +333,20 @@ body.light-mode .confirm-row-label { color: rgba(80,40,0,0.5); }
 body.light-mode .olc-ref { color: #E8620A; }
 body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
 
-body.light-mode .track-step-dot { background: #E4E4E1; border-color: rgba(180,80,0,0.25); }
+body.light-mode .track-step-dot { background: #DCDCDC; border-color: rgba(180,80,0,0.25); }
 body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
 body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
 body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
 body.light-mode .track-eta-strip { background: rgba(232,98,10,0.05); border-color: rgba(232,98,10,0.15); }
 body.light-mode .track-table-tag { color: rgba(20,8,0,0.7); }
-body.light-mode #map-container { background: rgba(215,215,213,0.5);border-color: rgba(180,80,0,0.15); }
-body.light-mode .track-map-wrap {background: rgba(215,215,213,0.5); border-color: rgba(180,80,0,0.15); }
+body.light-mode #map-container { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.15); }
+body.light-mode .track-map-wrap { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.15); }
 
-body.light-mode .dispatch-btn { background: rgba(230,218,200,0.8); border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
-body.light-mode .dpad-btn { background: linear-gradient(160deg,#E4E4E1, #D8D8D5); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
+body.light-mode .dispatch-btn { background: linear-gradient(160deg, rgba(232,98,10,0.12), rgba(215,215,215,0.6)) !important; border-color: rgba(180,80,0,0.45) !important; color: #7c2d00 !important; font-weight: 700 !important; }
+body.light-mode .dispatch-btn:hover { border-color: #E8620A !important; color: #E8620A !important; background: rgba(232,98,10,0.12) !important; }
+body.light-mode .dispatch-btn.active { background: linear-gradient(135deg, #E8620A, #c2410c) !important; color: #fff !important; border-color: #E8620A !important; box-shadow: 0 0 20px rgba(232,98,10,0.4) !important; }
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #DADADA, #CECECE) !important; border-color: rgba(180,80,0,0.35) !important; color: #1C0F00 !important; box-shadow: 0 2px 6px rgba(180,80,0,0.15) !important; }
+body.light-mode .dpad-btn:hover { background: rgba(232,98,10,0.15) !important; border-color: #E8620A !important; }
 body.light-mode .manual-mode-toggle { border-color: rgba(180,80,0,0.3); color: rgba(80,40,0,0.6); }
 
 body.light-mode .activity-item { border-color: rgba(180,80,0,0.15); border-left-color: rgba(180,80,0,0.3); }
@@ -440,123 +362,66 @@ body.light-mode .ticket-timer.idle { color: rgba(80,40,0,0.2); }
 body.light-mode .stat-card { border-color: rgba(180,80,0,0.15); }
 body.light-mode .stat-label { color: rgba(20,8,0,0.75); }
 
-body.light-mode #robot-chat-input { background: rgba(218,218,216,0.9) !important;border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
+body.light-mode #robot-chat-input { background: rgba(215,215,215,0.9) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
 body.light-mode #robot-chat-input::placeholder { color: rgba(40,15,0,0.4) !important; }
-body.light-mode .robot-hex-outer { background: rgba(220,220,218,0.5) !important; border-color: rgba(180,80,0,0.2) !important; }
-body.light-mode .robot-hex-mid { background: rgba(215,215,213,0.4) !important; border-color: rgba(180,80,0,0.3) !important; }
-body.light-mode .robot-hex-inner { background: rgba(210,210,208,0.5) !important; border-color: rgba(180,80,0,0.5) !important; }
+body.light-mode .robot-hex-outer { background: rgba(215,215,215,0.5) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode .robot-hex-mid { background: rgba(212,212,212,0.4) !important; border-color: rgba(180,80,0,0.3) !important; }
+body.light-mode .robot-hex-inner { background: rgba(208,208,208,0.5) !important; border-color: rgba(180,80,0,0.5) !important; }
 
-body.light-mode #chat-fab { background: linear-gradient(160deg, #E8E8E5, #DCDCDA) !important; border-color: rgba(180,80,0,0.35) !important; box-shadow: 0 0 30px rgba(232,98,10,0.2) !important; }
+body.light-mode #chat-fab { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; border-color: rgba(180,80,0,0.35) !important; box-shadow: 0 0 30px rgba(232,98,10,0.2) !important; }
 body.light-mode .chat-bubble-user { background: rgba(232,98,10,0.08); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
 
-body.light-mode .pickup-item { background: rgba(215,215,213,0.5);}
+body.light-mode .pickup-item { background: rgba(212,212,212,0.5); }
 body.light-mode .pickup-item-name { color: #1C0F00; }
 body.light-mode .pickup-table-tag { color: #16a34a; }
 body.light-mode .kitch-col-head-ready { background: rgba(74,222,128,0.15); }
 body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
-/* Stronger status colors in light mode */
-body.light-mode .track-step.done .track-step-dot { background: rgba(22,163,74,0.2); border-color: #16a34a; }
-body.light-mode .track-step.done .track-step-title { color: #16a34a; }
-body.light-mode .track-step.done::after { background: #16a34a; }
-body.light-mode .track-step.active .track-step-dot { background: rgba(232,98,10,0.15); border-color: #E8620A; box-shadow: 0 0 16px rgba(232,98,10,0.3); }
-body.light-mode .track-step.active .track-step-title { color: #E8620A; }
-body.light-mode .track-step.active::after { background: linear-gradient(to bottom, #E8620A, rgba(180,80,0,0.15)); }
 
-/* Step dots on progress bar */
-body.light-mode .step-item.done .step-dot { background: rgba(22,163,74,0.15); border-color: #16a34a; color: #16a34a; }
-body.light-mode .step-item.active .step-dot { background: #E8620A; border-color: #E8620A; color: #000; }
-
-/* Status badges */
-body.light-mode .olc-status-new { color: #1d6db5; border-color: rgba(29,109,181,0.5); }
-body.light-mode .olc-status-prep { color: #b45309; border-color: rgba(180,83,9,0.5); }
-body.light-mode .olc-status-ready { color: #16a34a; border-color: rgba(22,163,74,0.5); }
-body.light-mode .olc-status-dispatched,
-body.light-mode .olc-status-delivering { color: #7c3aed; border-color: rgba(124,58,237,0.5); }
-body.light-mode .olc-status-delivered { color: #16a34a; border-color: rgba(22,163,74,0.3); }
-body.light-mode .olc-status-cancelled { color: #dc2626; border-color: rgba(220,38,38,0.3); }
-
-/* Predictive ETA strip */
-body.light-mode .track-eta-strip { background: rgba(232,98,10,0.08); border-color: rgba(232,98,10,0.3); }
-body.light-mode .track-eta-label { color: rgba(20,8,0,0.7); }
-body.light-mode .track-eta-val { color: #E8620A; }
-
-/* Pred strip */
-body.light-mode #pred-strip-* { color: #b45309; border-color: rgba(180,83,9,0.3); }
-/* Strong bright status colors */
-body.light-mode .dot-order { background: #16a34a; box-shadow: 0 0 6px #16a34a; }
-body.light-mode .dot-status { background: #E8620A; box-shadow: 0 0 6px #E8620A; }
-body.light-mode .dot-robot { background: #2563eb; box-shadow: 0 0 6px #2563eb; }
-body.light-mode .dot-system { background: #7c3aed; box-shadow: 0 0 6px #7c3aed; }
-
-/* Timeline dots stronger */
-body.light-mode .track-step.done .track-step-dot { background: #dcfce7; border-color: #16a34a; color: #16a34a; box-shadow: 0 0 10px rgba(22,163,74,0.4); }
-body.light-mode .track-step.done .track-step-title { color: #15803d; }
-body.light-mode .track-step.done::after { background: #16a34a; }
-body.light-mode .track-step.active .track-step-dot { background: #fff7ed; border-color: #E8620A; box-shadow: 0 0 14px rgba(232,98,10,0.5); }
-body.light-mode .track-step.active .track-step-title { color: #c2410c; }
-
-/* Step progress bar dots */
-body.light-mode .step-item.done .step-dot { background: #dcfce7; border-color: #16a34a; color: #15803d; box-shadow: 0 0 10px rgba(22,163,74,0.3); }
-
-/* Order status badges stronger */
-body.light-mode .olc-status-new { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
-body.light-mode .olc-status-prep { color: #b45309; border-color: #b45309; background: rgba(180,83,9,0.08); }
-body.light-mode .olc-status-ready { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.08); }
-body.light-mode .olc-status-dispatched,
-body.light-mode .olc-status-delivering { color: #6d28d9; border-color: #6d28d9; background: rgba(109,40,217,0.08); }
-body.light-mode .olc-status-delivered { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.06); }
-body.light-mode .olc-status-cancelled { color: #b91c1c; border-color: #b91c1c; background: rgba(185,28,28,0.08); }
-
-/* Cancel button */
-body.light-mode #cancel-btn-* { background: #dc2626 !important; color: #fff !important; box-shadow: 0 0 24px rgba(220,38,38,0.4) !important; }
-body.light-mode .student-btn[style*="ef4444"] { background: #dc2626 !important; box-shadow: 0 0 24px rgba(220,38,38,0.4) !important; }
-
-/* Ticket action buttons */
-body.light-mode .ticket-action-new { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
-body.light-mode .ticket-action-prep { color: #15803d; border-color: #15803d; background: rgba(21,128,61,0.08); }
-
-/* Kitchen column count badges */
-body.light-mode .kitch-col-count-new { color: #1d4ed8; background: rgba(29,78,216,0.12); }
-body.light-mode .kitch-col-count-prep { color: #b45309; background: rgba(180,83,9,0.12); }
-body.light-mode .kitch-col-count-ready { color: #15803d; background: rgba(21,128,61,0.12); }
-body.light-mode .kitch-col-title-new { color: #1d4ed8; }
-body.light-mode .kitch-col-title-prep { color: #b45309; }
-body.light-mode .kitch-col-title-ready { color: #15803d; }
 body.light-mode .track-step.done .track-step-dot { background: rgba(22,163,74,0.12); border-color: #16a34a; color: #15803d; box-shadow: none; }
 body.light-mode .track-step.done .track-step-title { color: #15803d; }
 body.light-mode .track-step.done::after { background: #16a34a; }
+body.light-mode .track-step.active .track-step-dot { background: rgba(232,98,10,0.15); border-color: #E8620A; box-shadow: 0 0 16px rgba(232,98,10,0.3); }
+body.light-mode .track-step.active .track-step-title { color: #c2410c; }
+body.light-mode .track-step.active::after { background: linear-gradient(to bottom, #E8620A, rgba(180,80,0,0.15)); }
 
 body.light-mode .step-item.done .step-dot { background: rgba(22,163,74,0.12); border-color: #16a34a; color: #15803d; box-shadow: none; }
 body.light-mode .step-item.done .step-label { color: #15803d; }
+body.light-mode .step-item.active .step-dot { background: #E8620A; border-color: #E8620A; color: #000; }
 
-body.light-mode .olc-status-ready { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.1); }
+body.light-mode .olc-status-new      { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.1); font-weight: 600; }
+body.light-mode .olc-status-prep     { color: #92400e; border-color: #b45309; background: rgba(180,83,9,0.12); }
+body.light-mode .olc-status-ready    { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.1); }
+body.light-mode .olc-status-dispatched,
+body.light-mode .olc-status-delivering { color: #6d28d9; border-color: #6d28d9; background: rgba(109,40,217,0.08); }
 body.light-mode .olc-status-delivered { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.08); }
+body.light-mode .olc-status-cancelled { color: #b91c1c; border-color: #b91c1c; background: rgba(185,28,28,0.08); }
 
-body.light-mode .kitch-col-title-ready { color: #15803d; }
-body.light-mode .kitch-col-count-ready { color: #15803d; background: rgba(22,163,74,0.12); }
+body.light-mode .ticket-action-new  { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
 body.light-mode .ticket-action-prep { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.08); }
-body.light-mode .dot-order { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
+
+body.light-mode .kitch-col-count-new  { color: #1d4ed8; background: rgba(29,78,216,0.12); }
+body.light-mode .kitch-col-count-prep { color: #92400e; background: rgba(180,83,9,0.12); }
+body.light-mode .kitch-col-count-ready{ color: #15803d; background: rgba(22,163,74,0.12); }
+body.light-mode .kitch-col-title-new  { color: #1d4ed8; }
+body.light-mode .kitch-col-title-prep { color: #92400e; }
+body.light-mode .kitch-col-title-ready{ color: #15803d; }
+
+body.light-mode .dot-order  { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
+body.light-mode .dot-status { background: #E8620A; box-shadow: 0 0 6px #E8620A; }
+body.light-mode .dot-robot  { background: #2563eb; box-shadow: 0 0 6px #2563eb; }
+body.light-mode .dot-system { background: #7c3aed; box-shadow: 0 0 6px #7c3aed; }
 body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 10px #16a34a; }
-body.light-mode [id^="pred-strip-"] { 
-  color: #92400e !important; 
-  background: rgba(180,83,9,0.12) !important; 
-  border-color: rgba(180,83,9,0.4) !important; 
-  font-weight: 600;
-}
+
+body.light-mode [id^="pred-strip-"] { color: #92400e !important; background: rgba(180,83,9,0.12) !important; border-color: rgba(180,83,9,0.4) !important; font-weight: 600; }
 body.light-mode .track-eta-val { color: #E8620A; font-weight: 700; }
 body.light-mode .track-eta-label { color: rgba(20,8,0,0.7); }
-body.light-mode .olc-status-prep { color: #92400e; border-color: #b45309; background: rgba(180,83,9,0.12); }
-body.light-mode .kitch-col-title-prep { color: #92400e; }
-body.light-mode .kitch-col-count-prep { color: #92400e; background: rgba(180,83,9,0.12); }
-body.light-mode .student-section-title { color: #E8620A; }
+
+body.light-mode .student-section-title { color: #c2410c; font-weight: 700; }
 body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
 body.light-mode .order-list-card { border-color: rgba(180,80,0,0.2); }
 body.light-mode .order-list-card:hover { border-left-color: #E8620A; border-color: rgba(180,80,0,0.3); }
-body.light-mode .olc-status-new { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.1); font-weight: 600; }
 body.light-mode .student-btn-ghost { color: #E8620A; border-color: rgba(180,80,0,0.4); }
 body.light-mode .student-btn-ghost:hover { color: #c2410c; border-color: #E8620A; background: rgba(232,98,10,0.06); }
-
-body.light-mode .student-section-title { color: #c2410c; font-weight: 700; }
 
 body.light-mode .confirm-row { color: #1C0F00; border-color: rgba(180,80,0,0.12); }
 body.light-mode .confirm-row-label { color: rgba(20,8,0,0.75); font-weight: 600; }
@@ -568,405 +433,114 @@ body.light-mode .dash-subtitle { color: #E8620A; }
 body.light-mode .dash-title { color: #1C0F00; }
 body.light-mode #clock { color: rgba(20,8,0,0.6); }
 body.light-mode .system-status { color: #16a34a; }
-/* Control center buttons */
-body.light-mode .cc-layer-operational { background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(240,232,220,0.6) 100%); border-color: rgba(180,80,0,0.2); }
-body.light-mode .cc-layer-critical { background: linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(240,232,220,0.6) 100%); }
 
-/* Live floor map, staff management, analytics buttons */
+body.light-mode .cc-layer-operational { background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(225,225,225,0.4) 100%); border-color: rgba(180,80,0,0.2); }
+body.light-mode .cc-layer-critical    { background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(225,225,225,0.8) 100%) !important; border-color: rgba(239,68,68,0.25) !important; }
+
 body.light-mode #control-center button[onclick="openMapOverlay()"],
 body.light-mode #control-center button[onclick="openStaffOverlay()"],
-body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] {
-  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important;
-  border-color: rgba(180,80,0,0.2) !important;
-}
-
+body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #control-center button[onclick="openMapOverlay()"] div,
 body.light-mode #control-center button[onclick="openStaffOverlay()"] div,
 body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] div { color: #1C0F00 !important; }
-
-body.light-mode #control-center button[onclick="openMapOverlay()"] .btn-glow,
-body.light-mode #control-center button[onclick="openStaffOverlay()"] .btn-glow,
-body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] .btn-glow { background: linear-gradient(90deg, rgba(232,98,10,0.06), transparent) !important; }
-
-/* Arrow hex circles */
 body.light-mode #control-center button > div:last-child > div:last-child { background: rgba(232,98,10,0.1) !important; border-color: rgba(180,80,0,0.3) !important; color: #E8620A !important; }
-
-/* Icon hex */
 body.light-mode #control-center button > div > div:first-child { background: rgba(232,98,10,0.08) !important; }
-body.light-mode .cc-layer-operational { background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(240,232,220,0.4) 100%); border-color: rgba(180,80,0,0.2); }
-body.light-mode .cc-layer-operational .cc-layer-tag { background: #F2F2F0 !important; color: rgba(180,80,0,0.8) !important; border-color: rgba(180,80,0,0.25) !important; }
-body.light-mode .cc-layer-critical .cc-layer-tag { background: #F2F2F0 !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
-body.light-mode .cc-layer-monitoring .cc-layer-tag { background: #F2F2F0 !important; color: rgba(29,78,216,0.7) !important; border-color: rgba(29,78,216,0.2) !important; }
-/* Map overlay panels */
+
+body.light-mode .cc-layer-operational .cc-layer-tag { background: #EBEBEB !important; color: rgba(180,80,0,0.8) !important; border-color: rgba(180,80,0,0.25) !important; }
+body.light-mode .cc-layer-critical .cc-layer-tag    { background: #EBEBEB !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
+body.light-mode .cc-layer-monitoring .cc-layer-tag  { background: #EBEBEB !important; color: rgba(29,78,216,0.7) !important; border-color: rgba(29,78,216,0.2) !important; }
+
 body.light-mode #map-overlay > div:first-child { background: linear-gradient(160deg, rgba(232,98,10,0.08) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
-
-/* Emergency stop layer */
-body.light-mode .cc-layer-critical { background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(240,232,220,0.5) 100%) !important; }
-body.light-mode .estop-btn { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.04) 100%) !important; border-color: rgba(239,68,68,0.4) !important; }
-
-/* Dispatch, unit control, telemetry sections */
-body.light-mode .op-section-title { color: #E8620A; }
-body.light-mode .mon-section-title { color: rgba(29,78,216,0.6); }
-body.light-mode .op-btn-blue { background: rgba(29,78,216,0.08) !important; border-color: rgba(29,78,216,0.3) !important; color: #1d4ed8 !important; }
-body.light-mode .op-btn-yellow { background: rgba(180,83,9,0.08) !important; border-color: rgba(180,83,9,0.3) !important; color: #92400e !important; }
-body.light-mode #reset-stuck-btn { background: rgba(239,68,68,0.06) !important; border-color: rgba(239,68,68,0.3) !important; color: #b91c1c !important; }
-
-/* State badge */
-body.light-mode .state-ok { color: #15803d !important; background: rgba(22,163,74,0.1) !important; border-color: rgba(22,163,74,0.4) !important; }
-body.light-mode .state-warn { color: #92400e !important; background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.4) !important; }
-
-/* Telemetry box */
-body.light-mode .metric-header span:first-child { color: rgba(20,8,0,0.7); }
-body.light-mode .metric-bar { background: rgba(180,80,0,0.1); }
-
-/* Dispatch buttons */
-body.light-mode .dispatch-btn { background: linear-gradient(160deg, #E4E4E1, #E5D) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
-body.light-mode .dispatch-btn:hover { border-color: rgba(180,80,0,0.5) !important; color: #E8620A !important; }
-body.light-mode .dispatch-btn.active { background: linear-gradient(135deg, #E8620A, rgba(232,98,10,0.7)) !important; color: #fff !important; border-color: #E8620A !important; }
-
-/* Dpad */
-body.light-mode .dpad-btn { background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
-body.light-mode .dpad-center { background: rgba(180,80,0,0.06) !important; border-color: rgba(180,80,0,0.1) !important; }
-body.light-mode .manual-mode-toggle { background: rgba(180,83,9,0.06) !important; border-color: rgba(180,83,9,0.3) !important; color: #92400e !important; }
-body.light-mode .manual-mode-toggle.active { background: rgba(180,83,9,0.15) !important; border-color: #92400e !important; }
-
-/* Legend */
-body.light-mode .legend-item { color: rgba(20,8,0,0.7); }
-/* Emergency stop button area */
-body.light-mode .estop-btn { 
-  background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(239,68,68,0.02) 100%) !important; 
-  border-color: rgba(239,68,68,0.4) !important;
-  color: #b91c1c !important;
-  text-shadow: none !important;
-}
+body.light-mode .estop-btn { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%) !important; border-color: rgba(239,68,68,0.5) !important; color: #b91c1c !important; text-shadow: none !important; }
 body.light-mode .estop-icon { color: #b91c1c; }
 body.light-mode #estop-warning { color: #b91c1c; }
 
-/* Robot state badge area */
-body.light-mode #robot-state-badge { background: rgba(220,220,218,0.8) !important;}
-body.light-mode .dest-script { color: #E8620A !important; filter: none !important; }
-body.light-mode #dest-label { color: #E8620A; }
+body.light-mode .op-section-title { color: #E8620A; }
+body.light-mode .mon-section-title { color: rgba(29,78,216,0.6); }
+body.light-mode .op-btn-blue   { background: rgba(29,78,216,0.12) !important; border-color: rgba(29,78,216,0.5) !important; color: #1d4ed8 !important; font-weight: 700 !important; }
+body.light-mode .op-btn-yellow { background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.5) !important; color: #92400e !important; font-weight: 700 !important; }
+body.light-mode #reset-stuck-btn { background: rgba(185,28,28,0.1) !important; border-color: rgba(185,28,28,0.5) !important; color: #b91c1c !important; font-weight: 700 !important; }
 
-/* Map canvas container */
-body.light-mode #map-container { background: rgba(220,220,218,0.6) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode .state-ok   { color: #15803d !important; background: rgba(22,163,74,0.1) !important; border-color: rgba(22,163,74,0.4) !important; }
+body.light-mode .state-warn { color: #92400e !important; background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.4) !important; }
 
-/* Dpad panel */
-body.light-mode #map-overlay > div:last-child > div:nth-child(2) > div:last-child { background: rgba(220,220,218,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
-
-/* Manual speed slider area */
-body.light-mode .manual-speed-wrap { color: rgba(20,8,0,0.6); }
-body.light-mode .manual-kbd-hint { color: rgba(180,80,0,0.35); }
-body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
-
-/* Unit-01 state label */
-body.light-mode [style*="UNIT-01 STATE"] { color: rgba(20,8,0,0.5) !important; }
-body.light-mode [style*="DESTINATION"] { color: rgba(20,8,0,0.4) !important; }
-/* Fix estop dark background */
-body.light-mode .cc-layer-critical { 
-  background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(242,242,240,0.8) 100%) !important; 
-  border-color: rgba(239,68,68,0.25) !important;
-}
-
-/* Fix dpad dark panel */
-body.light-mode #map-overlay .telem-box,
-body.light-mode #map-overlay [style*="background:rgba(2,8,26"],
-body.light-mode #map-overlay [style*="background: rgba(2,8,26"] { 
-  background: rgba(220,220,218,0.6) !important;
-  border-color: rgba(180,80,0,0.15) !important; 
-}
-
-/* Dpad buttons */
-body.light-mode #map-overlay .dpad-btn,
-body.light-mode #dpad .dpad-btn { 
-  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
-  border-color: rgba(180,80,0,0.25) !important; 
-  color: #1C0F00 !important; 
-}
-
-/* Manual control wrapper background */
-body.light-mode #map-overlay > div:last-child > div > div:last-child {
-  background: rgba(220,220,218,0.6) !important;
-  border-color: rgba(180,80,0,0.15) !important;
-}
-
-/* UNIT-01 STATE and DESTINATION labels */
-body.light-mode #map-overlay [style*="font-family:'Share Tech Mono'"] { 
-  color: rgba(20,8,0,0.6) !important; 
-}
-body.light-mode #estop-layer { 
-  background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(242,242,240,1) 100%) !important; 
-  border-color: rgba(239,68,68,0.3) !important; 
-}
-body.light-mode #map-controls-grid { background: transparent; }
-body.light-mode #map-controls-grid > div { background: rgba(220,220,218,0.4);}
-body.light-mode #dpad-panel { background: rgba(220,220,218,0.6) !important;border-color: rgba(180,80,0,0.15) !important; }
-body.light-mode #activityFeed { background: transparent; }
-body.light-mode #activityFeed .activity-item { background: rgba(240,232,220,0.6); }
-body.light-mode #dpad-panel { background: linear-gradient(160deg, #E6E6E4, #DADAD8) !important; border-color: rgba(80,80,80,0.2) !important; }
-
-body.light-mode .dpad-btn { 
-  background: linear-gradient(160deg, #E2E2E0, #D5D5D3) !important;
-  border-color: rgba(180,80,0,0.35) !important; 
-  color: #1C0F00 !important;
-  box-shadow: 0 2px 6px rgba(180,80,0,0.15) !important;
-}
-body.light-mode .dpad-btn:hover { 
-  background: rgba(232,98,10,0.15) !important; 
-  border-color: #E8620A !important; 
-}
-
-body.light-mode #btn-stop { 
-  background: rgba(185,28,28,0.1) !important; 
-  border-color: rgba(185,28,28,0.4) !important; 
-  color: #b91c1c !important; 
-  font-weight: 700 !important;
-}
-
-body.light-mode .manual-mode-toggle { 
-  background: rgba(232,98,10,0.1) !important; 
-  border-color: rgba(180,80,0,0.5) !important; 
-  color: #c2410c !important;
-  font-weight: 600 !important;
-}
-body.light-mode .manual-mode-toggle.active { 
-  background: rgba(232,98,10,0.2) !important; 
-  border-color: #E8620A !important; 
-  color: #E8620A !important;
-}
-
-body.light-mode .manual-speed-wrap { color: rgba(20,8,0,0.7) !important; }
-body.light-mode .manual-kbd-hint { color: rgba(180,80,0,0.5) !important; font-weight: 600 !important; }
-body.light-mode .dpad-center { background: rgba(180,80,0,0.08) !important; border-color: rgba(180,80,0,0.15) !important; }
-/* Dispatch table buttons stronger */
-body.light-mode .dispatch-btn { 
-  background: linear-gradient(160deg, rgba(232,98,10,0.12), rgba(232,98,10,0.06)) !important;
-  border-color: rgba(180,80,0,0.45) !important; 
-  color: #7c2d00 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(180,80,0,0.15) !important;
-}
-body.light-mode .dispatch-btn:hover { 
-  background: rgba(232,98,10,0.25) !important; 
-  border-color: #E8620A !important; 
-  color: #E8620A !important;
-}
-body.light-mode .dispatch-btn.active { 
-  background: linear-gradient(135deg, #E8620A, #c2410c) !important; 
-  color: #fff !important; 
-  border-color: #E8620A !important;
-  box-shadow: 0 0 20px rgba(232,98,10,0.4) !important;
-}
-body.light-mode .dispatch-btn:hover { 
-  border-color: #E8620A !important; 
-  color: #E8620A !important;
-  background: rgba(232,98,10,0.12) !important;
-}
-
-/* Recall to dock - stronger blue */
-body.light-mode .op-btn-blue { 
-  background: rgba(29,78,216,0.12) !important; 
-  border-color: rgba(29,78,216,0.5) !important; 
-  color: #1d4ed8 !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(29,78,216,0.15) !important;
-}
-
-/* Pause unit - stronger yellow */
-body.light-mode .op-btn-yellow { 
-  background: rgba(180,83,9,0.1) !important; 
-  border-color: rgba(180,83,9,0.5) !important; 
-  color: #92400e !important;
-  font-weight: 700 !important;
-}
-
-/* Reset stuck - stronger red */
-body.light-mode #reset-stuck-btn { 
-  background: rgba(185,28,28,0.1) !important; 
-  border-color: rgba(185,28,28,0.5) !important; 
-  color: #b91c1c !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(185,28,28,0.12) !important;
-}
-
-/* Telemetry box stronger */
-body.light-mode .telem-box { 
-  background: linear-gradient(160deg, #E2E2E0, #D5D5D3) !important;
-  border-color: rgba(180,80,0,0.25) !important; 
-}
+body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE) !important; border-color: rgba(180,80,0,0.25) !important; }
 body.light-mode .metric-header span:first-child { color: rgba(20,8,0,0.8) !important; font-weight: 600 !important; }
 body.light-mode .metric-header span:last-child { color: #E8620A !important; font-weight: 700 !important; }
 body.light-mode .metric-bar { background: rgba(180,80,0,0.15) !important; }
-body.light-mode #estop-layer .cc-layer-tag { 
-  background: #F2F2F0 !important; 
-  color: rgba(185,28,28,0.8) !important; 
-  border-color: rgba(185,28,28,0.25) !important; 
-}
-body.light-mode .estop-btn { 
-  color: #b91c1c !important; 
-  text-shadow: none !important;
-  border-color: rgba(239,68,68,0.5) !important;
-  background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%) !important;
-}
-/* Staff overlay main sections */
-body.light-mode #staff-overlay > div:last-child { background: transparent !important; }
-body.light-mode #staff-overlay > div:last-child > div { background: transparent !important; }
 
-/* Create account + live status panels */
-body.light-mode #staff-overlay [style*="rgba(192,132,252,0.15)"] { 
-  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(242,242,240,0.8) 100%) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
+body.light-mode #robot-state-badge { background: rgba(215,215,215,0.8) !important; }
+body.light-mode .dest-script { color: #E8620A !important; filter: none !important; }
+body.light-mode #dest-label { color: #E8620A; }
+body.light-mode #map-container { background: rgba(212,212,212,0.6) !important; border-color: rgba(180,80,0,0.2) !important; }
 
-/* Staff list table panel */
-body.light-mode #staff-overlay [style*="rgba(192,132,252,0.02)"] { 
-  background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(242,242,240,0.7) 100%) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
+body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(235,235,235,1) 100%) !important; border-color: rgba(239,68,68,0.3) !important; }
+body.light-mode #estop-layer .cc-layer-tag { background: #EBEBEB !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
 
-/* Staff overlay header */
-body.light-mode #staff-overlay > div:first-child { 
-  background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
+body.light-mode #map-controls-grid { background: transparent; }
+body.light-mode #map-controls-grid > div { background: rgba(215,215,215,0.4); }
+body.light-mode #dpad-panel { background: linear-gradient(160deg, #E0E0E0, #D4D4D4) !important; border-color: rgba(80,80,80,0.2) !important; }
+body.light-mode #activityFeed { background: transparent; }
+body.light-mode #activityFeed .activity-item { background: rgba(215,215,215,0.6); }
 
-/* Header text */
-body.light-mode #staff-overlay [style*="ACCESS CONTROL"] { color: #E8620A !important; }
-body.light-mode #staff-overlay [style*="STAFF"] { color: #1C0F00 !important; }
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #DADADA, #CECECE) !important; border-color: rgba(180,80,0,0.35) !important; color: #1C0F00 !important; box-shadow: 0 2px 6px rgba(180,80,0,0.15) !important; }
+body.light-mode .dpad-btn:hover { background: rgba(232,98,10,0.15) !important; border-color: #E8620A !important; }
+body.light-mode #btn-stop { background: rgba(185,28,28,0.1) !important; border-color: rgba(185,28,28,0.4) !important; color: #b91c1c !important; font-weight: 700 !important; }
+body.light-mode .dpad-center { background: rgba(180,80,0,0.08) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .manual-mode-toggle { background: rgba(232,98,10,0.1) !important; border-color: rgba(180,80,0,0.5) !important; color: #c2410c !important; font-weight: 600 !important; }
+body.light-mode .manual-mode-toggle.active { background: rgba(232,98,10,0.2) !important; border-color: #E8620A !important; color: #E8620A !important; }
+body.light-mode .manual-speed-wrap { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .manual-kbd-hint { color: rgba(180,80,0,0.5) !important; font-weight: 600 !important; }
 
-/* Form inputs */
-body.light-mode #staff-name,
-body.light-mode #staff-username,
-body.light-mode #staff-password { 
-  background: rgba(240,232,220,0.8) !important; 
-  border-color: rgba(180,80,0,0.25) !important; 
-  color: #1C0F00 !important; 
-}
+body.light-mode .legend-item { color: rgba(20,8,0,0.7); }
+body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
 
-/* Generate button */
-body.light-mode #staff-overlay [onclick="generateStaffPassword()"] { 
-  background: rgba(232,98,10,0.1) !important; 
-  border-color: rgba(180,80,0,0.4) !important; 
-  color: #E8620A !important; 
-}
-
-/* Create account button */
-body.light-mode #staff-overlay [onclick="createStaffAccount()"] { 
-  background: rgba(232,98,10,0.12) !important; 
-  border-color: rgba(180,80,0,0.4) !important; 
-  color: #c2410c !important; 
-  font-weight: 700 !important;
-}
-
-/* Role tag */
-body.light-mode #staff-overlay [style*="ROLE: KITCHEN"] { 
-  background: rgba(240,232,220,0.8) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-  color: rgba(20,8,0,0.6) !important; 
-}
-
-/* Staff list header */
-body.light-mode #staff-list-table > div:first-child { 
-  color: rgba(180,80,0,0.6) !important; 
-  border-color: rgba(180,80,0,0.15) !important; 
-}
-
-/* Staff rows */
-body.light-mode .staff-row { 
-  background: linear-gradient(160deg, rgba(232,98,10,0.06), rgba(240,232,220,0.4)) !important; 
-  border-color: rgba(180,80,0,0.15) !important; 
-  border-left-color: rgba(180,80,0,0.3) !important; 
-}
-body.light-mode .staff-cell { color: #1C0F00 !important; }
-
-/* Action buttons */
-body.light-mode .staff-btn-disable { color: #92400e !important; border-color: rgba(180,83,9,0.4) !important; background: rgba(180,83,9,0.08) !important; }
-body.light-mode .staff-btn-enable { color: #15803d !important; border-color: rgba(22,163,74,0.4) !important; background: rgba(22,163,74,0.08) !important; }
-body.light-mode .staff-btn-delete { color: #b91c1c !important; border-color: rgba(185,28,28,0.4) !important; background: rgba(185,28,28,0.08) !important; }
-
-/* Section tags */
-body.light-mode #staff-overlay [style*="CREATE NEW"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #F2F2F0 !important; }
-body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #F2F2F0 !important; }
-/* Analytics overlay header */
-body.light-mode #analytics-overlay > div:first-child { 
-  background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
-
-/* Analytics cards */
-body.light-mode .analytics-card { 
-  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
+/* Analytics */
+body.light-mode #analytics-overlay > div:first-child { background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #analytics-overlay > div:last-child { background: transparent !important; }
+body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .analytics-layer .cc-layer-tag { background: #EBEBEB !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode .analytics-card { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .ac-label { color: rgba(20,8,0,0.7) !important; }
 body.light-mode .ac-sub { color: rgba(20,8,0,0.6) !important; }
 body.light-mode .ac-bar-label { color: rgba(20,8,0,0.6) !important; }
 body.light-mode .ac-bar-track { background: rgba(180,80,0,0.12) !important; }
-
-/* Session breakdown rows */
-body.light-mode .ab-row { 
-  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
+body.light-mode .ab-row { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .ab-label { color: rgba(20,8,0,0.7) !important; }
 body.light-mode .ab-val { color: #1C0F00 !important; }
-
-/* Analytics section title */
 body.light-mode .analytics-section-title { color: rgba(180,80,0,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
 
-/* Header text colors */
-body.light-mode #analytics-overlay [style*="PERFORMANCE"] { color: #E8620A !important; }
-body.light-mode #analytics-overlay [style*="SYSTEM"] { color: #1C0F00 !important; }
-body.light-mode #analytics-overlay [style*="LIVE DATA"] { color: #16a34a !important; }
-
-/* Analytics layer wrapper */
-body.light-mode #analytics-overlay > div:last-child { background: transparent !important; }
-body.light-mode .analytics-layer { 
-  background: linear-gradient(135deg, rgba(232,98,10,0.04) 0%, rgba(242,242,240,0.6) 100%) !important; 
-  border-color: rgba(180,80,0,0.15) !important; 
-}
-body.light-mode .analytics-layer .cc-layer-tag { 
-  background: #F2F2F0 !important; 
-  color: rgba(180,80,0,0.7) !important; 
-  border-color: rgba(180,80,0,0.2) !important; 
-}
-body.light-mode #staff-create-panel,
-body.light-mode #staff-status-panel,
-body.light-mode #staff-list-panel {
-  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(242,242,240,0.95) 100%) !important;
-  border-color: rgba(180,80,0,0.2) !important;
-}
-
-body.light-mode #staff-create-panel > div:first-child,
-body.light-mode #staff-status-panel > div:first-child,
-body.light-mode #staff-list-panel > div:first-child {
-  background: #F2F2F0 !important;
-  color: #E8620A !important;
-  border-color: rgba(180,80,0,0.25) !important;
-}
-
-body.light-mode #staff-online-list [style*="rgba(74,222,128"] {
-  background: rgba(22,163,74,0.06) !important;
-  border-color: rgba(22,163,74,0.2) !important;
-  border-left-color: #16a34a !important;
-}
-body.light-mode #staff-body { background: #F2F2F0 !important; }
+/* Staff overlay */
+body.light-mode #staff-overlay > div:first-child { background: linear-gradient(160deg, rgba(232,98,10,0.1) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #staff-overlay > div:last-child { background: transparent !important; }
+body.light-mode #staff-overlay > div:last-child > div { background: transparent !important; }
+body.light-mode #staff-body { background: #EBEBEB !important; }
 body.light-mode #staff-grid-top { background: transparent !important; }
 
 body.light-mode #staff-create-panel,
 body.light-mode #staff-status-panel,
-body.light-mode #staff-list-panel {
-  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(242,242,240,0.98) 100%) !important;
-  border-color: rgba(180,80,0,0.2) !important;
-}
+body.light-mode #staff-list-panel { background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(235,235,235,0.98) 100%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #staff-create-panel > div:first-child,
+body.light-mode #staff-status-panel > div:first-child,
+body.light-mode #staff-list-panel > div:first-child { background: #EBEBEB !important; color: #E8620A !important; border-color: rgba(180,80,0,0.25) !important; }
 
-body.light-mode #staff-online-list {
-  background: transparent !important;
-  color: rgba(20,8,0,0.6) !important;
-}
-
-body.light-mode #staff-list-table {
-  background: transparent !important;
-}
+body.light-mode #staff-name,
+body.light-mode #staff-username,
+body.light-mode #staff-password { background: rgba(215,215,215,0.8) !important; border-color: rgba(180,80,0,0.25) !important; color: #1C0F00 !important; }
+body.light-mode #staff-overlay [onclick="generateStaffPassword()"] { background: rgba(232,98,10,0.1) !important; border-color: rgba(180,80,0,0.4) !important; color: #E8620A !important; }
+body.light-mode #staff-overlay [onclick="createStaffAccount()"] { background: rgba(232,98,10,0.12) !important; border-color: rgba(180,80,0,0.4) !important; color: #c2410c !important; font-weight: 700 !important; }
+body.light-mode #staff-overlay [style*="ROLE: KITCHEN"] { background: rgba(215,215,215,0.8) !important; border-color: rgba(180,80,0,0.2) !important; color: rgba(20,8,0,0.6) !important; }
+body.light-mode #staff-list-table > div:first-child { color: rgba(180,80,0,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .staff-row { background: linear-gradient(160deg, rgba(232,98,10,0.06), rgba(215,215,215,0.4)) !important; border-color: rgba(180,80,0,0.15) !important; border-left-color: rgba(180,80,0,0.3) !important; }
+body.light-mode .staff-cell { color: #1C0F00 !important; }
+body.light-mode .staff-btn-disable { color: #92400e !important; border-color: rgba(180,83,9,0.4) !important; background: rgba(180,83,9,0.08) !important; }
+body.light-mode .staff-btn-enable  { color: #15803d !important; border-color: rgba(22,163,74,0.4) !important; background: rgba(22,163,74,0.08) !important; }
+body.light-mode .staff-btn-delete  { color: #b91c1c !important; border-color: rgba(185,28,28,0.4) !important; background: rgba(185,28,28,0.08) !important; }
+body.light-mode #staff-overlay [style*="CREATE NEW"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #EBEBEB !important; }
+body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #E8620A !important; border-color: rgba(180,80,0,0.2) !important; background: #EBEBEB !important; }
+body.light-mode #staff-online-list { background: transparent !important; color: rgba(20,8,0,0.6) !important; }
+body.light-mode #staff-list-table { background: transparent !important; }
+body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba(22,163,74,0.06) !important; border-color: rgba(22,163,74,0.2) !important; border-left-color: #16a34a !important; }
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
