@@ -4160,7 +4160,7 @@ function stopMove() {
     startTrackingPolling(ref);
   }
  
-  const STATUS_ETA = { new:'~8 min', prep:'~5 min', ready:'~2 min', dispatched:'~1 min', delivering:'Arrived!', delivered:'Delivered ✓', cancelled:'Cancelled' };
+  const STATUS_ETA = { new:'Calculating...', prep:'~5 min', ready:'~2 min', dispatched:'~1 min', delivering:'Arrived!', delivered:'Delivered ✓', cancelled:'Cancelled' };
  
 function applyStatusToTimeline(ref, status, tableNum) {
     const eta = document.getElementById('track-eta-' + ref);
@@ -4170,14 +4170,15 @@ function applyStatusToTimeline(ref, status, tableNum) {
     if (status === 'cancelled') {
       if (eta) eta.textContent = 'Cancelled';
     } else if (status === 'new') {
-      // ── Predictive ETA for new orders ──
       if (eta) eta.textContent = 'Calculating...';
       fetch(API_BASE + '/api/orders/queue-eta?ref=' + ref)
         .then(r => r.json())
         .then(d => {
-          if (eta && d.estimatedMinutes) {
-            eta.textContent = '~' + d.estimatedMinutes + ' min';
-          }
+          const prepWait = (d.ordersAhead || 0) * (d.avgPrep || 8);
+          const robotTravel = 2;
+          const total = prepWait + (d.avgPrep || 8) + robotTravel;
+          if (eta) eta.textContent = '~' + Math.round(total) + ' min';
+
           let strip = document.getElementById('pred-strip-' + ref);
           const etaStrip = document.querySelector('#track-detail .track-eta-strip');
           if (!strip && etaStrip) {
@@ -4188,12 +4189,12 @@ function applyStatusToTimeline(ref, status, tableNum) {
           }
           if (strip && d.ordersAhead !== undefined) {
             strip.textContent = d.ordersAhead > 0
-              ? `⬡ ${d.ordersAhead} ORDER${d.ordersAhead > 1 ? 'S' : ''} AHEAD · AVG PREP ${d.avgPrep} MIN`
-              : '⬡ YOUR ORDER IS NEXT IN QUEUE';
+              ? `⬡ ${d.ordersAhead} ORDER${d.ordersAhead > 1 ? 'S' : ''} AHEAD · AVG PREP ${Math.round(d.avgPrep || 8)} MIN · +2 MIN ROBOT`
+              : '⬡ YOUR ORDER IS NEXT · +2 MIN ROBOT TRAVEL';
           }
         })
         .catch(() => {
-          if (eta) eta.textContent = STATUS_ETA[status] || '—';
+          if (eta) eta.textContent = '~10 min';
         });
     } else {
       if (eta) eta.textContent = STATUS_ETA[status] || '—';
@@ -4208,12 +4209,10 @@ function applyStatusToTimeline(ref, status, tableNum) {
         if (sub) sub.textContent = 'Heading to Table ' + tableNum;
       }
 
-      // ── Show pickup screen when robot arrives ──
       if (status === 'delivering') {
         showPickupScreen(ref);
       }
 
-      // ── Hide pickup screen and mark delivered ──
       if (status === 'delivered') {
         markDone('ts-enroute');
         markDone('ts-delivered');
@@ -4315,7 +4314,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
           robotAngle = robotData.theta;
         }
       } catch {}
-    }, 300);
+    }, 5000);
   }
  
   function initTrackMap(ref) {
