@@ -1792,12 +1792,16 @@ function closeStaffOverlay() {
   function openMapOverlay() {
   document.getElementById('map-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  cancelAnimationFrame(mapAnimFrame);
+  mapAnimFrame = null;
   setTimeout(() => initOverlayMap(), 100);
   syncOverlayState();
 }
 
 function closeMapOverlay() {
   const el = document.getElementById('map-overlay');
+  cancelAnimationFrame(overlayMapFrame);
+  overlayMapFrame = null;
   el.style.animation = 'none';
   el.style.opacity = '0';
   el.style.transform = 'translateY(32px)';
@@ -1809,6 +1813,7 @@ function closeMapOverlay() {
     el.style.transform = '';
     el.style.transition = '';
     document.body.style.overflow = '';
+    animateMap();
   }, 300);
 }
 
@@ -5173,8 +5178,7 @@ function openCartFromAnywhere() {
 let _pickupOrderRef = null;
 const _shownPickupScreens = new Set();
 function showPickupScreen(ref) {
-  if (_shownPickupScreens.has(ref)) return;  
-  _shownPickupScreens.add(ref);
+  if (_shownPickupScreens.has(ref)) return;
   _pickupOrderRef = ref;
   const order = sessionOrders.find(o => o.order_ref === ref);
   if (!order) return;
