@@ -172,7 +172,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  background: #EBEBEB;
+  background: var(--black);
   background-image:
     radial-gradient(ellipse 80% 60% at 50% -5%, rgba(10, 28, 80, 0.7) 0%, transparent 60%),
     radial-gradient(ellipse 50% 40% at 100% 100%, rgba(5, 18, 55, 0.5) 0%, transparent 55%);
@@ -248,8 +248,8 @@ body.light-mode {
     radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255,106,0,0.04) 0%, transparent 55%);
 }
 
-html.light-mode-early body { background: #DCDCDC; }
-body.light-mode nav { background: rgba(220, 220, 220, 0.96); }
+html.light-mode-early body { background: #020b1a; }
+body.light-mode nav { background: rgba(240, 240, 240, 0.96); }
 body.light-mode .hex-bg { opacity: 0.12; }
 body.light-mode .scanline { opacity: 0.04; }
 
@@ -271,9 +271,9 @@ body.light-mode .table-btn {
 }
 
 body.light-mode .form-input { background: rgba(215,215,215,0.8); color: #1C0F00; }
-body.light-mode #cine-loader { background: #DCDCDC; }
+body.light-mode #cine-loader { background: #020b1a; }
 body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE); }
-body.light-mode #pickup-overlay { background: rgba(220, 220, 220,0.97); }
+body.light-mode #pickup-overlay { background: rgba(240, 240, 240,0.97); }
 body.light-mode .chat-bubble-bot { background: rgba(212,212,212,0.9); color: #1C0F00; }
 body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
 body.light-mode #robot-chat-panel > div:first-child { background: rgba(218,218,218,0.8) !important; border-color: rgba(180,80,0,0.15) !important; }
@@ -284,7 +284,7 @@ body.light-mode #robot-chat-panel > div:last-child { background: rgba(215,215,21
 body.light-mode #robot-chat-panel > div:nth-last-child(2) { background: rgba(218,218,218,0.6) !important; color: rgba(40,15,0,0.5) !important; }
 body.light-mode #map-overlay,
 body.light-mode #staff-overlay,
-body.light-mode #analytics-overlay { background: #DCDCDC; }
+body.light-mode #analytics-overlay { background: #020b1a; }
 body.light-mode .staff-row { background: rgba(218,218,218,0.6); }
 
 body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.1); }
@@ -301,7 +301,7 @@ body.light-mode .table-btn .t-num { color: #1C0F00; }
 body.light-mode .table-btn .t-label { color: rgba(80,40,0,0.5); }
 body.light-mode .table-btn.selected { background: rgba(255, 106, 0,0.12); }
 
-body.light-mode .step-dot { background: #DCDCDC; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
+body.light-mode .step-dot { background: #020b1a; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
 body.light-mode .step-bar::before { background: rgba(180,80,0,0.15); }
 
 body.light-mode .menu-item-name { color: #1C0F00; }
@@ -333,7 +333,7 @@ body.light-mode .confirm-row-label { color: rgba(80,40,0,0.5); }
 body.light-mode .olc-ref { color: #FF6A00; }
 body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
 
-body.light-mode .track-step-dot { background: #DCDCDC; border-color: rgba(180,80,0,0.25); }
+body.light-mode .track-step-dot { background: #020b1a; border-color: rgba(180,80,0,0.25); }
 body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
 body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
 body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
@@ -446,9 +446,9 @@ body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] div { c
 body.light-mode #control-center button > div:last-child > div:last-child { background: rgba(255, 106, 0,0.1) !important; border-color: rgba(180,80,0,0.3) !important; color: #FF6A00 !important; }
 body.light-mode #control-center button > div > div:first-child { background: rgba(255, 106, 0,0.08) !important; }
 
-body.light-mode .cc-layer-operational .cc-layer-tag { background: #DCDCDC !important; color: rgba(180,80,0,0.8) !important; border-color: rgba(180,80,0,0.25) !important; }
-body.light-mode .cc-layer-critical .cc-layer-tag    { background: #DCDCDC !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
-body.light-mode .cc-layer-monitoring .cc-layer-tag  { background: #DCDCDC !important; color: rgba(29,78,216,0.7) !important; border-color: rgba(29,78,216,0.2) !important; }
+body.light-mode .cc-layer-operational .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.8) !important; border-color: rgba(180,80,0,0.25) !important; }
+body.light-mode .cc-layer-critical .cc-layer-tag    { background: #020b1a !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
+body.light-mode .cc-layer-monitoring .cc-layer-tag  { background: #020b1a !important; color: rgba(29,78,216,0.7) !important; border-color: rgba(29,78,216,0.2) !important; }
 
 body.light-mode #map-overlay > div:first-child { background: linear-gradient(160deg, rgba(255, 106, 0,0.08) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .estop-btn { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%) !important; border-color: rgba(239,68,68,0.5) !important; color: #b91c1c !important; text-shadow: none !important; }
@@ -474,8 +474,8 @@ body.light-mode .dest-script { color: #FF6A00 !important; filter: none !importan
 body.light-mode #dest-label { color: #FF6A00; }
 body.light-mode #map-container { background: rgba(212,212,212,0.6) !important; border-color: rgba(180,80,0,0.2) !important; }
 
-body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(220, 220, 220,1) 100%) !important; border-color: rgba(239,68,68,0.3) !important; }
-body.light-mode #estop-layer .cc-layer-tag { background: #DCDCDC !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
+body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(240, 240, 240,1) 100%) !important; border-color: rgba(239,68,68,0.3) !important; }
+body.light-mode #estop-layer .cc-layer-tag { background: #020b1a !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
 
 body.light-mode #map-controls-grid { background: transparent; }
 body.light-mode #map-controls-grid > div { background: rgba(215,215,215,0.4); }
@@ -499,7 +499,7 @@ body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
 body.light-mode #analytics-overlay > div:first-child { background: linear-gradient(160deg, rgba(255, 106, 0,0.1) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #analytics-overlay > div:last-child { background: transparent !important; }
 body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255, 106, 0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
-body.light-mode .analytics-layer .cc-layer-tag { background: #DCDCDC !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode .analytics-layer .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .analytics-card { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .ac-label { color: rgba(20,8,0,0.7) !important; }
 body.light-mode .ac-sub { color: rgba(20,8,0,0.6) !important; }
@@ -514,15 +514,15 @@ body.light-mode .analytics-section-title { color: rgba(180,80,0,0.6) !important;
 body.light-mode #staff-overlay > div:first-child { background: linear-gradient(160deg, rgba(255, 106, 0,0.1) 0%, transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #staff-overlay > div:last-child { background: transparent !important; }
 body.light-mode #staff-overlay > div:last-child > div { background: transparent !important; }
-body.light-mode #staff-body { background: #DCDCDC !important; }
+body.light-mode #staff-body { background: #020b1a !important; }
 body.light-mode #staff-grid-top { background: transparent !important; }
 
 body.light-mode #staff-create-panel,
 body.light-mode #staff-status-panel,
-body.light-mode #staff-list-panel { background: linear-gradient(135deg, rgba(255, 106, 0,0.05) 0%, rgba(220, 220, 220,0.98) 100%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #staff-list-panel { background: linear-gradient(135deg, rgba(255, 106, 0,0.05) 0%, rgba(240, 240, 240,0.98) 100%) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #staff-create-panel > div:first-child,
 body.light-mode #staff-status-panel > div:first-child,
-body.light-mode #staff-list-panel > div:first-child { background: #DCDCDC !important; color: #FF6A00 !important; border-color: rgba(180,80,0,0.25) !important; }
+body.light-mode #staff-list-panel > div:first-child { background: #020b1a !important; color: #FF6A00 !important; border-color: rgba(180,80,0,0.25) !important; }
 
 body.light-mode #staff-name,
 body.light-mode #staff-username,
@@ -536,8 +536,8 @@ body.light-mode .staff-cell { color: #1C0F00 !important; }
 body.light-mode .staff-btn-disable { color: #92400e !important; border-color: rgba(180,83,9,0.4) !important; background: rgba(180,83,9,0.08) !important; }
 body.light-mode .staff-btn-enable  { color: #15803d !important; border-color: rgba(22,163,74,0.4) !important; background: rgba(22,163,74,0.08) !important; }
 body.light-mode .staff-btn-delete  { color: #b91c1c !important; border-color: rgba(185,28,28,0.4) !important; background: rgba(185,28,28,0.08) !important; }
-body.light-mode #staff-overlay [style*="CREATE NEW"] { color: #FF6A00 !important; border-color: rgba(180,80,0,0.2) !important; background: #DCDCDC !important; }
-body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #FF6A00 !important; border-color: rgba(180,80,0,0.2) !important; background: #DCDCDC !important; }
+body.light-mode #staff-overlay [style*="CREATE NEW"] { color: #FF6A00 !important; border-color: rgba(180,80,0,0.2) !important; background: #020b1a !important; }
+body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #FF6A00 !important; border-color: rgba(180,80,0,0.2) !important; background: #020b1a !important; }
 body.light-mode #staff-online-list { background: transparent !important; color: rgba(20,8,0,0.6) !important; }
 body.light-mode #staff-list-table { background: transparent !important; }
 body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba(22,163,74,0.06) !important; border-color: rgba(22,163,74,0.2) !important; border-left-color: #16a34a !important; }
