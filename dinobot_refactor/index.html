@@ -218,21 +218,21 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   --orange: #E8620A;
   --orange-bright: #FF7520;
   --orange-glow: rgba(232, 98, 10, 0.3);
-  --black: #FDF8F2;
-  --dark: #F7F0E8;
-  --darker: #FAF4EE;
-  --panel: #F0E8DC;
+  --black: #F0F0EE;
+  --dark: #E8E8E6;
+  --darker: #EBEBEA;
+  --panel: #E2E2DF;
   --border: rgba(180, 80, 0, 0.14);
   --border-bright: rgba(180, 80, 0, 0.4);
   --text: #0D0600;
   --text-dim: rgba(20, 8, 0, 0.9);
   background-image:
-    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(255, 140, 60, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(220, 100, 20, 0.08) 0%, transparent 55%);
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(200, 200, 195, 0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(180, 180, 175, 0.4) 0%, transparent 55%);
 }
 
-html.light-mode-early body { background: #FDF8F2; }
-body.light-mode nav { background: rgba(253, 248, 242, 0.96); }
+html.light-mode-early body { background: #F0F0EE; }
+body.light-mode nav { background: rgba(240, 240, 238, 0.96); }
 body.light-mode .hex-bg { opacity: 0.12; }
 body.light-mode .scanline { opacity: 0.04; }
 
@@ -249,7 +249,7 @@ body.light-mode .pickup-box,
 body.light-mode .auth-fields.panel,
 body.light-mode .menu-item,
 body.light-mode .table-btn {
-  background: linear-gradient(160deg, #F5EBE0, #EDE0D0);
+  background: linear-gradient(160deg, #E8E8E5, #DCDCDA);
   border-color: rgba(180, 80, 0, 0.18);
 }
 
@@ -258,8 +258,8 @@ body.light-mode #cine-loader { background: #FDF8F2; }
 body.light-mode .telem-box { background: rgba(230, 218, 200, 0.8); }
 body.light-mode #pickup-overlay { background: rgba(253, 248, 242, 0.97); }
 body.light-mode .chat-bubble-bot { background: rgba(230, 218, 200, 0.8); color: #1C0F00; }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #EFE6D8, #E5DAcc); }
-body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #F5EBE0, #EDE0D0) !important; }
+body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #E4E4E1,#D8D8D5); }
+body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #E8E8E5, #DCDCDA) !important; }
 body.light-mode #robot-chat-panel > div:first-child { background: rgba(235, 220, 205, 0.8) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode #robot-chat-panel > div:first-child div { color: #1C0F00 !important; }
 body.light-mode #robot-chat-messages { background: transparent !important; }
@@ -285,7 +285,7 @@ body.light-mode .table-btn .t-num { color: #1C0F00; }
 body.light-mode .table-btn .t-label { color: rgba(80,40,0,0.5); }
 body.light-mode .table-btn.selected { background: rgba(232,98,10,0.12); }
 
-body.light-mode .step-dot { background: #EFE6D8; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
+body.light-mode .step-dot { background: #E4E4E1; border-color: rgba(180,80,0,0.25); color: rgba(80,40,0,0.5); }
 body.light-mode .step-bar::before { background: rgba(180,80,0,0.15); }
 
 body.light-mode .menu-item-name { color: #1C0F00; }
@@ -305,7 +305,7 @@ body.light-mode .nav-links a:hover { color: #E8620A; background: rgba(232,98,10,
 body.light-mode .nav-links a.active { color: #E8620A; background: rgba(232,98,10,0.12); border-color: rgba(180,80,0,0.35); }
 body.light-mode .logo-text { color: #1C0F00; }
 
-body.light-mode .role-pill { background: linear-gradient(160deg, #EFE6D8, #E5DAcc); border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
+body.light-mode .role-pill { background: linear-gradient(160deg, #E4E4E1, #D8D8D5); border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
 
 body.light-mode .cart-table td { color: #1C0F00; border-color: rgba(180,80,0,0.3); }
 body.light-mode .cart-table th { color: rgba(20,8,0,0.8); font-weight: 700; }
@@ -317,7 +317,7 @@ body.light-mode .confirm-row-label { color: rgba(80,40,0,0.5); }
 body.light-mode .olc-ref { color: #E8620A; }
 body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
 
-body.light-mode .track-step-dot { background: #EFE6D8; border-color: rgba(180,80,0,0.25); }
+body.light-mode .track-step-dot { background: #E4E4E1; border-color: rgba(180,80,0,0.25); }
 body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
 body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
 body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
@@ -327,7 +327,7 @@ body.light-mode #map-container { background: rgba(230,218,200,0.5); border-color
 body.light-mode .track-map-wrap { background: rgba(230,218,200,0.5); border-color: rgba(180,80,0,0.15); }
 
 body.light-mode .dispatch-btn { background: rgba(230,218,200,0.8); border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.6); }
-body.light-mode .dpad-btn { background: linear-gradient(160deg, #EFE6D8, #E5DAcc); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
+body.light-mode .dpad-btn { background: linear-gradient(160deg,#E4E4E1, #D8D8D5); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
 body.light-mode .manual-mode-toggle { border-color: rgba(180,80,0,0.3); color: rgba(80,40,0,0.6); }
 
 body.light-mode .activity-item { border-color: rgba(180,80,0,0.15); border-left-color: rgba(180,80,0,0.3); }
@@ -349,7 +349,7 @@ body.light-mode .robot-hex-outer { background: rgba(240, 225, 205, 0.5) !importa
 body.light-mode .robot-hex-mid { background: rgba(235, 218, 195, 0.4) !important; border-color: rgba(180,80,0,0.3) !important; }
 body.light-mode .robot-hex-inner { background: rgba(230, 210, 185, 0.5) !important; border-color: rgba(180,80,0,0.5) !important; }
 
-body.light-mode #chat-fab { background: linear-gradient(160deg, #F5EBE0, #EDE0D0) !important; border-color: rgba(180,80,0,0.35) !important; box-shadow: 0 0 30px rgba(232,98,10,0.2) !important; }
+body.light-mode #chat-fab { background: linear-gradient(160deg, #E8E8E5, #DCDCDA) !important; border-color: rgba(180,80,0,0.35) !important; box-shadow: 0 0 30px rgba(232,98,10,0.2) !important; }
 body.light-mode .chat-bubble-user { background: rgba(232,98,10,0.08); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
 
 body.light-mode .pickup-item { background: rgba(230,218,200,0.5); }
@@ -479,7 +479,7 @@ body.light-mode .cc-layer-critical { background: linear-gradient(135deg, rgba(23
 body.light-mode #control-center button[onclick="openMapOverlay()"],
 body.light-mode #control-center button[onclick="openStaffOverlay()"],
 body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] {
-  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important;
+  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important;
   border-color: rgba(180,80,0,0.2) !important;
 }
 
@@ -523,12 +523,12 @@ body.light-mode .metric-header span:first-child { color: rgba(20,8,0,0.7); }
 body.light-mode .metric-bar { background: rgba(180,80,0,0.1); }
 
 /* Dispatch buttons */
-body.light-mode .dispatch-btn { background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
+body.light-mode .dispatch-btn { background: linear-gradient(160deg, #E4E4E1, #E5D) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
 body.light-mode .dispatch-btn:hover { border-color: rgba(180,80,0,0.5) !important; color: #E8620A !important; }
 body.light-mode .dispatch-btn.active { background: linear-gradient(135deg, #E8620A, rgba(232,98,10,0.7)) !important; color: #fff !important; border-color: #E8620A !important; }
 
 /* Dpad */
-body.light-mode .dpad-btn { background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; border-color: rgba(180,80,0,0.2) !important; color: #1C0F00 !important; }
 body.light-mode .dpad-center { background: rgba(180,80,0,0.06) !important; border-color: rgba(180,80,0,0.1) !important; }
 body.light-mode .manual-mode-toggle { background: rgba(180,83,9,0.06) !important; border-color: rgba(180,83,9,0.3) !important; color: #92400e !important; }
 body.light-mode .manual-mode-toggle.active { background: rgba(180,83,9,0.15) !important; border-color: #92400e !important; }
@@ -581,7 +581,7 @@ body.light-mode #map-overlay [style*="background: rgba(2,8,26"] {
 /* Dpad buttons */
 body.light-mode #map-overlay .dpad-btn,
 body.light-mode #dpad .dpad-btn { 
-  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
   border-color: rgba(180,80,0,0.25) !important; 
   color: #1C0F00 !important; 
 }
@@ -605,7 +605,7 @@ body.light-mode #map-controls-grid > div { background: rgba(240,232,220,0.4); }
 body.light-mode #dpad-panel { background: rgba(240,232,220,0.6) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode #activityFeed { background: transparent; }
 body.light-mode #activityFeed .activity-item { background: rgba(240,232,220,0.6); }
-body.light-mode #dpad-panel { background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; border-color: rgba(180,80,0,0.25) !important; }
+body.light-mode #dpad-panel { background: linear-gradient(160deg, #EFE#E4E4E16D, #D8D8D5) !important; border-color: rgba(180,80,0,0.25) !important; }
 
 body.light-mode .dpad-btn { 
   background: linear-gradient(160deg, #E2CEB0, #D9C4A5) !important; 
@@ -797,7 +797,7 @@ body.light-mode #analytics-overlay > div:first-child {
 
 /* Analytics cards */
 body.light-mode .analytics-card { 
-  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
   border-color: rgba(180,80,0,0.2) !important; 
 }
 body.light-mode .ac-label { color: rgba(20,8,0,0.7) !important; }
@@ -807,7 +807,7 @@ body.light-mode .ac-bar-track { background: rgba(180,80,0,0.12) !important; }
 
 /* Session breakdown rows */
 body.light-mode .ab-row { 
-  background: linear-gradient(160deg, #EFE6D8, #E5DAcc) !important; 
+  background: linear-gradient(160deg, #E4E4E1, #D8D8D5) !important; 
   border-color: rgba(180,80,0,0.2) !important; 
 }
 body.light-mode .ab-label { color: rgba(20,8,0,0.7) !important; }
