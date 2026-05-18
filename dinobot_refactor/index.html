@@ -218,10 +218,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   --orange: #E8620A;
   --orange-bright: #FF7520;
   --orange-glow: rgba(232, 98, 10, 0.3);
---black: #F2F2F0;
-  --dark: #E8E8E6;
-  --darker: #EBEBEA;
-  --panel: #E0E0DE;
+  --black: #EBEBEB;
+  --dark: #E1E1E1;
+  --darker: #E4E4E4;
+  --panel: #D8D8D8;
   --border: rgba(180, 80, 0, 0.14);
   --border-bright: rgba(180, 80, 0, 0.4);
   --text: #0D0600;
@@ -1675,8 +1675,122 @@ body.light-mode #staff-list-table {
   margin-top: 16px;
   text-transform: uppercase;
 }
+/* ══════════════════════════════════════════════════════════
+   DINOBOT — Gray Light Mode Patch
+   
+   HOW TO APPLY:
+   1. Open your HTML file
+   2. Find the line: body.light-mode {
+      that contains: --black: #F2F2F0;
+   3. Change these 4 values:
+        --black: #F2F2F0;   →  --black: #EBEBEB;
+        --dark: #E8E8E6;    →  --dark: #E1E1E1;
+        --darker: #EBEBEA;  →  --darker: #E4E4E4;
+        --panel: #E0E0DE;   →  --panel: #D8D8D8;
+   4. Then paste ALL CSS below just before the </head> tag
+      wrapped in <style> ... </style>
+   ══════════════════════════════════════════════════════════ */
+
+/* Core background variables — beige → neutral gray */
+body.light-mode {
+  --black: #EBEBEB !important;
+  --dark: #E1E1E1 !important;
+  --darker: #E4E4E4 !important;
+  --panel: #D8D8D8 !important;
+}
+
+/* Early apply (before body renders) */
+html.light-mode-early body { background: #EBEBEB !important; }
+
+/* Navigation */
+body.light-mode nav { background: rgba(235, 235, 235, 0.96) !important; }
+
+/* Loader */
+body.light-mode #cine-loader { background: #EBEBEB !important; }
+
+/* Full-screen overlays */
+body.light-mode #map-overlay,
+body.light-mode #staff-overlay,
+body.light-mode #analytics-overlay { background: #EBEBEB !important; }
+body.light-mode #staff-body { background: #EBEBEB !important; }
+
+/* Pickup overlay */
+body.light-mode #pickup-overlay { background: rgba(235, 235, 235, 0.97) !important; }
+
+/* All panel / card surfaces */
+body.light-mode .panel,
+body.light-mode .feature-card,
+body.light-mode .stat-card,
+body.light-mode .order-ticket,
+body.light-mode .confirm-card,
+body.light-mode .track-status-card,
+body.light-mode .order-list-card,
+body.light-mode .pickup-box,
+body.light-mode .auth-fields.panel,
+body.light-mode .menu-item,
+body.light-mode .table-btn { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+
+/* Analytics cards + breakdown rows */
+body.light-mode .analytics-card { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+body.light-mode .ab-row         { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+
+/* Telemetry box */
+body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE) !important; }
+
+/* D-pad panel + buttons */
+body.light-mode #dpad-panel { background: linear-gradient(160deg, #E0E0E0, #D4D4D4) !important; }
+body.light-mode .dpad-btn   { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+
+/* Staff rows */
+body.light-mode .staff-row {
+  background: linear-gradient(160deg, rgba(232,98,10,0.06), rgba(220,220,220,0.4)) !important;
+}
+
+/* Chat panel */
+body.light-mode .chat-bubble-bot { background: rgba(212, 212, 212, 0.9) !important; }
+body.light-mode #robot-chat-panel { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+body.light-mode #robot-chat-panel > div:first-child { background: rgba(220, 215, 210, 0.8) !important; }
+body.light-mode #robot-chat-panel > div:last-child  { background: rgba(215, 215, 215, 0.9) !important; }
+body.light-mode #robot-chat-input { background: rgba(215, 215, 215, 0.9) !important; }
+body.light-mode #chat-fab { background: linear-gradient(160deg, #DCDCDC, #D0D0D0) !important; }
+
+/* Form inputs */
+body.light-mode .form-input { background: rgba(215, 215, 215, 0.8) !important; }
+
+/* Staff management panels */
+body.light-mode #staff-create-panel,
+body.light-mode #staff-status-panel,
+body.light-mode #staff-list-panel {
+  background: linear-gradient(135deg, rgba(232,98,10,0.05) 0%, rgba(235,235,235,0.98) 100%) !important;
+}
+body.light-mode #staff-create-panel > div:first-child,
+body.light-mode #staff-status-panel > div:first-child,
+body.light-mode #staff-list-panel > div:first-child { background: #EBEBEB !important; }
+
+/* Layer tags (cc-layer-tag chips) */
+body.light-mode .cc-layer-operational .cc-layer-tag,
+body.light-mode .cc-layer-critical .cc-layer-tag,
+body.light-mode .cc-layer-monitoring .cc-layer-tag,
+body.light-mode #estop-layer .cc-layer-tag { background: #EBEBEB !important; }
+
+/* Map container */
+body.light-mode #map-container { background: rgba(215, 215, 215, 0.5) !important; }
+
+/* Activity feed items */
+body.light-mode #activityFeed .activity-item { background: rgba(215, 215, 215, 0.6) !important; }
+
+/* E-stop layer */
+body.light-mode #estop-layer {
+  background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(235,235,235,1) 100%) !important;
+}
+
+/* Dispatch buttons */
+body.light-mode .dispatch-btn {
+  background: linear-gradient(160deg, rgba(232,98,10,0.12), rgba(220,220,220,0.6)) !important;
+}
 </style>
 </style>
+
 </head>
 <body>
  
