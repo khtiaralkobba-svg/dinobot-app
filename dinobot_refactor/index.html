@@ -216,7 +216,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
   }
  
 body.light-mode {
-  --orange: #1a7abf;
+  --orange: #FF6A00;
   --orange-bright: #E95F00;
   --orange-glow: rgba(255, 106, 0, 0.3);
   --black: #F5FFFF;
@@ -234,7 +234,10 @@ body.light-mode {
 
 html.light-mode-early body { background: #F5FFFF; }
 body.light-mode nav { background: rgba(245, 255, 255, 0.96); }
-body.light-mode --orange: #1a7abf;
+body.light-mode .hex-bg { 
+  opacity: 0.15; 
+  filter: hue-rotate(180deg); 
+}
 body.light-mode .scanline { opacity: 0.04; }
 
 body.light-mode .panel,
@@ -554,9 +557,9 @@ body.light-mode #staff-list-panel > div:first-child { background: #90c4e8 !impor
 body.light-mode #staff-name,
 body.light-mode #staff-username,
 body.light-mode #staff-password { background: #e8f4fd !important; border-color: rgba(30,100,200,0.25) !important; color: #0f3d6e !important; }
-body.light-mode #staff-overlay [onclick="generateStaffPassword()"] { background: #90c4e8 !important; border-color: rgba(30,100,200,0.3) !important; color: #0f3d6e !important; }
-body.light-mode #staff-overlay [onclick="createStaffAccount()"] { background: #90c4e8 !important; border-color: rgba(30,100,200,0.3) !important; color: #0f3d6e !important; font-weight: 700 !important; }
-body.light-mode #staff-overlay [style*="ROLE: KITCHEN"] { background: #90c4e8 !important; border-color: rgba(30,100,200,0.25) !important; color: #0f3d6e !important; }
+body.light-mode #staff-overlay [onclick="generateStaffPassword()"] { background: #e8f4fd !important; border-color: rgba(30,100,200,0.3) !important; color: #1a5fa8 !important; }
+body.light-mode #staff-overlay [onclick="createStaffAccount()"] { background: #cce5f9 !important; border-color: rgba(30,100,200,0.4) !important; color: #1a5fa8 !important; font-weight: 700 !important; }
+body.light-mode #staff-overlay [style*="ROLE: KITCHEN"] { background: #cce5f9 !important; border-color: rgba(30,100,200,0.25) !important; color: #1a5fa8 !important; }
 body.light-mode #staff-list-table > div:first-child { background: #90c4e8 !important; color: #0f3d6e !important; border-color: rgba(30,100,200,0.2) !important; }
 body.light-mode .staff-row { background: #e8f4fd !important; border-color: rgba(30,100,200,0.15) !important; border-left-color: rgba(30,100,200,0.4) !important; }
 body.light-mode .staff-cell { color: #1C0F00 !important; }
