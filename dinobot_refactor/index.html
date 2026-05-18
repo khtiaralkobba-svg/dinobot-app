@@ -880,7 +880,11 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   @keyframes fadeOut { to { opacity: 0; transform: translateX(100px); } }
   .scanline { position: fixed; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(255, 107, 26, 0.1), transparent); pointer-events: none; z-index: 0; animation: scanline 8s linear infinite; }
   @keyframes scanline { from { transform: translateY(-100%); } to { transform: translateY(100vh); } }
- 
+ .menu-item.in-cart {
+  background: linear-gradient(160deg, #0d1e36, #0b1828);
+  border-color: rgba(255, 107, 26, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 26, 0.15), 0 0 20px rgba(10, 28, 80, 0.6);
+}
   /* LOADER */
   #cine-loader { position: fixed; inset: 0; z-index: 9000; background: #020b1a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
   #cine-loader.out { animation: loaderExit 0.7s cubic-bezier(0.7,0,1,1) forwards; pointer-events: none; }
@@ -4340,7 +4344,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
     const items=activeMenuCat==='All'?MENU_ITEMS:MENU_ITEMS.filter(m=>m.cat===activeMenuCat);
     document.getElementById('menu-grid').innerHTML=items.map(m=>{
       const qty=cart[m.id]||0;
-      return `<div class="menu-item"><div class="menu-item-qty-badge${qty>0?' show':''}" id="badge-${m.id}">${qty}</div><div class="menu-item-emoji">${m.emoji}</div><div class="menu-item-name">${m.name}</div><div class="menu-item-desc">${m.desc}</div><div class="menu-item-footer"><span class="menu-item-price">$${m.price.toFixed(2)}</span><button class="add-to-cart-btn" onclick="addToCart('${m.id}')">+</button></div></div>`;
+      return `<div class="menu-item${qty > 0 ? ' in-cart' : ''}"><div class="menu-item-qty-badge${qty>0?' show':''}" id="badge-${m.id}">${qty}</div><div class="menu-item-emoji">${m.emoji}</div><div class="menu-item-name">${m.name}</div><div class="menu-item-desc">${m.desc}</div><div class="menu-item-footer"><span class="menu-item-price">$${m.price.toFixed(2)}</span><button class="add-to-cart-btn" onclick="addToCart('${m.id}')">+</button></div></div>`;
     }).join('');
   }
   function addToCart(id){
@@ -4349,6 +4353,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
     if(badge){badge.textContent=cart[id];badge.classList.add('show');}
     updateCartBubble(); updateStep2Btn();
     showToast('⬡ '+MENU_ITEMS.find(m=>m.id===id).name+' added');
+    document.querySelector(`#menu-grid .menu-item:has(#badge-${id})`)?.classList.add('in-cart');
   }
   function updateStep2Btn(){const btn=document.getElementById('btn-step2-next');if(!btn)return;const n=cartCount();btn.disabled=n===0;btn.textContent=n>0?`VIEW CART (${n}) →`:'VIEW CART →';}
   function updateCartBubble(){
