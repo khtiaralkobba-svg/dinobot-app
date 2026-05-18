@@ -3765,6 +3765,32 @@ function initMap() {
           robotState = 'RETURNING';
           targetX = dockX; targetY = dockY; currentTarget = null;
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+          // ── Robot en route too long alarm ──
+if (['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state)) {
+  if (!window._routeStartTime) {
+    window._routeStartTime = Date.now();
+  } else {
+    const mins = (Date.now() - window._routeStartTime) / 60000;
+    if (mins >= 5 && !window._routeAlarmFired) {
+      window._routeAlarmFired = true;
+      // Visual toast
+      showToast('⚠ ROBOT HAS BEEN EN ROUTE FOR 5+ MINUTES');
+      // Red vignette flash
+      const v = document.getElementById('crit-vignette');
+      if (v) { v.classList.add('show'); setTimeout(() => v.classList.remove('show'), 8000); }
+      // Audio alarm
+      playCritAlert();
+      // Voice
+      speak('Warning. The robot has been en route for over 5 minutes. Please check Unit 01.', { priority: true });
+      // Activity feed
+      addActivity('dot-system', '⚠ <strong>ROBOT DELAY</strong> — Unit-01 has been en route for 5+ minutes');
+    }
+  }
+} else {
+  // Reset when robot returns
+  window._routeStartTime = null;
+  window._routeAlarmFired = false;
+}
         } else if (data.state === 'IDLE') {
         currentTarget = null;
         if (robotBusy) {
