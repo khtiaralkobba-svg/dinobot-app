@@ -1281,6 +1281,35 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   0%,100% { box-shadow: 0 0 20px rgba(74,222,128,0.3); }
   50%     { box-shadow: 0 0 60px rgba(74,222,128,0.7); }
 }
+@keyframes alarmSlideIn {
+  from { opacity: 0; transform: translateX(120px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes alarmSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(120px); }
+}
+#robot-alarm-banner {
+  display: none;
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 999999;
+  width: 340px;
+  background: linear-gradient(135deg, #1a0000, #2d0000);
+  border: 2px solid #ef4444;
+  clip-path: polygon(14px 0%,100% 0%,calc(100% - 14px) 100%,0% 100%);
+  padding: 20px 24px;
+  box-shadow: 0 0 60px rgba(239,68,68,0.4);
+  animation: alarmSlideIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+#robot-alarm-banner.show { display: block; }
+#robot-alarm-banner.hiding { animation: alarmSlideOut 0.4s ease forwards; }
+.alarm-banner-icon { font-size: 32px; display: block; text-align: center; margin-bottom: 10px; animation: blink 0.6s steps(2) infinite; }
+.alarm-banner-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 4px; color: #ef4444; text-align: center; margin-bottom: 6px; }
+.alarm-banner-sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; color: rgba(239,68,68,0.7); text-align: center; margin-bottom: 16px; text-transform: uppercase; }
+.alarm-banner-btn { width: 100%; padding: 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; clip-path: polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%); }
+.alarm-banner-btn:hover { background: rgba(239,68,68,0.3); }
 @keyframes itemReveal {
   from { opacity: 0; transform: translateX(-20px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -1715,6 +1744,21 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   </div>
 </div>
 <script>
+  function showRobotAlarm() {
+  const banner = document.getElementById('robot-alarm-banner');
+  if (!banner) return;
+  banner.classList.remove('hiding');
+  banner.classList.add('show');
+}
+
+function dismissRobotAlarm() {
+  const banner = document.getElementById('robot-alarm-banner');
+  if (!banner) return;
+  banner.classList.add('hiding');
+  setTimeout(() => {
+    banner.classList.remove('show', 'hiding');
+  }, 400);
+}
   function startDeliveryWatcher(ref) {
   if (window._deliveryWatcher) clearInterval(window._deliveryWatcher);
   window._deliveryWatcher = setInterval(async () => {
@@ -3795,6 +3839,7 @@ function initMap() {
           const routeMins = (Date.now() - window._routeStartTime) / 60000;
           if (routeMins >= 5 && !window._routeAlarmFired) {
             window._routeAlarmFired = true;
+            showRobotAlarm(); 
             showToast('⚠ ROBOT HAS BEEN EN ROUTE FOR 5+ MINUTES');
             const v = document.getElementById('crit-vignette');
             if (v) { v.classList.add('show'); setTimeout(() => v.classList.remove('show'), 8000); }
@@ -3805,6 +3850,7 @@ function initMap() {
         } else {
           window._routeStartTime = null;
           window._routeAlarmFired = false;
+          dismissRobotAlarm();    
         }
         
         const kitchState = document.getElementById('kitch-robot-state');
@@ -5522,6 +5568,12 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     </button>
     <div class="pickup-table-tag" id="pickup-table-tag"></div>
   </div>
+</div>
+<div id="robot-alarm-banner">
+  <span class="alarm-banner-icon">🛑</span>
+  <div class="alarm-banner-title">ROBOT DELAY</div>
+  <div class="alarm-banner-sub">Unit-01 has been en route for 5+ minutes</div>
+  <button class="alarm-banner-btn" onclick="dismissRobotAlarm()">⬡ ACKNOWLEDGE</button>
 </div>
 </body>
 </html>
