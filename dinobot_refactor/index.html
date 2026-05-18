@@ -324,6 +324,23 @@ body.light-mode .step-item .step-dot { background: rgba(109,215,253,0.15) !impor
 body.light-mode .step-item.active .step-dot { background: #FF6A00 !important; border-color: #FF6A00 !important; color: #ffffff !important; }
 body.light-mode .step-item.done .step-dot { background: rgba(74,222,128,0.15) !important; border-color: #4ADE80 !important; color: #16a34a !important; }
 body.light-mode .step-item.done .step-label { color: #16a34a !important; }
+body.light-mode .cart-bubble { 
+  background: #FF6A00 !important; 
+  color: #ffffff !important;
+  box-shadow: 0 0 30px rgba(255,106,0,0.4) !important;
+  z-index: 99999 !important;
+}
+body.light-mode .cart-bubble-count { 
+  background: #ffffff !important; 
+  color: #FF6A00 !important; 
+}
+body.light-mode .cart-bubble.show {
+  display: flex !important;
+  position: fixed !important;
+  bottom: 32px !important;
+  right: 32px !important;
+  z-index: 99999 !important;
+}
 
 body.light-mode .menu-item-name { color: #1C0F00; }
 body.light-mode .menu-item-desc { color: rgba(20,8,0,0.75); }
@@ -562,6 +579,7 @@ body.light-mode #staff-overlay [style*="LIVE KITCHEN"] { color: #FF6F3C !importa
 body.light-mode #staff-online-list { background: transparent !important; color: rgba(20,8,0,0.6) !important; }
 body.light-mode #staff-list-table { background: transparent !important; }
 body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba(22,163,74,0.06) !important; border-color: rgba(22,163,74,0.2) !important; border-left-color: #16a34a !important; }
+
 #home { min-height: 100vh; position: relative; }
   .hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 48px 80px; position: relative; z-index: 2; }
   .hero-content { max-width: 700px; }
