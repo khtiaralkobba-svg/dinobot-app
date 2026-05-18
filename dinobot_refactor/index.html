@@ -875,7 +875,7 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   .student-btn-ghost:hover { border-color: rgba(255,107,26,0.4); color: var(--text); }
  
   /* TOAST */
-  .toast { position: fixed; bottom: 32px; right: 48px; background: var(--panel); border: 1px solid var(--orange); padding: 16px 24px; font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--orange); clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); z-index: 200; animation: slideInRight 0.3s ease, fadeOut 0.3s 2.5s ease forwards; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 40px rgba(255,107,26,0.3); }
+  .toast { position: fixed; bottom: 100px; right: 48px; background: var(--panel); border: 1px solid var(--orange); padding: 16px 24px; font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--orange); clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); z-index: 200; animation: slideInRight 0.3s ease, fadeOut 0.3s 2.5s ease forwards; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 40px rgba(255,107,26,0.3); }
   @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   @keyframes fadeOut { to { opacity: 0; transform: translateX(100px); } }
   .scanline { position: fixed; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(255, 107, 26, 0.1), transparent); pointer-events: none; z-index: 0; animation: scanline 8s linear infinite; }
