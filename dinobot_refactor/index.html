@@ -214,23 +214,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px;
     --text-dim: rgba(180, 210, 245, 0.5);
     --hex-size: 60px;
   }
- /*
-=================================================================
-  DINOBOT — COMPLETE GRAY LIGHT MODE CSS
-  
-  HOW TO USE:
-  In your HTML file, find the entire block that starts with:
-      body.light-mode {
-        --orange: #FF6F3C;
-  
-  DELETE everything from that line all the way down to the
-  closing brace of the last light-mode rule before the next
-  non-light-mode CSS section.
-  
-  Then paste THIS entire file's contents in its place.
-=================================================================
-*/
-
+ 
 body.light-mode {
   --orange: #FF6A00;
   --orange-bright: #E95F00;
@@ -301,7 +285,9 @@ body.light-mode #robot-chat-panel > div:last-child { background: rgba(215,215,21
 body.light-mode #robot-chat-panel > div:nth-last-child(2) { background: rgba(218,218,218,0.6) !important; color: rgba(40,15,0,0.5) !important; }
 body.light-mode #map-overlay,
 body.light-mode #staff-overlay,
-body.light-mode #analytics-overlay { background: #020b1a; }
+body.light-mode #analytics-overlay { background: #F5FFFF; }
+
+body.light-mode #staff-body { background: #F5FFFF !important; }
 body.light-mode .staff-row { background: rgba(218,218,218,0.6); }
 
 body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.1); }
