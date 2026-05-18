@@ -274,7 +274,7 @@ body.light-mode #cine-loader .ld-bar-track { background: rgba(255,107,26,0.12); 
 body.light-mode #cine-loader .ld-hex { background: #FF6B1A; color: #020b1a; }
 body.light-mode #cine-loader .ld-logo-wrap { opacity: 1; }
 body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE); }
-body.light-mode #pickup-overlay { background: rgba(240, 240, 240,0.97); }
+body.light-mode #pickup-overlay { background: rgba(2,11,26,0.97); }
 body.light-mode .chat-bubble-bot { background: rgba(212,212,212,0.9); color: #1C0F00; }
 body.light-mode #robot-chat-panel { background: #e8f4fd !important; border-color: rgba(30,100,200,0.25) !important; }
 body.light-mode #robot-chat-panel > div:first-child { background: #90c4e8 !important; border-color: rgba(30,100,200,0.2) !important; }
@@ -401,8 +401,8 @@ body.light-mode .robot-hex-inner { background: rgba(208,208,208,0.5) !important;
 body.light-mode #chat-fab { background: #e8f4fd !important; border-color: rgba(30,100,200,0.35) !important; box-shadow: 0 0 30px rgba(30,100,200,0.2) !important; }
 body.light-mode .chat-bubble-user { background: rgba(255, 106, 0,0.08); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
 
-body.light-mode .pickup-item { background: rgba(212,212,212,0.5); }
-body.light-mode .pickup-item-name { color: #1C0F00; }
+body.light-mode .pickup-item { background: rgba(5,20,60,0.6); }
+body.light-mode .pickup-item-name { color: #dce8f8; }
 body.light-mode .pickup-table-tag { color: #16a34a; }
 body.light-mode .kitch-col-head-ready { background: rgba(74,222,128,0.15); }
 body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
@@ -1715,6 +1715,29 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   </div>
 </div>
 <script>
+  function startDeliveryWatcher(ref) {
+  if (window._deliveryWatcher) clearInterval(window._deliveryWatcher);
+  window._deliveryWatcher = setInterval(async () => {
+    try {
+      const res = await fetch(API_BASE + '/api/orders/' + ref);
+      if (!res.ok) return;
+      const data = await res.json();
+      const status = data.order?.status;
+      if (!status) return;
+
+      updateSessionOrderStatus(ref, status);
+
+      if ((status === 'delivering' || status === 'dispatched') && !_shownPickupScreens.has(ref)) {
+        showPickupScreen(ref);
+      }
+
+      if (status === 'delivered' || status === 'cancelled') {
+        clearInterval(window._deliveryWatcher);
+        window._deliveryWatcher = null;
+      }
+    } catch {}
+  }, 2000);
+}
   function toggleTheme() {
     const isLight = document.body.classList.toggle('light-mode');
     document.documentElement.classList.remove('light-mode-early');
@@ -3489,6 +3512,9 @@ function connectSocket(room) {
 
       // ── Always update student tracking view ──
       updateSessionOrderStatus(order_ref, status);
+      if ((status === 'delivering' || status === 'dispatched') && !_shownPickupScreens.has(order_ref)) {
+        showPickupScreen(order_ref);
+      }
 
       // ── Delivered: keep card visible until robot docks — loadKitchenOrders handles removal ──
       if (status === 'delivered') {
@@ -4418,6 +4444,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
       renderOrderList();
       selectOrderForTracking(order.order_ref);
       connectSocket('student');
+      startDeliveryWatcher(order.order_ref);
       showToast('✓ Order '+order.order_ref+' placed — Kitchen notified!');
       window.scrollTo(0,0);
       if(btn){btn.disabled=false;btn.textContent='PLACE ORDER →';}
