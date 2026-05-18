@@ -4183,7 +4183,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
       }
 
       // ── Show pickup screen when robot arrives ──
-      if (status === 'delivering') {
+      if (status === 'delivering' || status === 'dispatched') {
         showPickupScreen(ref);
       }
 
@@ -4405,6 +4405,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
       const now=new Date();
       const timeStr=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
       sessionOrders.push({ order_ref: order.order_ref, table_number: order.table_number, status: 'new', placedAt: timeStr, items: orderItems });
+      _shownPickupScreens.clear();
       activeTrackingRef = order.order_ref;
       cart = {}; selectedTable = null; activeMenuCat = 'All';
       document.querySelectorAll('.table-btn').forEach(b=>b.classList.remove('selected'));
@@ -4437,6 +4438,8 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
     for(let i=1;i<=5;i++){const si=document.getElementById('si-'+i);si.classList.remove('active','done');if(i===1)si.classList.add('active');}
     document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('step-1').classList.add('active');
+    _shownPickupScreens.clear();
+    _pickupOrderRef = null;
   }
   /* ══════════════════════════════════════════════════════════
    STAFF MANAGEMENT
@@ -5179,6 +5182,7 @@ let _pickupOrderRef = null;
 const _shownPickupScreens = new Set();
 function showPickupScreen(ref) {
   if (_shownPickupScreens.has(ref)) return;
+  _shownPickupScreens.add(ref);
   _pickupOrderRef = ref;
   const order = sessionOrders.find(o => o.order_ref === ref);
   if (!order) return;
