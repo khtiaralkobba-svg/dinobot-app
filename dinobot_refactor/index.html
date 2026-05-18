@@ -368,8 +368,8 @@ body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
 body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
 body.light-mode .track-eta-strip { background: rgba(255, 106, 0,0.05); border-color: rgba(255, 106, 0,0.15); }
 body.light-mode .track-table-tag { color: rgba(20,8,0,0.7); }
-body.light-mode #map-container { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.15); }
-body.light-mode .track-map-wrap { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.15); }
+body.light-mode #map-container { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode .track-map-wrap { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
 
 body.light-mode .dispatch-btn { background: linear-gradient(160deg, rgba(255, 106, 0,0.12), rgba(215,215,215,0.6)) !important; border-color: rgba(180,80,0,0.45) !important; color: #7c2d00 !important; font-weight: 700 !important; }
 body.light-mode .dispatch-btn:hover { border-color: #FF6F3C !important; color: #FF6F3C !important; background: rgba(255, 106, 0,0.12) !important; }
@@ -501,7 +501,7 @@ body.light-mode .metric-bar { background: rgba(180,80,0,0.15) !important; }
 body.light-mode #robot-state-badge { background: rgba(215,215,215,0.8) !important; }
 body.light-mode .dest-script { color: #FF6F3C !important; filter: none !important; }
 body.light-mode #dest-label { color: #FF6F3C; }
-body.light-mode #map-container { background: rgba(212,212,212,0.6) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #map-container { background: #e8f4fd !important; border-color: rgba(180,80,0,0.2) !important; }
 
 body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(240, 240, 240,1) 100%) !important; border-color: rgba(239,68,68,0.3) !important; }
 body.light-mode #estop-layer .cc-layer-tag { background: #020b1a !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
@@ -1830,7 +1830,7 @@ function animateOverlayMap() {
   ctx.clearRect(0, 0, W, H);
 
   // Grid
-  ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
+  ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(30,100,200,0.15)'':'rgba(5,22,65,0.9)'; ctx.lineWidth = 1;
   for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
   for (let j = 0; j < H; j += 40) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
 
@@ -1906,7 +1906,7 @@ function syncOverlayState() {
   @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
   .status-row{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#4ADE80;letter-spacing:2px;}
   .main{display:grid;grid-template-columns:1fr 280px;gap:0;flex:1;min-height:0;}
-  .map-wrap{position:relative;background:rgba(2,8,26,0.85);border-right:1px solid var(--border);}
+  .map-wrap{position:relative;background:#e8f4fd;border-right:1px solid var(--border);}
   canvas{position:absolute;inset:0;width:100%;height:100%;}
   .sidebar{display:flex;flex-direction:column;gap:0;overflow-y:auto;background:#061422;}
   .side-section{padding:18px 20px;border-bottom:1px solid var(--border);}
@@ -2030,7 +2030,7 @@ function syncOverlayState() {
     }catch(e){}
 
     ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle=window.opener?.document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    ctx.strokeStyle=window.opener?.document.body.classList.contains('light-mode')?'rgba(30,100,200,0.15)'':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
 for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
 for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
 
@@ -3826,7 +3826,7 @@ function initMap() {
     ctx.clearRect(0,0,W,H);
 
     // ── Grid ──
-    ctx.strokeStyle = document.body.classList.contains('light-mode') ? 'rgba(180,80,0,0.12)' : 'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    ctx.strokeStyle = document.body.classList.contains('light-mode') ? 'rgba(30,100,200,0.15)' : 'rgba(5,22,65,0.9)';ctx.lineWidth=1;
     for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
     for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
 
@@ -4303,7 +4303,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(180,80,0,0.12)':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
+    ctx.strokeStyle=document.body.classList.contains('light-mode')?'rgba(30,100,200,0.15)'':'rgba(5,22,65,0.9)'; ctx.lineWidth=1;
 for(let i=0;i<W;i+=40){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke();}
 for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.stroke();}
     tables.forEach(t => {
@@ -5306,13 +5306,13 @@ async function confirmPickup() {
     <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;pointer-events:auto;">
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Live Floor Map</div>
-        <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
+        <div id="map-container" style="position:relative;height:65vh;background:#e8f4fd;border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
          <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Manual Override</div>
-        <div id="dpad-panel" style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
+        <div id="dpad-panel" style="background:#e8f4fd;border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
           <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
           <div id="dpad" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0.35;pointer-events:none;transition:opacity 0.3s;">
             <div class="dpad-row">
