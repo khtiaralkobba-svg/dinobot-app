@@ -3073,7 +3073,7 @@ function startAnalyticsPolling() {
 
   async function resetStuckOrders() {
   let stuckRefs = Object.entries(kitchenOrders)
-    .filter(([, o]) => ['dispatched', 'delivering', 'ready'].includes(o.status))
+    .filter(([, o]) => ['dispatched', 'delivering'].includes(o.status))
     .map(([ref]) => ref);
 
   if (stuckRefs.length === 0) {
@@ -3083,7 +3083,7 @@ function startAnalyticsPolling() {
       });
       const data = await res.json();
       stuckRefs = (data.orders || [])
-        .filter(o => ['dispatched', 'delivering', 'ready'].includes(o.status))
+        .filter(o => ['dispatched', 'delivering'].includes(o.status))
         .map(o => o.order_ref);
     } catch (e) {
       showToast('✗ Could not fetch orders'); return;
