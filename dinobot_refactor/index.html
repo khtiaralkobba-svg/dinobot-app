@@ -2300,9 +2300,7 @@ let announcedOrders = new Set();
     document.getElementById('kitchen-center').classList.add('unlocked');
     await loadKitchenOrders();
     connectSocket('kitchen');
-    setTimeout(() => {
-      if (_socket) _socket.emit('staff:login', data.user?.employee_id || data.user?.employeeId);
-    }, 1500);
+    localStorage.setItem('lastEmployeeId', empInput.value.trim());
     if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
     window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
     startAlertEngine();
@@ -3533,6 +3531,10 @@ function connectSocket(room) {
     _socket.on('connect', () => {
       console.log('[socket] connected, joining:', room);
       _socket.emit('join', room);
+      if (room === 'kitchen') {
+        const empId = localStorage.getItem('lastEmployeeId');
+        if (empId) _socket.emit('staff:login', empId);
+      }
     });
 
     _socket.on('staff:online',  (id) => { _onlineStaff.add(id);    loadStaffList(); });
