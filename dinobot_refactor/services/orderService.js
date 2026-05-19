@@ -134,11 +134,15 @@ async function getAllOrders() {
 // UPDATE STATUS
 // ==========================
 async function updateOrderStatus(orderRef, status) {
-  const updateData = { status };
+  const updateData = { 
+    status,
+    updated_at: new Date().toISOString()
+  };
 
   if (status === 'delivered') {
     updateData.delivered_at = new Date().toISOString();
   }
+
   if (status === 'prep') {
     const { data: existing } = await supabase
       .from('orders')
@@ -151,16 +155,19 @@ async function updateOrderStatus(orderRef, status) {
     }
   }
 
+  if (status === 'ready') {
+    updateData.ready_at = new Date().toISOString();
+  }
+
   const { data, error } = await supabase
     .from('orders')
     .update(updateData)
     .eq('order_ref', orderRef)
-    .select('id, prep_started_at, table_number');
+    .select('id, prep_started_at, ready_at, delivered_at, table_number, updated_at');
 
   if (error) throw error;
   return data?.[0] || null;
 }
-
 // ==========================
 // CANCEL ORDER
 // ==========================
