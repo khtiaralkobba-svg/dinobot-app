@@ -127,13 +127,26 @@ robotProxyRoutes.forEach(({ path: robotPath, method }) => {
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
 
+  let _staffId = null;
+
   socket.on('join', room => {
     socket.join(room);
     console.log(`[socket] ${socket.id} joined: ${room}`);
   });
 
+  socket.on('staff:login', (employeeId) => {
+    _staffId = employeeId;
+    socket.join('manager');
+    io.to('manager').emit('staff:online', employeeId);
+    console.log(`[socket] staff online: ${employeeId}`);
+  });
+
   socket.on('disconnect', reason => {
     console.log('[socket] disconnected:', socket.id, reason);
+    if (_staffId) {
+      io.to('manager').emit('staff:offline', _staffId);
+      console.log(`[socket] staff offline: ${_staffId}`);
+    }
   });
 });
 

@@ -2300,6 +2300,9 @@ let announcedOrders = new Set();
     document.getElementById('kitchen-center').classList.add('unlocked');
     await loadKitchenOrders();
     connectSocket('kitchen');
+    setTimeout(() => {
+      if (_socket) _socket.emit('staff:login', data.user?.employee_id || data.user?.employeeId);
+    }, 1500);
     if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
     window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
     startAlertEngine();
