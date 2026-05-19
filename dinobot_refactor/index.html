@@ -3513,7 +3513,8 @@ async function loadAnalyticsFromDB() {
 
       if (order.prep_started_at && order.updated_at &&
           ['ready','dispatched','delivering','delivered'].includes(order.status)) {
-        const mins = (new Date(order.updated_at) - new Date(order.prep_started_at)) / 60000;
+        const endTime = order.ready_at || order.updated_at;
+const mins = (new Date(endTime) - new Date(order.prep_started_at)) / 60000;
         if (mins > 0 && mins < 120) {
           analytics.prepTimes.push(mins);
           if (mins > 15) analytics.lateOrders++;
