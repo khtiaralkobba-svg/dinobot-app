@@ -1771,7 +1771,7 @@ function dismissRobotAlarm() {
 
       updateSessionOrderStatus(ref, status);
 
-      if (status === 'delivering' && !_shownPickupScreens.has(ref)) {
+      if (status === 'delivering' && !_shownPickupScreens.has(ref) && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
         showPickupScreen(ref);
       }
 
