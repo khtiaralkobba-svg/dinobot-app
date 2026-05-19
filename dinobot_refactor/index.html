@@ -3556,10 +3556,9 @@ function connectSocket(room) {
 
       // ── Always update student tracking view ──
       updateSessionOrderStatus(order_ref, status);
-      if (status === 'delivering' && !_shownPickupScreens.has(order_ref)) {
+      if (status === 'delivering' && !_shownPickupScreens.has(order_ref) && sessionOrders.some(o => o.order_ref === order_ref) && studentStep === 5) {
         showPickupScreen(order_ref);
       }
-
       // ── Delivered: keep card visible until robot docks — loadKitchenOrders handles removal ──
       if (status === 'delivered') {
         const card = document.getElementById('order-' + order_ref);
@@ -4268,7 +4267,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
         if (sub) sub.textContent = 'Heading to Table ' + tableNum;
       }
 
-      if (status === 'delivering') {
+      if (status === 'delivering' && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
         showPickupScreen(ref);
       }
 
