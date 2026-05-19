@@ -3529,14 +3529,19 @@ async function loadAnalyticsFromDB() {
 
     try {
       const stuckRes = await fetch(API_BASE + '/api/orders/stuck', {
-        headers: authHeaders({ 'Content-Type': 'application/json' })
-      });
-      if (stuckRes.ok) {
-        const stuckData = await stuckRes.json();
-        const uniqueRefs = new Set((stuckData.stuck_orders || []).map(o => o.order_ref));
-        analytics.stuckOrders = uniqueRefs.size;
-      }
-    } catch { analytics.stuckOrders = 0; }
+      headers: authHeaders({ 'Content-Type': 'application/json' })
+    });
+    console.log('[stuck] status:', stuckRes.status);
+    const stuckData = await stuckRes.json();
+    console.log('[stuck] data:', stuckData);
+    if (stuckRes.ok) {
+      const uniqueRefs = new Set((stuckData.stuck_orders || []).map(o => o.order_ref));
+      analytics.stuckOrders = uniqueRefs.size;
+    }
+  } catch (e) { 
+    console.log('[stuck] error:', e);
+    analytics.stuckOrders = 0; 
+  }
 
     updateAnalyticsUI();
   } catch (err) {
