@@ -2452,7 +2452,7 @@ let announcedOrders = new Set();
           }
         } else if (existing.status !== order.status) {
           if (_kitchenTransitioning.has(order.order_ref)) return;
-          if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 3000) return;
+          if (existing._lastManualUpdate && (Date.now() - existing._lastManualUpdate) < 10000) return;
           if (order.status === 'prep' && order.prep_started_at) {
             existing.prep_started_at = order.prep_started_at;
           }
