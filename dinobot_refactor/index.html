@@ -2945,7 +2945,18 @@ function startAnalyticsPolling() {
           btn.textContent = '✓ Mark as Ready';
           btn.setAttribute('onclick', `setOrderStatus('${ref}','ready')`);
           btn.removeAttribute('id'); btn.removeAttribute('data-dispatch');
-        } else if (newStatus === 'ready') {
+          const idBlock = card.querySelector('.ticket-id-block');
+          if (idBlock && kitchenOrders[ref]?.handled_by) {
+            const existing = idBlock.querySelector('.staff-badge');
+            if (!existing) {
+              const badge = document.createElement('span');
+              badge.className = 'staff-badge';
+              badge.style.cssText = 'font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;color:#C084FC;margin-top:2px;display:block;';
+              badge.textContent = '👤 ' + kitchenOrders[ref].handled_by;
+              idBlock.appendChild(badge);
+            }
+          }
+} else if (newStatus === 'ready') {
           btn.className = 'ticket-action ticket-action-prep';
           btn.setAttribute('id', 'action-' + ref);
           btn.setAttribute('data-dispatch', 'true');
