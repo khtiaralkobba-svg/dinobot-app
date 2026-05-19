@@ -3730,13 +3730,18 @@ function connectSocket(room) {
         // ── Stop real robot ──
         fetch(API_BASE + '/api/robot/stop', { method: 'POST' }).catch(() => {});
     } else {
-        btn.classList.remove('active'); 
-        btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
-        warning.classList.remove('show'); 
-        setRobotState('DOCKED — STANDBY','—','#4ADE80');
-        addActivity('dot-system','✓ Emergency stop <strong>released</strong>');
-        // Resume robot (returns to IDLE/dock-ready state)
-        fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
+      eStopActive = false;
+      btn.classList.remove('active'); 
+      btn.innerHTML='<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
+      warning.classList.remove('show'); 
+      setRobotState('RETURNING TO DOCK','—','#60A5FA');
+      targetX = dockX; 
+      targetY = dockY; 
+      robotState = 'RETURNING';
+      currentTarget = null;
+      document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+      addActivity('dot-system','✓ Emergency stop <strong>released</strong> — returning to dock');
+      fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     }
 }
  
