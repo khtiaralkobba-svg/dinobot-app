@@ -157,11 +157,15 @@ router.patch('/:orderRef/status', async (req, res, next) => {
   if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
     return next();
   }
-
-  // Allow students to cancel via the /status route too (frontend uses this)
-  if (status === 'cancelled') {
-    return next();
+  // Allow dispatched/delivering updates from frontend without strict auth
+  if (['dispatched', 'delivering', 'delivered'].includes(status)) {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) return next(); // no token — allow through for robot-triggered updates
   }
+  // Allow students to cancel via the /status route too (frontend uses this)
+  if (['cancelled', 'dispatched', 'delivering', 'delivered'].includes(status)) {
+    return next();
+}
 
   // All other status changes require kitchen/manager auth
   authenticateToken(req, res, () => {
