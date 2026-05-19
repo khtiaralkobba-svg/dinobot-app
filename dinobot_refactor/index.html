@@ -3297,7 +3297,8 @@ function startAnalyticsPolling() {
     dispatches: 0,
     fastestPrep: null,
     slowestPrep: null,
-    waitTimes: [],        // minutes spent in incoming before prep
+    waitTimes: [],
+    stuckOrders: 0,        // minutes spent in incoming before prep
   };
   // ══════════════════════════════════════════════════════════
 //  PREDICTIVE DELAY ENGINE
@@ -3458,6 +3459,9 @@ function getKitchenPrediction(ref) {
       ? analytics.waitTimes.reduce((a,b)=>a+b,0) / analytics.waitTimes.length
       : null;
     setEl('an-avg-wait', fmtMins(avgWait));
+    setEl('an-stuck', analytics.stuckOrders || 0);
+const stuckEl = document.getElementById('an-stuck');
+if (stuckEl) stuckEl.className = 'ab-val ' + (analytics.stuckOrders === 0 ? 'good' : analytics.stuckOrders > 3 ? 'bad' : 'warn');
 
     // Color cancelled
     const cancelledEl = document.getElementById('an-cancelled');
@@ -3470,16 +3474,14 @@ function getKitchenPrediction(ref) {
     }
   }
   // ── Load analytics from DB on login ──────────────────────
- async function loadAnalyticsFromDB() {
+async function loadAnalyticsFromDB() {
   if (currentRole !== 'manager') return;
   try {
     const res = await fetch(API_BASE + '/api/orders/all', {
       headers: authHeaders({ 'Content-Type': 'application/json' })
     });
-    const res2 = !res.ok ? await fetch(API_BASE + '/api/orders', {
-      headers: authHeaders({ 'Content-Type': 'application/json' })
-    }) : res;
-    const data = await res2.json();
+    if (!res.ok) return;
+    const data = await res.json();
     const orders = data.orders || [];
 
     analytics.prepTimes       = [];
@@ -3491,20 +3493,50 @@ function getKitchenPrediction(ref) {
     analytics.fastestPrep     = null;
     analytics.slowestPrep     = null;
     analytics.waitTimes       = [];
+    analytics.stuckOrders     = 0;
 
     orders.forEach(order => {
       analytics.totalOrders++;
+
       if (order.status === 'cancelled') {
         analytics.cancelledOrders++;
         return;
       }
+
       if (['ready','dispatched','delivering','delivered'].includes(order.status)) {
         analytics.completedOrders++;
       }
+
       if (['dispatched','delivering','delivered'].includes(order.status)) {
         analytics.dispatches++;
       }
+
+      if (order.prep_started_at && order.updated_at &&
+          ['ready','dispatched','delivering','delivered'].includes(order.status)) {
+        const mins = (new Date(order.updated_at) - new Date(order.prep_started_at)) / 60000;
+        if (mins > 0 && mins < 120) {
+          analytics.prepTimes.push(mins);
+          if (mins > 15) analytics.lateOrders++;
+          if (analytics.fastestPrep === null || mins < analytics.fastestPrep) analytics.fastestPrep = mins;
+          if (analytics.slowestPrep === null || mins > analytics.slowestPrep) analytics.slowestPrep = mins;
+        }
+      }
+
+      if (order.placed_at && order.prep_started_at) {
+        const wait = (new Date(order.prep_started_at) - new Date(order.placed_at)) / 60000;
+        if (wait > 0 && wait < 60) analytics.waitTimes.push(wait);
+      }
     });
+
+    try {
+      const stuckRes = await fetch(API_BASE + '/api/orders/stuck', {
+        headers: authHeaders({ 'Content-Type': 'application/json' })
+      });
+      if (stuckRes.ok) {
+        const stuckData = await stuckRes.json();
+        analytics.stuckOrders = (stuckData.stuck_orders || []).length;
+      }
+    } catch { analytics.stuckOrders = 0; }
 
     updateAnalyticsUI();
   } catch (err) {
@@ -5564,6 +5596,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <div class="ab-row"><span class="ab-label">Slowest Prep</span><span class="ab-val" id="an-slowest">—</span></div>
       <div class="ab-row"><span class="ab-label">Robot Dispatches</span><span class="ab-val blue" id="an-dispatches" style="color:#60A5FA">0</span></div>
       <div class="ab-row"><span class="ab-label">Avg Wait (Incoming)</span><span class="ab-val" id="an-avg-wait">—</span></div>
+    <div class="ab-row"><span class="ab-label">Stuck Orders (Total)</span><span class="ab-val" id="an-stuck">0</span></div>
     </div>
   </div>
 </div>
