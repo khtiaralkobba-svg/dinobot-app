@@ -2319,6 +2319,8 @@ let announcedOrders = new Set();
         window.speechSynthesis.speak(utt);
       }
       currentRole = serverRole;
+      sessionOrders = [];
+      studentStep = 1;
     } catch (err) {
       console.error(err);
       showToast('Backend connection failed — is the server running?');
