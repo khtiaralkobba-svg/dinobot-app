@@ -544,6 +544,12 @@ body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] { background: #e8f4fd 
 body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] div { color: #1C0F00 !important; }
 body.light-mode #heatmap-overlay button { border-color: rgba(180,80,0,0.3) !important; color: #1C0F00 !important; background: rgba(255,106,0,0.06) !important; }
 body.light-mode #heatmap-overlay button[style*="#FF6B1A"] { border-color: #FF6A00 !important; color: #FF6A00 !important; background: rgba(255,106,0,0.12) !important; }
+body.light-mode #heatmap-overlay { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [style*="color:rgba(180,210,245"] { color: #526071 !important; }
+body.light-mode #heatmap-overlay [style*="color:var(--text-dim)"] { color: #526071 !important; }
+body.light-mode #heatmap-overlay [style*="color:var(--text)"] { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [style*="letter-spacing:3px;color:var"] { color: #526071 !important; }
+body.light-mode #heatmap-body > div > div { color: #1C0F00 !important; }
 body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255, 106, 0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode .analytics-layer .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .analytics-card { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; box-shadow: 0 1px 4px rgba(30,100,200,0.08); }
@@ -1858,17 +1864,18 @@ function hmRenderAll() {
     <div style="display:flex;gap:24px;align-items:start;width:100%;">
       <div style="flex:1;min-width:0;">
         <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;width:100%;">
-          ${HM_HOURS.map(h=>`<div style="flex:1;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(180,210,245,0.8);">${h}:00</div>`).join('')}
+          ${HM_HOURS.map(h=>`<div style="flex:1;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:${document.body.classList.contains('light-mode')?'#7c2d00':'rgba(180,210,245,0.8)'};">${h}:00</div>`).join('')}
         </div>
         <div id="hm-grid-inner">
           ${HM_DAYS.map(day=>`
             <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;width:100%;">
-              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(180,210,245,0.8);width:44px;flex-shrink:0;text-transform:uppercase;font-weight:bold;">${day}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:${document.body.classList.contains('light-mode')?'#7c2d00':'rgba(180,210,245,0.8)'};width:44px;flex-shrink:0;text-transform:uppercase;font-weight:bold;">${day}</div>
               ${HM_HOURS.map(h=>{
                 const val=data[day][h];
                 const ratio=max>0?val/max:0;
                 const bg=hmCellColor(val,max);
-                const tc=ratio>0.5?'#fff':'rgba(180,210,245,0.6)';
+                const isLightMode = document.body.classList.contains('light-mode');
+              const tc=ratio>0.5?'#fff':isLightMode?'#7c2d00':'rgba(180,210,245,0.6)';
                 return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="flex:1;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:${tc};cursor:pointer;transition:transform 0.12s;border-radius:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);" onmouseover="this.style.transform='scale(1.1)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
               }).join('')}
             </div>`).join('')}
