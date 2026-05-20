@@ -1814,6 +1814,8 @@ function hmRenderAll() {
   body.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;">
       ${[
+        ['Total Orders', total.toLocaleString(), 'across all hours', '#FF6B1A'],
+        ['Peak Single Hour', peak, peakLabel, '#FF6B1A'],
         ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#FF6B1A'],
         ['Avg Per Slot', avgPerHour, 'orders / hour', 'var(--text)']
       ].map(([lbl,val,sub,color])=>`
@@ -5769,7 +5771,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
   </div>
 </div>
 <!-- HEATMAP OVERLAY -->
-<div id="heatmap-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:100vh;">
+<div id="heatmap-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:100vh;width:100vw;left:0;top:0;">
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(255,107,26,0.2);background:linear-gradient(160deg,rgba(40,15,5,0.45) 0%,transparent 60%);flex-shrink:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
@@ -5782,7 +5784,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       </div>
     </div>
   </div>
-  <div style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;flex:1;min-height:0;width:100%;" id="heatmap-body"></div>
+  <div style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;width:100%;box-sizing:border-box;" id="heatmap-body"></div>
 </div>
 <div id="robot-alarm-banner">
   <span class="alarm-banner-icon">🛑</span>
