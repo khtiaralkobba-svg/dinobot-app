@@ -1856,38 +1856,81 @@ function hmRenderAll() {
     <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
-    <div style="background:linear-gradient(160deg,rgba(5,15,35,0.9),rgba(2,8,26,0.95));border:1px solid rgba(255,107,26,0.12);padding:32px 36px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+    <div style="background:linear-gradient(160deg,rgba(5,15,35,0.9),rgba(2,8,26,0.95));border:1px solid rgba(255,107,26,0.12);padding:40px 48px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(255,107,26,0.5);text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--text);">HOURLY ORDER DISTRIBUTION</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--text);">HOURLY ORDER DISTRIBUTION</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;color:#FF6B1A;line-height:1;">${total.toLocaleString()}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:#FF6B1A;line-height:1;">${total.toLocaleString()}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">TOTAL ORDERS</div>
         </div>
       </div>
-      ${HM_HOURS.map(h=>{
-        const v=hourTotals[h];
-        const pct=maxHourTotal>0?Math.round((v/maxHourTotal)*100):0;
-        const isPeak=pct===100;
-        const isHigh=pct>75;
-        const isMid=pct>40;
-        const barColor=isPeak?'linear-gradient(90deg,#FF6B1A,#ff9a5c,#FF6B1A)':isHigh?'linear-gradient(90deg,rgba(255,107,26,0.9),#FF6B1A)':isMid?'linear-gradient(90deg,rgba(255,107,26,0.5),rgba(255,107,26,0.75))':'linear-gradient(90deg,rgba(255,107,26,0.15),rgba(255,107,26,0.3))';
-        const glowColor=isPeak?'0 0 20px rgba(255,107,26,0.6),0 0 40px rgba(255,107,26,0.2)':isHigh?'0 0 12px rgba(255,107,26,0.3)':'none';
-        const labelColor=isPeak?'#FF6B1A':isHigh?'rgba(255,107,26,0.8)':'var(--text-dim)';
-        const valColor=isPeak?'#FF6B1A':isHigh?'rgba(255,140,60,0.9)':'rgba(180,210,245,0.4)';
-        const barH=isPeak?'20px':isHigh?'16px':isMid?'12px':'8px';
-        return `
-        <div style="display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:16px;margin-bottom:${isPeak?'14px':isHigh?'10px':'7px'};">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:${isPeak?'11px':'9px'};color:${labelColor};text-align:right;letter-spacing:2px;font-weight:${isPeak?'bold':'normal'};transition:all 0.3s;">${h}:00</div>
-          <div style="position:relative;height:${barH};background:rgba(255,255,255,0.04);overflow:visible;">
-            <div style="position:absolute;inset:0;background:${barColor};width:${pct}%;box-shadow:${glowColor};transition:width 0.8s cubic-bezier(0.4,0,0.2,1);"></div>
-            ${isPeak?`<div style="position:absolute;right:calc(${100-pct}% + 6px);top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:8px;color:#FF6B1A;letter-spacing:2px;white-space:nowrap;">PEAK</div>`:''}
-          </div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:${isPeak?'18px':isHigh?'15px':'13px'};color:${valColor};letter-spacing:1px;line-height:1;">${v}</div>
-        </div>`;
-      }).join('')}
+      <style>
+        @keyframes barRise {
+          from { transform: scaleY(0); opacity: 0; }
+          to   { transform: scaleY(1); opacity: 1; }
+        }
+        @keyframes valPop {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      </style>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:260px;position:relative;">
+        <!-- Y axis line -->
+        <div style="position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.3),transparent);"></div>
+        <!-- Y axis ticks -->
+        ${[25,50,75,100].map(pct=>`
+          <div style="position:absolute;left:0;right:0;bottom:${pct*2.6}px;height:1px;background:rgba(255,255,255,0.03);pointer-events:none;"></div>
+        `).join('')}
+        ${HM_HOURS.map((h,i)=>{
+          const v=hourTotals[h];
+          const pct=maxHourTotal>0?(v/maxHourTotal)*100:0;
+          const barH=Math.max(4,(pct/100)*240);
+          const delay=(i*0.05).toFixed(2);
+          // Color tiers
+          const color=pct===100
+            ?'linear-gradient(to top,#7c2d00,#FF6B1A,#ffb07a)'
+            :pct>80
+              ?'linear-gradient(to top,#92340a,#FF6B1A)'
+              :pct>60
+                ?'linear-gradient(to top,#7c2d00,rgba(255,107,26,0.85))'
+                :pct>40
+                  ?'linear-gradient(to top,rgba(80,30,5,0.9),rgba(255,107,26,0.6))'
+                  :pct>20
+                    ?'linear-gradient(to top,rgba(60,20,5,0.8),rgba(255,107,26,0.35))'
+                    :'linear-gradient(to top,rgba(40,15,5,0.7),rgba(255,107,26,0.18))';
+          const glow=pct===100
+            ?'0 0 30px rgba(255,107,26,0.6),0 0 60px rgba(255,107,26,0.2)'
+            :pct>75
+              ?'0 0 14px rgba(255,107,26,0.3)'
+              :'none';
+          const valColor=pct===100?'#FF6B1A':pct>75?'rgba(255,140,60,0.9)':pct>40?'rgba(255,107,26,0.6)':'rgba(180,210,245,0.25)';
+          const labelColor=pct===100?'#FF6B1A':pct>75?'rgba(255,140,60,0.7)':'rgba(180,210,245,0.3)';
+          return `
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;position:relative;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:${pct===100?'16px':pct>75?'13px':'11px'};color:${valColor};letter-spacing:1px;line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${v}</div>
+            <div style="width:100%;height:${barH}px;background:${color};box-shadow:${glow};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;position:relative;">
+              ${pct===100?`<div style="position:absolute;inset:0;background:linear-gradient(to top,transparent,rgba(255,255,255,0.06));pointer-events:none;"></div><div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#FF6B1A;white-space:nowrap;">PEAK</div>`:''}
+            </div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${labelColor};letter-spacing:1px;white-space:nowrap;">${h}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        ${[
+          ['rgba(255,107,26,0.18)','LOW  < 20%'],
+          ['rgba(255,107,26,0.35)','BELOW AVG'],
+          ['rgba(255,107,26,0.6)','MODERATE'],
+          ['rgba(255,107,26,0.85)','HIGH'],
+          ['#FF6B1A','PEAK']
+        ].map(([c,l])=>`
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:12px;height:12px;background:${c};"></div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.4);">${l}</div>
+          </div>`).join('')}
+      </div>
     </div>
   `;
 }
