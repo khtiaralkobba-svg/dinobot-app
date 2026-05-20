@@ -1413,7 +1413,6 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
 }
 
 </style>
-</style>
 
 </head>
 <body>
@@ -1573,7 +1572,7 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
 <!-- DASHBOARD PAGE -->
 <div id="dashboard" class="page">
   <!-- Hero Banner -->
-  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160degrgba(255, 106, 0,0.14) 0%,transparent 60%);margin-bottom:0;">
+  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,rgba(255,106,0,0.14) 0%,transparent 60%);margin-bottom:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div id="dashboard-hero-title">
         <div class="dash-subtitle">// Staff Authentication</div>
@@ -1792,7 +1791,9 @@ function openHeatmapOverlay() {
 }
 
 function closeHeatmapOverlay() {
-  document.getElementById('heatmap-overlay').style.display = 'none';
+  const el = document.getElementById('heatmap-overlay');
+  el.style.display = 'none';
+  el.style.flexDirection = '';
   document.body.style.overflow = '';
   if(hmRefreshTimer) { clearInterval(hmRefreshTimer); hmRefreshTimer = null; }
 }
@@ -1813,9 +1814,7 @@ function hmRenderAll() {
   body.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
       ${[
-        ['Total Orders', total.toLocaleString(), 'across all hours', '#FF6B1A'],
-        ['Peak Single Hour', peak, peakLabel, '#FF6B1A'],
-        ['Total Orders', total.toLocaleString(), 'across all hours', '#FF6B1A'],
+        ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#FF6B1A'],
         ['Avg Per Slot', avgPerHour, 'orders / hour', 'var(--text)']
       ].map(([lbl,val,sub,color])=>`
         <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
@@ -1825,7 +1824,7 @@ function hmRenderAll() {
         </div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}',this)" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 14px;border:1px solid ${v===hmCurrentView?'#4ADE80':'var(--border)'};background:${v===hmCurrentView?'rgba(74,222,128,0.08)':'transparent'};color:${v===hmCurrentView?'#4ADE80':'var(--text-dim)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
+      ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}',this)" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 14px;border:1px solid ${v===hmCurrentView?'#FF6B1A':'var(--border)'};background:${v===hmCurrentView?'rgba(255,107,26,0.08)':'transparent'};color:${v===hmCurrentView?'#FF6B1A':'var(--text-dim)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
       <div style="flex:1"></div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">CLICK CELL FOR DETAIL</div>
     </div>
@@ -1842,7 +1841,7 @@ function hmRenderAll() {
               const ratio=max>0?val/max:0;
               const bg=hmCellColor(val,max);
               const tc=ratio>0.5?'#fff':'var(--text-dim)';
-              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:38px;height:38px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;" border-radius:2px;" onmouseover>${val>0?val:''}</div>`;
+              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:38px;height:38px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;" onmouseover="this.style.transform='scale(1.15)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
             }).join('')}
           </div>`).join('')}
       </div>
@@ -4131,7 +4130,7 @@ function initMap() {
     tables.forEach(t=>{
       const tx=t.x*W,ty=t.y*H,isTarget=currentTarget&&currentTarget.id===t.id;
       const isLight=document.body.classList.contains('light-mode');
-ctx.fillStyle=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowColor=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isTarget?14:8;ur=isTarget?14:8;
+ctx.fillStyle=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowColor=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isTarget?14:8;
       ctx.beginPath(); ctx.arc(tx,ty,isTarget?9:7,0,Math.PI*2); ctx.fill();
       ctx.shadowBlur=0; ctx.fillStyle=document.body.classList.contains('light-mode')?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center'; ctx.fillText('T'+t.id,tx,ty+20);
     });
@@ -5600,7 +5599,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;pointer-events:auto;">
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Live Floor Map</div>
-        <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85)border,1px solid rgba(255,107,26,0.15);overflow:hidden;">
+        <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
          <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
         </div>
       </div>
@@ -5779,7 +5778,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       </div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> LIVE DATA</div>
-        <button onclieHeatmapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+        <button onclick="closeHeatmapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;position:relative;z-index:99999;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
       </div>
     </div>
   </div>
