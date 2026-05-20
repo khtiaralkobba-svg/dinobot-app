@@ -1788,7 +1788,14 @@ function hmGenData(seed) {
 
 function hmMaxVal(data) {
   let m = 0;
-  HM_DAYS.forEach(d => HM_HOURS.forEach(h => { if(data[d][h] > m) m = data[d][h]; }));
+  if (!data) return 0;
+  HM_DAYS.forEach(d => {
+    if (!data[d]) return;
+    HM_HOURS.forEach(h => {
+      const v = data[d][h] ?? data[d][String(h)] ?? 0;
+      if (v > m) m = v;
+    });
+  });
   return m;
 }
 
@@ -1873,7 +1880,11 @@ function hmRenderAll() {
   // Ensure all days/hours exist
   HM_DAYS.forEach(d => {
     if (!data[d]) data[d] = {};
-    HM_HOURS.forEach(h => { if (!data[d][h]) data[d][h] = 0; });
+    HM_HOURS.forEach(h => {
+      // JSON keys are always strings — convert string keys to numbers
+      if (data[d][String(h)] !== undefined) data[d][h] = data[d][String(h)];
+      if (data[d][h] === undefined) data[d][h] = 0;
+    });
   });
   const max = hmMaxVal(data);
   let hourTotals = {};
