@@ -1749,6 +1749,7 @@ const HM_HOURS = Array.from({length:14}, (_,i) => i + 8);
 let hmCurrentView = 'week';
 let hmDatasets = {};
 let hmRefreshTimer = null;
+let hmLastDetail = null;
 
 function hmGenData(seed) {
   const d = {};
@@ -1825,7 +1826,7 @@ function hmRenderAll() {
         ['Total Orders', total.toLocaleString(), 'across all hours', '#FF6B1A'],
         ['Peak Single Hour', peak, peakLabel, '#FF6B1A'],
         ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#FF6B1A'],
-        ['Avg Per Slot', avgPerHour, 'orders / hour', 'var(--text)']
+        ['Avg Per Slot', avgPerHour || '—', 'orders / hour', '#ffffff']
       ].map(([lbl,val,sub,color])=>`
         <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
@@ -1834,7 +1835,7 @@ function hmRenderAll() {
         </div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}',this)" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 14px;border:1px solid ${v===hmCurrentView?'#FF6B1A':'var(--border)'};background:${v===hmCurrentView?'rgba(255,107,26,0.08)':'transparent'};color:${v===hmCurrentView?'#FF6B1A':'var(--text-dim)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
+      ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}')" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:8px 18px;border:1px solid ${v===hmCurrentView?'#FF6B1A':'rgba(255,255,255,0.15)'};background:${v===hmCurrentView?'rgba(255,107,26,0.15)':'rgba(255,255,255,0.03)'};color:${v===hmCurrentView?'#FF6B1A':'rgba(180,210,245,0.8)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;font-weight:${v===hmCurrentView?'bold':'normal'};">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
       <div style="flex:1"></div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">CLICK CELL FOR DETAIL</div>
     </div>
@@ -1856,13 +1857,34 @@ function hmRenderAll() {
           </div>`).join('')}
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">Low</div>
-      ${['rgba(255,107,26,0.12)','rgba(255,107,26,0.28)','rgba(255,107,26,0.50)','rgba(255,107,26,0.70)','rgba(255,107,26,0.92)'].map(c=>`<div style="width:24px;height:12px;background:${c};border-radius:1px;"></div>`).join('')}
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">High</div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;">
+      <div></div>
+      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:220px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#FF6B1A;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,107,26,0.2);padding-bottom:8px;">⬡ Color Legend</div>
+        ${[
+          ['rgba(128,128,128,0.08)', '0 orders', 'No activity'],
+          ['rgba(255,107,26,0.12)', '1–20%', 'Very low'],
+          ['rgba(255,107,26,0.28)', '20–40%', 'Low'],
+          ['rgba(255,107,26,0.50)', '40–60%', 'Moderate'],
+          ['rgba(255,107,26,0.70)', '60–80%', 'High'],
+          ['rgba(255,107,26,0.92)', '80–100%', 'Peak'],
+        ].map(([c,range,label])=>`
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div style="width:44px;height:28px;background:${c};border:1px solid rgba(255,107,26,0.15);flex-shrink:0;border-radius:2px;"></div>
+            <div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:#ffffff;line-height:1;">${label}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(255,107,26,0.6);">${range} of peak</div>
+            </div>
+          </div>`).join('')}
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,107,26,0.1);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.4);line-height:1.6;">
+            Colors scale relative to<br>the busiest cell in the view.
+          </div>
+        </div>
+      </div>
     </div>
     <div id="hm-detail" style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
-      <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
+      <div style="font-size:10px;letter-spacing:2px;color:rgba(180,210,245,0.7);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
     <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -1931,6 +1953,9 @@ function hmRenderAll() {
       </div>
     </div>
   `;
+  if (hmLastDetail) {
+    setTimeout(() => hmShowDetail(hmLastDetail.day, hmLastDetail.hour, hmLastDetail.val, hmMaxVal(hmDatasets[hmCurrentView])), 50);
+  }
 }
 function hmRenderAllNoAnim() {
   const body = document.getElementById('heatmap-body');
@@ -1949,17 +1974,18 @@ function hmRenderAllNoAnim() {
     const barH = Math.max(4, (pct / 100) * 240);
     const bar = col.querySelector('.hm-bar-inner');
     const val = col.querySelector('.hm-bar-val');
-    if (bar) { bar.style.height = barH + 'px'; bar.style.animation = 'none'; }
-    if (val) { val.textContent = v; val.style.animation = 'none'; }
+    if (bar) { bar.style.height = barH + 'px'; bar.style.animation = 'none'; bar.style.transition = 'height 0.4s ease'; }
+    if (val) { val.textContent = v; val.style.animation = 'none'; val.style.opacity = '1'; }
   });
 }
 
-function hmSetView(view, btn) {
+function hmSetView(view) {
   hmCurrentView = view;
   hmRenderAll();
 }
 
 function hmShowDetail(day, hour, val, max) {
+  hmLastDetail = { day, hour, val, max };
   const data = hmDatasets[hmCurrentView];
   const ratio = max > 0 ? val/max : 0;
   const intensity = ratio>0.8?'🔴 PEAK':ratio>0.6?'🟠 BUSY':ratio>0.4?'🟡 MODERATE':'🟢 QUIET';
@@ -1980,6 +2006,7 @@ function hmShowDetail(day, hour, val, max) {
         </div>`).join('')}
     </div>
   `;
+  hmLastDetail = { day, hour, val, max };
 }
   function showRobotAlarm() {
   const banner = document.getElementById('robot-alarm-banner');
