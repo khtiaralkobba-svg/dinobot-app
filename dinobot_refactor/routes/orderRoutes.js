@@ -181,4 +181,43 @@ router.get(
   getOrders
 );
 
+// ── Heatmap data ──
+router.get(
+  '/heatmap',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const orders = await orderService.getAllOrders();
+      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+      const hours = Array.from({length:14}, (_,i) => i + 8);
+
+      const data = { week: {}, month: {}, all: {} };
+      days.forEach(d => {
+        data.week[d] = {}; data.month[d] = {}; data.all[d] = {};
+        hours.forEach(h => { data.week[d][h]=0; data.month[d][h]=0; data.all[d][h]=0; });
+      });
+
+      const now = new Date();
+      const weekAgo  = new Date(now - 7  * 24*60*60*1000);
+      const monthAgo = new Date(now - 30 * 24*60*60*1000);
+
+      orders.forEach(order => {
+        const date = new Date(order.placed_at);
+        const day  = days[date.getDay()];
+        const hour = date.getHours();
+        if (!day || hour < 8 || hour > 21) return;
+        data.all[day][hour]++;
+        if (date >= monthAgo) data.month[day][hour]++;
+        if (date >= weekAgo)  data.week[day][hour]++;
+      });
+
+      res.json({ heatmap: data });
+    } catch(err) {
+      console.error('[heatmap]', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 module.exports = router;
