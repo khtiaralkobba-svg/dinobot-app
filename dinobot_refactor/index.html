@@ -1856,18 +1856,36 @@ function hmRenderAll() {
     <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
-    <div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px;">⬡ Hourly Total (All Days)</div>
+    <div style="background:linear-gradient(160deg,rgba(5,15,35,0.9),rgba(2,8,26,0.95));border:1px solid rgba(255,107,26,0.12);padding:32px 36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(255,107,26,0.5);text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--text);">HOURLY ORDER DISTRIBUTION</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;color:#FF6B1A;line-height:1;">${total.toLocaleString()}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">TOTAL ORDERS</div>
+        </div>
+      </div>
       ${HM_HOURS.map(h=>{
         const v=hourTotals[h];
         const pct=maxHourTotal>0?Math.round((v/maxHourTotal)*100):0;
-        const bc=pct>75?'#FF6B1A':pct>50?'rgba(255,107,26,0.65)':pct>25?'rgba(255,107,26,0.4)':'rgba(255,107,26,0.2)';
-        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:40px;text-align:right;flex-shrink:0;">${h}:00</div>
-          <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:${bc};border-radius:1px;"></div>
+        const isPeak=pct===100;
+        const isHigh=pct>75;
+        const isMid=pct>40;
+        const barColor=isPeak?'linear-gradient(90deg,#FF6B1A,#ff9a5c,#FF6B1A)':isHigh?'linear-gradient(90deg,rgba(255,107,26,0.9),#FF6B1A)':isMid?'linear-gradient(90deg,rgba(255,107,26,0.5),rgba(255,107,26,0.75))':'linear-gradient(90deg,rgba(255,107,26,0.15),rgba(255,107,26,0.3))';
+        const glowColor=isPeak?'0 0 20px rgba(255,107,26,0.6),0 0 40px rgba(255,107,26,0.2)':isHigh?'0 0 12px rgba(255,107,26,0.3)':'none';
+        const labelColor=isPeak?'#FF6B1A':isHigh?'rgba(255,107,26,0.8)':'var(--text-dim)';
+        const valColor=isPeak?'#FF6B1A':isHigh?'rgba(255,140,60,0.9)':'rgba(180,210,245,0.4)';
+        const barH=isPeak?'20px':isHigh?'16px':isMid?'12px':'8px';
+        return `
+        <div style="display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:16px;margin-bottom:${isPeak?'14px':isHigh?'10px':'7px'};">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:${isPeak?'11px':'9px'};color:${labelColor};text-align:right;letter-spacing:2px;font-weight:${isPeak?'bold':'normal'};transition:all 0.3s;">${h}:00</div>
+          <div style="position:relative;height:${barH};background:rgba(255,255,255,0.04);overflow:visible;">
+            <div style="position:absolute;inset:0;background:${barColor};width:${pct}%;box-shadow:${glowColor};transition:width 0.8s cubic-bezier(0.4,0,0.2,1);"></div>
+            ${isPeak?`<div style="position:absolute;right:calc(${100-pct}% + 6px);top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:8px;color:#FF6B1A;letter-spacing:2px;white-space:nowrap;">PEAK</div>`:''}
           </div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:35px;flex-shrink:0;">${v}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:${isPeak?'18px':isHigh?'15px':'13px'};color:${valColor};letter-spacing:1px;line-height:1;">${v}</div>
         </div>`;
       }).join('')}
     </div>
