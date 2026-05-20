@@ -1875,8 +1875,11 @@ function hmRenderAll() {
                 const ratio=max>0?val/max:0;
                 const bg=hmCellColor(val,max);
                 const isLightMode = document.body.classList.contains('light-mode');
-              const tc=ratio>0.5?'#fff':isLightMode?'#7c2d00':'rgba(180,210,245,0.6)';
-                return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="flex:1;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:${tc};cursor:pointer;transition:transform 0.12s;border-radius:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);" onmouseover="this.style.transform='scale(1.1)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
+              const tc = isLightMode
+                ? (ratio>0.6 ? '#ffffff' : ratio>0.3 ? '#7c2d00' : '#a0522d')
+                : (ratio>0.5 ? '#ffffff' : 'rgba(180,210,245,0.8)');
+                const isLM = document.body.classList.contains('light-mode');
+return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="flex:1;height:48px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:${tc};cursor:pointer;transition:transform 0.12s;border-radius:2px;border:1px solid ${isLM?'rgba(180,80,0,0.1)':'rgba(0,0,0,0.15)'};text-shadow:${isLM?'none':'0 1px 3px rgba(0,0,0,0.9)'};" onmouseover="this.style.transform='scale(1.05)';this.style.zIndex='10';this.style.boxShadow='0 4px 12px rgba(255,107,26,0.3)';" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1';this.style.boxShadow='none';">${val>0?val:''}</div>`;
               }).join('')}
             </div>`).join('')}
         </div>
