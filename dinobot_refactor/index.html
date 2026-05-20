@@ -1767,11 +1767,11 @@ function hmMaxVal(data) {
 function hmCellColor(val, max) {
   const r = max > 0 ? val/max : 0;
   if(r===0) return 'rgba(128,128,128,0.08)';
-  if(r<0.2) return 'rgba(74,222,128,0.12)';
-  if(r<0.4) return 'rgba(74,222,128,0.28)';
-  if(r<0.6) return 'rgba(74,222,128,0.50)';
-  if(r<0.8) return 'rgba(74,222,128,0.70)';
-  return 'rgba(74,222,128,0.92)';
+  if(r<0.2) return 'rgba(255,107,26,0.12)';
+  if(r<0.4) return 'rgba(255,107,26,0.28)';
+  if(r<0.6) return 'rgba(255,107,26,0.50)';
+  if(r<0.8) return 'rgba(255,107,26,0.70)';
+  return 'rgba(255,107,26,0.92)';
 }
 
 function openHeatmapOverlay() {
@@ -1849,10 +1849,10 @@ function hmRenderAll() {
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">Low</div>
-      ${['rgba(74,222,128,0.12)','rgba(74,222,128,0.28)','rgba(74,222,128,0.50)','rgba(74,222,128,0.70)','rgba(74,222,128,0.92)'].map(c=>`<div style="width:24px;height:12px;background:${c};border-radius:1px;"></div>`).join('')}
+      ${['rgba(255,107,26,0.12)','rgba(255,107,26,0.28)','rgba(255,107,26,0.50)','rgba(255,107,26,0.70)','rgba(255,107,26,0.92)'].map(c=>`<div style="width:24px;height:12px;background:${c};border-radius:1px;"></div>`).join('')}
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">High</div>
     </div>
-    <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(74,222,128,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
+    <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
     <div>
@@ -1860,7 +1860,7 @@ function hmRenderAll() {
       ${HM_HOURS.map(h=>{
         const v=hourTotals[h];
         const pct=maxHourTotal>0?Math.round((v/maxHourTotal)*100):0;
-        const bc=pct>75?'#4ADE80':pct>50?'rgba(74,222,128,0.65)':pct>25?'rgba(74,222,128,0.4)':'rgba(74,222,128,0.2)';
+        const bc=pct>75?'#FF6B1A':pct>50?'rgba(255,107,26,0.65)':pct>25?'rgba(255,107,26,0.4)':'rgba(255,107,26,0.2)';
         return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:40px;text-align:right;flex-shrink:0;">${h}:00</div>
           <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;">
@@ -1885,9 +1885,9 @@ function hmShowDetail(day, hour, val, max) {
   const dayTotal = HM_HOURS.reduce((s,h) => s+data[day][h], 0);
   const pctOfDay = dayTotal>0 ? Math.round((val/dayTotal)*100) : 0;
   document.getElementById('hm-detail').innerHTML = `
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#4ADE80;margin-bottom:10px;">${day} — ${hour}:00 TO ${hour+1}:00</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#FF6B1A;margin-bottom:10px;">${day} — ${hour}:00 TO ${hour+1}:00</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
-      ${[['Orders',val,'#4ADE80'],['% of Day',pctOfDay+'%','var(--text)'],['Day Total',dayTotal,'var(--text)'],['Status',intensity,'var(--text)']].map(([l,v,c])=>`
+      ${[['Orders',val,'#FF6B1A'],['% of Day',pctOfDay+'%','var(--text)'],['Day Total',dayTotal,'var(--text)'],['Status',intensity,'var(--text)']].map(([l,v,c])=>`
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;">${l}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:${c};">${v}</div>
@@ -5774,8 +5774,8 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(74,222,128,0.2);background:linear-gradient(160deg,rgba(5,40,20,0.45) 0%,transparent 60%);flex-shrink:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(74,222,128,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Critical / Operations</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">ORDER VOLUME <span style="color:#4ADE80;">HEATMAP</span></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,107,26,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Critical / Operations</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">ORDER VOLUME <span style="color:#FF6B1A;">HEATMAP</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> LIVE DATA</div>
