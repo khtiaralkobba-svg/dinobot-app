@@ -535,6 +535,15 @@ body.light-mode #analytics-overlay > div:last-child { background: #f4faff !impor
 body.light-mode #heatmap-overlay { background: #f4faff !important; }
 body.light-mode #heatmap-overlay > div:first-child { background: linear-gradient(160deg,rgba(255,106,0,0.08) 0%,transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #heatmap-body { background: #f4faff; }
+body.light-mode #heatmap-overlay .hm-bar-col div { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [id="hm-detail"] { background: #e8f4fd !important; border-color: rgba(180,80,0,0.3) !important; color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [id="hm-detail"] div { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [style*="grid-template-columns:repeat(4"] > div { background: #e8f4fd !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #heatmap-overlay [style*="grid-template-columns:repeat(4"] > div div { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] { background: #e8f4fd !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] div { color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay button { border-color: rgba(180,80,0,0.3) !important; color: #1C0F00 !important; background: rgba(255,106,0,0.06) !important; }
+body.light-mode #heatmap-overlay button[style*="#FF6B1A"] { border-color: #FF6A00 !important; color: #FF6A00 !important; background: rgba(255,106,0,0.12) !important; }
 body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255, 106, 0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode .analytics-layer .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .analytics-card { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; box-shadow: 0 1px 4px rgba(30,100,200,0.08); }
@@ -1779,12 +1788,13 @@ function hmMaxVal(data) {
 
 function hmCellColor(val, max) {
   const r = max > 0 ? val/max : 0;
-  if(r===0) return 'rgba(128,128,128,0.08)';
-  if(r<0.2) return 'rgba(255,107,26,0.12)';
-  if(r<0.4) return 'rgba(255,107,26,0.28)';
-  if(r<0.6) return 'rgba(255,107,26,0.50)';
-  if(r<0.8) return 'rgba(255,107,26,0.70)';
-  return 'rgba(255,107,26,0.92)';
+  const isLight = document.body.classList.contains('light-mode');
+  if(r===0) return isLight ? 'rgba(200,220,240,0.4)' : 'rgba(128,128,128,0.08)';
+  if(r<0.2) return isLight ? 'rgba(255,107,26,0.15)' : 'rgba(255,107,26,0.12)';
+  if(r<0.4) return isLight ? 'rgba(255,107,26,0.30)' : 'rgba(255,107,26,0.28)';
+  if(r<0.6) return isLight ? 'rgba(255,107,26,0.50)' : 'rgba(255,107,26,0.50)';
+  if(r<0.8) return isLight ? 'rgba(255,107,26,0.70)' : 'rgba(255,107,26,0.70)';
+  return isLight ? 'rgba(255,107,26,0.90)' : 'rgba(255,107,26,0.92)';
 }
 
 function openHeatmapOverlay() {
