@@ -1655,6 +1655,21 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
     <div style="width:36px;height:36px;background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.4);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:#C084FC;font-size:14px;">→</div>
   </div>
 </button>
+<!-- Heatmap Button -->
+<button onclick="openHeatmapOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)'" onmouseout="this.style.borderColor='var(--border)'">
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div style="width:48px;height:54px;background:rgba(5,22,65,0.6);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(74,222,128,0.4);flex-shrink:0;">🌡️</div>
+    <div style="text-align:left;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(74,222,128,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">⬡ Critical / Operations</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);line-height:1;">ORDER VOLUME HEATMAP</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">Peak Hours · Busiest Days · Real-Time Volume</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">Open</div>
+    <div style="width:36px;height:36px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:#4ADE80;font-size:14px;">→</div>
+  </div>
+</button>
 
       <!-- Analytics Button -->
 <button onclick="openAnalyticsOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)'" onmouseout="this.style.borderColor='var(--border)'">
@@ -1723,6 +1738,163 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   </div>
 </div>
 <script>
+  const HM_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+const HM_HOURS = Array.from({length:14}, (_,i) => i + 8);
+let hmCurrentView = 'week';
+let hmDatasets = {};
+let hmRefreshTimer = null;
+
+function hmGenData(seed) {
+  const d = {};
+  const peaks = {8:0.3,9:0.5,10:0.6,11:0.8,12:1.0,13:0.95,14:0.7,15:0.55,16:0.65,17:0.85,18:0.9,19:0.75,20:0.5,21:0.3};
+  const dayMult = {MON:0.7,TUE:0.8,WED:0.9,THU:0.85,FRI:1.0,SAT:0.95,SUN:0.6};
+  HM_DAYS.forEach(day => {
+    d[day] = {};
+    HM_HOURS.forEach(h => {
+      const base = Math.round((peaks[h]||0.3) * dayMult[day] * 32 * (0.75 + Math.random()*0.5 + seed*0.01));
+      d[day][h] = Math.max(0, base);
+    });
+  });
+  return d;
+}
+
+function hmMaxVal(data) {
+  let m = 0;
+  HM_DAYS.forEach(d => HM_HOURS.forEach(h => { if(data[d][h] > m) m = data[d][h]; }));
+  return m;
+}
+
+function hmCellColor(val, max) {
+  const r = max > 0 ? val/max : 0;
+  if(r===0) return 'rgba(128,128,128,0.08)';
+  if(r<0.2) return 'rgba(74,222,128,0.12)';
+  if(r<0.4) return 'rgba(74,222,128,0.28)';
+  if(r<0.6) return 'rgba(74,222,128,0.50)';
+  if(r<0.8) return 'rgba(74,222,128,0.70)';
+  return 'rgba(74,222,128,0.92)';
+}
+
+function openHeatmapOverlay() {
+  hmDatasets = { week: hmGenData(1), month: hmGenData(2), all: hmGenData(3) };
+  hmCurrentView = 'week';
+  const el = document.getElementById('heatmap-overlay');
+  el.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  hmRenderAll();
+  if(hmRefreshTimer) clearInterval(hmRefreshTimer);
+  hmRefreshTimer = setInterval(() => {
+    HM_DAYS.forEach(d => {
+      const now = new Date().getHours();
+      if(HM_HOURS.includes(now)) hmDatasets.week[d][now] = Math.max(0, hmDatasets.week[d][now] + Math.floor(Math.random()*3-1));
+    });
+    if(hmCurrentView==='week') hmRenderAll();
+  }, 8000);
+}
+
+function closeHeatmapOverlay() {
+  document.getElementById('heatmap-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  if(hmRefreshTimer) { clearInterval(hmRefreshTimer); hmRefreshTimer = null; }
+}
+
+function hmRenderAll() {
+  const data = hmDatasets[hmCurrentView];
+  const max = hmMaxVal(data);
+  let hourTotals = {};
+  HM_HOURS.forEach(h => { hourTotals[h] = 0; });
+  HM_DAYS.forEach(d => HM_HOURS.forEach(h => { hourTotals[h] += data[d][h]; }));
+  let total=0, peak=0, peakLabel='';
+  HM_DAYS.forEach(d => HM_HOURS.forEach(h => { total += data[d][h]; if(data[d][h]>peak){peak=data[d][h];peakLabel=`${d} ${h}:00`;} }));
+  const peakHour = Object.entries(hourTotals).sort((a,b)=>b[1]-a[1])[0];
+  const avgPerHour = Math.round(total/(HM_DAYS.length*HM_HOURS.length));
+  const maxHourTotal = Math.max(...Object.values(hourTotals));
+
+  const body = document.getElementById('heatmap-body');
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      ${[
+        ['Total Orders', total.toLocaleString(), 'across all hours', '#4ADE80'],
+        ['Peak Single Hour', peak, peakLabel, '#FF6B1A'],
+        ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#4ADE80'],
+        ['Avg Per Slot', avgPerHour, 'orders / hour', 'var(--text)']
+      ].map(([lbl,val,sub,color])=>`
+        <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">${sub}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}',this)" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 14px;border:1px solid ${v===hmCurrentView?'#4ADE80':'var(--border)'};background:${v===hmCurrentView?'rgba(74,222,128,0.08)':'transparent'};color:${v===hmCurrentView?'#4ADE80':'var(--text-dim)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
+      <div style="flex:1"></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">CLICK CELL FOR DETAIL</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;">
+        ${HM_HOURS.map(h=>`<div style="width:38px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);flex-shrink:0;">${h}:00</div>`).join('')}
+      </div>
+      <div id="hm-grid-inner">
+        ${HM_DAYS.map(day=>`
+          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:40px;flex-shrink:0;text-transform:uppercase;">${day}</div>
+            ${HM_HOURS.map(h=>{
+              const val=data[day][h];
+              const ratio=max>0?val/max:0;
+              const bg=hmCellColor(val,max);
+              const tc=ratio>0.5?'#fff':'var(--text-dim)';
+              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:38px;height:38px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;" onmouseover="this.style.transform='scale(1.15)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
+            }).join('')}
+          </div>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">Low</div>
+      ${['rgba(74,222,128,0.12)','rgba(74,222,128,0.28)','rgba(74,222,128,0.50)','rgba(74,222,128,0.70)','rgba(74,222,128,0.92)'].map(c=>`<div style="width:24px;height:12px;background:${c};border-radius:1px;"></div>`).join('')}
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">High</div>
+    </div>
+    <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(74,222,128,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
+    </div>
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px;">⬡ Hourly Total (All Days)</div>
+      ${HM_HOURS.map(h=>{
+        const v=hourTotals[h];
+        const pct=maxHourTotal>0?Math.round((v/maxHourTotal)*100):0;
+        const bc=pct>75?'#4ADE80':pct>50?'rgba(74,222,128,0.65)':pct>25?'rgba(74,222,128,0.4)':'rgba(74,222,128,0.2)';
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:40px;text-align:right;flex-shrink:0;">${h}:00</div>
+          <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${bc};border-radius:1px;"></div>
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:35px;flex-shrink:0;">${v}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function hmSetView(view, btn) {
+  hmCurrentView = view;
+  hmRenderAll();
+}
+
+function hmShowDetail(day, hour, val, max) {
+  const data = hmDatasets[hmCurrentView];
+  const ratio = max > 0 ? val/max : 0;
+  const intensity = ratio>0.8?'🔴 PEAK':ratio>0.6?'🟠 BUSY':ratio>0.4?'🟡 MODERATE':'🟢 QUIET';
+  const dayTotal = HM_HOURS.reduce((s,h) => s+data[day][h], 0);
+  const pctOfDay = dayTotal>0 ? Math.round((val/dayTotal)*100) : 0;
+  document.getElementById('hm-detail').innerHTML = `
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#4ADE80;margin-bottom:10px;">${day} — ${hour}:00 TO ${hour+1}:00</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      ${[['Orders',val,'#4ADE80'],['% of Day',pctOfDay+'%','var(--text)'],['Day Total',dayTotal,'var(--text)'],['Status',intensity,'var(--text)']].map(([l,v,c])=>`
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;">${l}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:${c};">${v}</div>
+        </div>`).join('')}
+    </div>
+  `;
+}
   function showRobotAlarm() {
   const banner = document.getElementById('robot-alarm-banner');
   if (!banner) return;
@@ -5596,6 +5768,22 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     </button>
     <div class="pickup-table-tag" id="pickup-table-tag"></div>
   </div>
+</div>
+<!-- HEATMAP OVERLAY -->
+<div id="heatmap-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:100vh;">
+  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(74,222,128,0.2);background:linear-gradient(160deg,rgba(5,40,20,0.45) 0%,transparent 60%);flex-shrink:0;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(74,222,128,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Critical / Operations</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">ORDER VOLUME <span style="color:#4ADE80;">HEATMAP</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> LIVE DATA</div>
+        <button onclick="closeHeatmapOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+      </div>
+    </div>
+  </div>
+  <div style="padding:32px 48px;display:flex;flex-direction:column;gap:20px;flex:1;min-height:0;" id="heatmap-body"></div>
 </div>
 <div id="robot-alarm-banner">
   <span class="alarm-banner-icon">🛑</span>
