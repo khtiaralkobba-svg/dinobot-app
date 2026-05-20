@@ -1784,9 +1784,7 @@ function openHeatmapOverlay() {
   hmDatasets = { week: hmGenData(1), month: hmGenData(2), all: hmGenData(3) };
   hmCurrentView = 'week';
   const el = document.getElementById('heatmap-overlay');
-  el.style.display = 'flex';
-  el.style.flexDirection = 'column';
-  el.style.width = '100%';
+  el.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:#020b1a;z-index:9500;';
   document.body.style.overflow = 'hidden';
   hmRenderAll();
   if(hmRefreshTimer) clearInterval(hmRefreshTimer);
@@ -1842,18 +1840,18 @@ function hmRenderAll() {
     </div>
     <div style="overflow-x:auto;width:100%;">
       <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;">
-        ${HM_HOURS.map(h=>`<div style="width:38px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);flex-shrink:0;">${h}:00</div>`).join('')}
+        ${HM_HOURS.map(h=>`<div style="width:60px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(180,210,245,0.8);flex-shrink:0;">${h}:00</div>`).join('')}
       </div>
       <div id="hm-grid-inner">
         ${HM_DAYS.map(day=>`
           <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);width:40px;flex-shrink:0;text-transform:uppercase;">${day}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(180,210,245,0.8);width:44px;flex-shrink:0;text-transform:uppercase;font-weight:bold;">${day}</div>
             ${HM_HOURS.map(h=>{
               const val=data[day][h];
               const ratio=max>0?val/max:0;
               const bg=hmCellColor(val,max);
               const tc=ratio>0.5?'#fff':'var(--text-dim)';
-              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:38px;height:38px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;" onmouseover="this.style.transform='scale(1.15)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
+              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:60px;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);" onmouseover="this.style.transform='scale(1.1)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
             }).join('')}
           </div>`).join('')}
       </div>
