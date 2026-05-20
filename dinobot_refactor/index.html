@@ -1411,7 +1411,14 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   margin-top: 16px;
   text-transform: uppercase;
 }
-
+@keyframes barRise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+@keyframes valPop {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 </head>
@@ -1796,6 +1803,7 @@ function closeHeatmapOverlay() {
   el.style.flexDirection = '';
   document.body.style.overflow = '';
   if(hmRefreshTimer) { clearInterval(hmRefreshTimer); hmRefreshTimer = null; }
+  document.getElementById('heatmap-body').innerHTML = '';
 }
 
 function hmRenderAll() {
@@ -1867,16 +1875,6 @@ function hmRenderAll() {
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">TOTAL ORDERS</div>
         </div>
       </div>
-      <style>
-        @keyframes barRise {
-          from { transform: scaleY(0); opacity: 0; }
-          to   { transform: scaleY(1); opacity: 1; }
-        }
-        @keyframes valPop {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      </style>
       <div style="display:flex;align-items:flex-end;gap:8px;height:260px;position:relative;">
         <!-- Y axis line -->
         <div style="position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.3),transparent);"></div>
