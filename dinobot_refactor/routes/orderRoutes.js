@@ -201,6 +201,37 @@ router.get('/queue-eta', async (req, res) => {
   }
 });
 
+// ── Item leaderboard ──
+router.get(
+  '/item-stats',
+  authenticateToken,
+  authorizeRoles('manager'),
+  async (req, res) => {
+    try {
+      const { supabase } = require('../db');
+      const { data, error } = await supabase
+        .from('order_items')
+        .select('item_id, name, emoji, qty, unit_price');
+      if (error) throw error;
+
+      const stats = {};
+      (data || []).forEach(item => {
+        if (!stats[item.item_id]) {
+          stats[item.item_id] = { id: item.item_id, name: item.name, emoji: item.emoji, qty: 0, revenue: 0, orders: 0 };
+        }
+        stats[item.item_id].qty += item.qty;
+        stats[item.item_id].revenue += item.qty * item.unit_price;
+        stats[item.item_id].orders++;
+      });
+
+      const sorted = Object.values(stats).sort((a, b) => b.qty - a.qty);
+      res.json({ items: sorted });
+    } catch(err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 // Get single order (tracking page) — MUST be after /queue-eta
 router.get('/:orderRef', getOrder);
 
@@ -239,34 +270,5 @@ router.get(
   authorizeRoles('manager', 'kitchen'),
   getOrders
 );
-// ── Item leaderboard ──
-router.get(
-  '/item-stats',
-  authenticateToken,
-  authorizeRoles('manager'),
-  async (req, res) => {
-    try {
-      const { supabase } = require('../db');
-      const { data, error } = await supabase
-        .from('order_items')
-        .select('item_id, name, emoji, qty, unit_price');
-      if (error) throw error;
 
-      const stats = {};
-      (data || []).forEach(item => {
-        if (!stats[item.item_id]) {
-          stats[item.item_id] = { id: item.item_id, name: item.name, emoji: item.emoji, qty: 0, revenue: 0, orders: 0 };
-        }
-        stats[item.item_id].qty += item.qty;
-        stats[item.item_id].revenue += item.qty * item.unit_price;
-        stats[item.item_id].orders++;
-      });
-
-      const sorted = Object.values(stats).sort((a, b) => b.qty - a.qty);
-      res.json({ items: sorted });
-    } catch(err) {
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
 module.exports = router;
