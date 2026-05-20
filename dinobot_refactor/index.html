@@ -1803,21 +1803,54 @@ function hmCellColor(val, max) {
   return isLight ? 'rgba(255,107,26,0.90)' : 'rgba(255,107,26,0.92)';
 }
 
-function openHeatmapOverlay() {
-  hmDatasets = { week: hmGenData(1), month: hmGenData(2), all: hmGenData(3) };
+async function openHeatmapOverlay() {
   hmCurrentView = 'week';
   const el = document.getElementById('heatmap-overlay');
   el.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:#020b1a;z-index:9500;';
   document.body.style.overflow = 'hidden';
-  hmRenderAll();
-  if(hmRefreshTimer) clearInterval(hmRefreshTimer);
-  hmRefreshTimer = setInterval(() => {
-    HM_DAYS.forEach(d => {
-      const now = new Date().getHours();
-      if(HM_HOURS.includes(now)) hmDatasets.week[d][now] = Math.max(0, hmDatasets.week[d][now] + Math.floor(Math.random()*3-1));
+
+  document.getElementById('heatmap-body').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;height:300px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(255,107,26,0.6);">
+      ⬡ LOADING LIVE DATA...
+    </div>`;
+
+  try {
+    const token = localStorage.getItem('accessToken');
+    console.log('[heatmap] token:', token ? 'exists' : 'MISSING');
+    const res = await fetch(API_BASE + '/api/orders/heatmap', {
+      headers: authHeaders({ 'Content-Type': 'application/json' })
     });
-    if(hmCurrentView==='week') hmRenderAllNoAnim();
-  }, 8000);
+    console.log('[heatmap] response status:', res.status);
+    if (res.ok) {
+      const data = await res.json();
+      console.log('[heatmap] data received:', data);
+      hmDatasets = data.heatmap;
+    } else {
+      const err = await res.json();
+      console.log('[heatmap] error:', err);
+      throw new Error('Failed');
+    }
+  } catch(e) {
+    console.log('[heatmap] catch:', e);
+    hmDatasets = { week: hmGenData(1), month: hmGenData(2), all: hmGenData(3) };
+    showToast('⬡ Using simulated data — connect backend for live data');
+  }
+
+  hmRenderAll();
+
+  if(hmRefreshTimer) clearInterval(hmRefreshTimer);
+  hmRefreshTimer = setInterval(async () => {
+    try {
+      const res = await fetch(API_BASE + '/api/orders/heatmap', {
+        headers: authHeaders({ 'Content-Type': 'application/json' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        hmDatasets = data.heatmap;
+        hmRenderAllNoAnim();
+      }
+    } catch {}
+  }, 30000);
 }
 
 function closeHeatmapOverlay() {
