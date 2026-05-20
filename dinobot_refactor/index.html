@@ -589,11 +589,11 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   .btn-outline:hover { border-color: var(--orange); color: var(--orange); background: rgba(5, 22, 65, 0.35); }
   .hero-visual { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 50vw; height: 80vh; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 1; }
   .robot-diagram { position: relative; width: 360px; height: 360px; pointer-events: all; cursor: pointer; }
-  .robot-hex-outer { position: absolute; inset: 0; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 1px solid var(--border); background: rgba(5, 20, 60, 0.5); animation: spin-slow 30s linear infinite; }
-  .robot-hex-mid { position: absolute; inset: 30px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 1px solid rgba(255, 107, 26, 0.3); background: rgba(5, 22, 65, 0.35); animation: spin-slow 20s linear infinite reverse; }
-  .robot-hex-inner { position: absolute; inset: 80px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: rgba(8, 28, 80, 0.55); border: 1px solid rgba(255, 107, 26, 0.6); }
+  .robot-hex-outer { position: absolute; inset: 0; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 1px solid rgba(30, 100, 200, 0.25); background: rgba(173, 216, 230, 0.15); animation: spin-slow 30s linear infinite; }
+.robot-hex-mid { position: absolute; inset: 30px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); border: 1px solid rgba(255, 107, 26, 0.4); background: rgba(173, 216, 230, 0.1); animation: spin-slow 20s linear infinite reverse; }
+.robot-hex-inner { position: absolute; inset: 80px; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: rgba(173, 216, 230, 0.2); border: 1px solid rgba(255, 107, 26, 0.6); }
   .robot-icon-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-  .robot-body { font-size: 72px; filter: drop-shadow(0 0 20px var(--orange)); animation: float 3s ease-in-out infinite; }
+  .robot-body { font-size: 72px; filter: drop-shadow(0 0 20px rgba(255, 107, 26, 0.6)); animation: float 3s ease-in-out infinite; }
   .robot-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--orange); letter-spacing: 3px; text-transform: uppercase; }
   @keyframes spin-slow { to { transform: rotate(360deg); } }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
