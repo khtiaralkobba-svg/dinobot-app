@@ -1861,7 +1861,7 @@ function hmRenderAll() {
       ${['rgba(255,107,26,0.12)','rgba(255,107,26,0.28)','rgba(255,107,26,0.50)','rgba(255,107,26,0.70)','rgba(255,107,26,0.92)'].map(c=>`<div style="width:24px;height:12px;background:${c};border-radius:1px;"></div>`).join('')}
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;">High</div>
     </div>
-    <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
+    <div id="hm-detail" style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
     <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
@@ -1966,12 +1966,17 @@ function hmShowDetail(day, hour, val, max) {
   const dayTotal = HM_HOURS.reduce((s,h) => s+data[day][h], 0);
   const pctOfDay = dayTotal>0 ? Math.round((val/dayTotal)*100) : 0;
   document.getElementById('hm-detail').innerHTML = `
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:#FF6B1A;margin-bottom:10px;">${day} — ${hour}:00 TO ${hour+1}:00</div>
-    <div style="display:flex;gap:24px;flex-wrap:wrap;">
-      ${[['Orders',val,'#FF6B1A'],['% of Day',pctOfDay+'%','var(--text)'],['Day Total',dayTotal,'var(--text)'],['Status',intensity,'var(--text)']].map(([l,v,c])=>`
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;">${l}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:${c};">${v}</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:#FF6B1A;margin-bottom:16px;text-shadow:0 0 20px rgba(255,107,26,0.4);">${day} — ${hour}:00 TO ${hour+1}:00</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      ${[
+        ['Orders', val, '#FF6B1A'],
+        ['% of Day', pctOfDay+'%', '#ffffff'],
+        ['Day Total', dayTotal, '#ffffff'],
+        ['Status', intensity, '#ffffff']
+      ].map(([l,v,c])=>`
+        <div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);padding:14px 16px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.7);text-transform:uppercase;margin-bottom:8px;">${l}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:${c};line-height:1;">${v}</div>
         </div>`).join('')}
     </div>
   `;
