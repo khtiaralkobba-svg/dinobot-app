@@ -3814,18 +3814,18 @@ if (stuckEl) stuckEl.className = 'ab-val ' + (analytics.stuckOrders === 0 ? 'goo
     if (items.length === 0) { container.innerHTML = '<div style="color:var(--text-dim);font-family:\'Share Tech Mono\',monospace;font-size:10px;padding:16px;text-align:center;">No data yet</div>'; return; }
     const maxQty = items[0].qty;
     container.innerHTML = items.slice(0, 8).map((item, i) => `
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(5,20,60,0.5);border:1px solid var(--border);border-left:3px solid ${i===0?'#FF6B1A':i===1?'rgba(255,107,26,0.6)':i===2?'rgba(255,107,26,0.4)':'rgba(255,107,26,0.15)'};margin-bottom:6px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:${i===0?'#FF6B1A':'rgba(180,210,245,0.4)'};width:28px;flex-shrink:0;">#${i+1}</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card-bg,rgba(5,20,60,0.5));border:1px solid var(--border);border-left:3px solid ${i===0?'#FF6B1A':i===1?'rgba(255,107,26,0.6)':i===2?'rgba(255,107,26,0.4)':'rgba(255,107,26,0.15)'};margin-bottom:6px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:${i===0?'#FF6B1A':'var(--text-dim)'};width:28px;flex-shrink:0;">#${i+1}</div>
         <div style="font-size:24px;flex-shrink:0;">${item.emoji || '🍽️'}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text);margin-bottom:4px;">${item.name}</div>
-          <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
             <div style="height:100%;width:${Math.round((item.qty/maxQty)*100)}%;background:${i===0?'linear-gradient(90deg,#FF6B1A,#ffb07a)':'linear-gradient(90deg,rgba(255,107,26,0.5),rgba(255,107,26,0.2))'};transition:width 0.8s ease;"></div>
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:${i===0?'#FF6B1A':'var(--text)'};">${item.qty.toLocaleString()}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(180,210,245,0.5);">$${item.revenue.toFixed(0)} revenue</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--text-dim);">$${item.revenue.toFixed(0)} revenue</div>
         </div>
       </div>`).join('');
   } catch {
