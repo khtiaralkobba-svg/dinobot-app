@@ -364,6 +364,7 @@ body.light-mode .olc-ref { color: #FF6F3C; }
 body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
 
 body.light-mode .track-step-dot { background: #020b1a; border-color: rgba(180,80,0,0.25); }
+body.light-mode .track-step-dot { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; color: #0f3d6e !important; }
 body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
 body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
 body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
@@ -856,7 +857,7 @@ body.light-mode #staff-online-list [style*="rgba(74,222,128"] { background: rgba
   .track-step:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 26px; width: 1px; height: calc(100% - 4px); background: var(--border); }
   .track-step.done::after   { background: #4ADE80; }
   .track-step.active::after { background: linear-gradient(to bottom, var(--orange), var(--border)); }
-  .track-step-dot { width: 24px; height: 24px; flex-shrink: 0; border: 1px solid var(--border); background: #060d1a; display: flex; align-items: center; justify-content: center; font-size: 11px; clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); margin-top: 2px; }
+  .track-step-dot { width: 24px; height: 24px; flex-shrink: 0; border: 1px solid var(--border); background: var(--panel); display: flex; align-items: center; justify-content: center; font-size: 11px; clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); margin-top: 2px; }
   .track-step.done   .track-step-dot { background: rgba(74,222,128,0.15); border-color: #4ADE80; }
   .track-step.active .track-step-dot { background: rgba(255,107,26,0.15); border-color: var(--orange); box-shadow: 0 0 16px rgba(255,107,26,0.4); }
   .track-step-body { padding-bottom: 20px; }
