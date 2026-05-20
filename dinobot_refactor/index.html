@@ -1837,6 +1837,7 @@ async function openHeatmapOverlay() {
     showToast('⬡ Using simulated data — connect backend for live data');
   }
 
+  console.log('[heatmap] calling hmRenderAll, datasets:', hmDatasets);
   hmRenderAll();
 
   if(hmRefreshTimer) clearInterval(hmRefreshTimer);
