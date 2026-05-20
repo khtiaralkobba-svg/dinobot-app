@@ -1820,7 +1820,7 @@ function hmRenderAll() {
   const maxHourTotal = Math.max(...Object.values(hourTotals));
 
   const body = document.getElementById('heatmap-body');
-  body.innerHTML = `
+ body.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;">
       ${[
         ['Total Orders', total.toLocaleString(), 'across all hours', '#FF6B1A'],
@@ -1829,45 +1829,44 @@ function hmRenderAll() {
         ['Avg Per Slot', avgPerHour || '—', 'orders / hour', '#ffffff']
       ].map(([lbl,val,sub,color])=>`
         <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.7);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">${sub}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.5);letter-spacing:1px;margin-top:4px;">${sub}</div>
         </div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       ${['week','month','all'].map(v=>`<button onclick="hmSetView('${v}')" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:8px 18px;border:1px solid ${v===hmCurrentView?'#FF6B1A':'rgba(255,255,255,0.15)'};background:${v===hmCurrentView?'rgba(255,107,26,0.15)':'rgba(255,255,255,0.03)'};color:${v===hmCurrentView?'#FF6B1A':'rgba(180,210,245,0.8)'};cursor:pointer;text-transform:uppercase;transition:all 0.15s;font-weight:${v===hmCurrentView?'bold':'normal'};">${v==='week'?'This Week':v==='month'?'This Month':'All Time'}</button>`).join('')}
       <div style="flex:1"></div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">CLICK CELL FOR DETAIL</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(180,210,245,0.6);">CLICK CELL FOR DETAIL</div>
     </div>
-    <div style="overflow-x:auto;width:100%;">
-      <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;">
-        ${HM_HOURS.map(h=>`<div style="width:60px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(180,210,245,0.8);flex-shrink:0;">${h}:00</div>`).join('')}
+    <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;width:100%;">
+      <div style="overflow-x:auto;">
+        <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;">
+          ${HM_HOURS.map(h=>`<div style="width:60px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(180,210,245,0.8);flex-shrink:0;">${h}:00</div>`).join('')}
+        </div>
+        <div id="hm-grid-inner">
+          ${HM_DAYS.map(day=>`
+            <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(180,210,245,0.8);width:44px;flex-shrink:0;text-transform:uppercase;font-weight:bold;">${day}</div>
+              ${HM_HOURS.map(h=>{
+                const val=data[day][h];
+                const ratio=max>0?val/max:0;
+                const bg=hmCellColor(val,max);
+                const tc=ratio>0.5?'#fff':'rgba(180,210,245,0.6)';
+                return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:60px;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);" onmouseover="this.style.transform='scale(1.1)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
+              }).join('')}
+            </div>`).join('')}
+        </div>
       </div>
-      <div id="hm-grid-inner">
-        ${HM_DAYS.map(day=>`
-          <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(180,210,245,0.8);width:44px;flex-shrink:0;text-transform:uppercase;font-weight:bold;">${day}</div>
-            ${HM_HOURS.map(h=>{
-              const val=data[day][h];
-              const ratio=max>0?val/max:0;
-              const bg=hmCellColor(val,max);
-              const tc=ratio>0.5?'#fff':'var(--text-dim)';
-              return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="width:60px;height:44px;background:${bg};display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:bold;color:${tc};cursor:pointer;flex-shrink:0;transition:transform 0.12s;border-radius:2px;text-shadow:0 1px 3px rgba(0,0,0,0.9);" onmouseover="this.style.transform='scale(1.1)';this.style.zIndex='10'" onmouseout="this.style.transform='scale(1)';this.style.zIndex='1'">${val>0?val:''}</div>`;
-            }).join('')}
-          </div>`).join('')}
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;">
-      <div></div>
-      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:220px;">
+      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:200px;flex-shrink:0;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#FF6B1A;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,107,26,0.2);padding-bottom:8px;">⬡ Color Legend</div>
         ${[
-          ['rgba(128,128,128,0.08)', '0 orders', 'No activity'],
-          ['rgba(255,107,26,0.12)', '1–20%', 'Very low'],
-          ['rgba(255,107,26,0.28)', '20–40%', 'Low'],
-          ['rgba(255,107,26,0.50)', '40–60%', 'Moderate'],
-          ['rgba(255,107,26,0.70)', '60–80%', 'High'],
-          ['rgba(255,107,26,0.92)', '80–100%', 'Peak'],
+          ['rgba(128,128,128,0.08)','0 orders','No activity'],
+          ['rgba(255,107,26,0.12)','1–20%','Very low'],
+          ['rgba(255,107,26,0.28)','20–40%','Low'],
+          ['rgba(255,107,26,0.50)','40–60%','Moderate'],
+          ['rgba(255,107,26,0.70)','60–80%','High'],
+          ['rgba(255,107,26,0.92)','80–100%','Peak'],
         ].map(([c,range,label])=>`
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
             <div style="width:44px;height:28px;background:${c};border:1px solid rgba(255,107,26,0.15);flex-shrink:0;border-radius:2px;"></div>
@@ -1877,9 +1876,7 @@ function hmRenderAll() {
             </div>
           </div>`).join('')}
         <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,107,26,0.1);">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.4);line-height:1.6;">
-            Colors scale relative to<br>the busiest cell in the view.
-          </div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.4);line-height:1.6;">Colors scale relative to<br>the busiest cell in the view.</div>
         </div>
       </div>
     </div>
@@ -1898,9 +1895,7 @@ function hmRenderAll() {
         </div>
       </div>
       <div style="display:flex;align-items:flex-end;gap:8px;height:260px;position:relative;">
-        <!-- Y axis line -->
         <div style="position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.3),transparent);"></div>
-        <!-- Y axis ticks -->
         ${[25,50,75,100].map(pct=>`
           <div style="position:absolute;left:0;right:0;bottom:${pct*2.6}px;height:1px;background:rgba(255,255,255,0.03);pointer-events:none;"></div>
         `).join('')}
@@ -1909,23 +1904,8 @@ function hmRenderAll() {
           const pct=maxHourTotal>0?(v/maxHourTotal)*100:0;
           const barH=Math.max(4,(pct/100)*240);
           const delay=(i*0.05).toFixed(2);
-          // Color tiers
-          const color=pct===100
-            ?'linear-gradient(to top,#7c2d00,#FF6B1A,#ffb07a)'
-            :pct>80
-              ?'linear-gradient(to top,#92340a,#FF6B1A)'
-              :pct>60
-                ?'linear-gradient(to top,#7c2d00,rgba(255,107,26,0.85))'
-                :pct>40
-                  ?'linear-gradient(to top,rgba(80,30,5,0.9),rgba(255,107,26,0.6))'
-                  :pct>20
-                    ?'linear-gradient(to top,rgba(60,20,5,0.8),rgba(255,107,26,0.35))'
-                    :'linear-gradient(to top,rgba(40,15,5,0.7),rgba(255,107,26,0.18))';
-          const glow=pct===100
-            ?'0 0 30px rgba(255,107,26,0.6),0 0 60px rgba(255,107,26,0.2)'
-            :pct>75
-              ?'0 0 14px rgba(255,107,26,0.3)'
-              :'none';
+          const color=pct===100?'linear-gradient(to top,#7c2d00,#FF6B1A,#ffb07a)':pct>80?'linear-gradient(to top,#92340a,#FF6B1A)':pct>60?'linear-gradient(to top,#7c2d00,rgba(255,107,26,0.85))':pct>40?'linear-gradient(to top,rgba(80,30,5,0.9),rgba(255,107,26,0.6))':pct>20?'linear-gradient(to top,rgba(60,20,5,0.8),rgba(255,107,26,0.35))':'linear-gradient(to top,rgba(40,15,5,0.7),rgba(255,107,26,0.18))';
+          const glow=pct===100?'0 0 30px rgba(255,107,26,0.6),0 0 60px rgba(255,107,26,0.2)':pct>75?'0 0 14px rgba(255,107,26,0.3)':'none';
           const valColor=pct===100?'#FF6B1A':pct>75?'#FF8C3A':pct>40?'#dce8f8':'rgba(180,210,245,0.7)';
           const labelColor=pct===100?'#FF6B1A':pct>75?'#FF8C3A':'rgba(180,210,245,0.7)';
           return `
