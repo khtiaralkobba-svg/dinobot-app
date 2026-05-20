@@ -1866,15 +1866,15 @@ function hmRenderAll() {
     <div id="hm-detail" style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
-    <div style="background:linear-gradient(160deg,rgba(5,15,35,0.9),rgba(2,8,26,0.95));border:1px solid rgba(255,107,26,0.12);padding:40px 48px;">
+    <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(255,107,26,0.5);text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:var(--text);">HOURLY ORDER DISTRIBUTION</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FF6B1A;text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:#ffffff;">HOURLY ORDER DISTRIBUTION</div>
         </div>
         <div style="text-align:right;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:#FF6B1A;line-height:1;">${total.toLocaleString()}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">TOTAL ORDERS</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(180,210,245,0.8);">TOTAL ORDERS</div>
         </div>
       </div>
       <div style="display:flex;align-items:flex-end;gap:8px;height:260px;position:relative;">
@@ -1928,7 +1928,7 @@ function hmRenderAll() {
         ].map(([c,l])=>`
           <div style="display:flex;align-items:center;gap:6px;">
             <div style="width:12px;height:12px;background:${c};"></div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.4);">${l}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(180,210,245,0.8);">${l}</div>
           </div>`).join('')}
       </div>
     </div>
