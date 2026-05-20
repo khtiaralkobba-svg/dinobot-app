@@ -1865,6 +1865,15 @@ function closeHeatmapOverlay() {
 
 function hmRenderAll() {
   const data = hmDatasets[hmCurrentView];
+  if (!data) {
+    console.log('[hmRenderAll] NO DATA for view:', hmCurrentView, '— hmDatasets:', hmDatasets);
+    return;
+  }
+  // Ensure all days/hours exist
+  HM_DAYS.forEach(d => {
+    if (!data[d]) data[d] = {};
+    HM_HOURS.forEach(h => { if (!data[d][h]) data[d][h] = 0; });
+  });
   const max = hmMaxVal(data);
   let hourTotals = {};
   HM_HOURS.forEach(h => { hourTotals[h] = 0; });
