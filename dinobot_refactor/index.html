@@ -528,7 +528,7 @@ body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
 
 /* Analytics */
 body.light-mode #analytics-overlay > div:first-child { background: #f4faff !important; border-color: rgba(30,100,200,0.2) !important; }
-body.light-mode #analytics-overlay > div:last-child { background: #f4faff !important; }
+body.light-mode #analytics-overlay > div:last-child { background: #f4faff !important; flex: 1; }
 body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255, 106, 0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode .analytics-layer .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .analytics-card { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; box-shadow: 0 1px 4px rgba(30,100,200,0.08); }
@@ -5529,7 +5529,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     </div>
   </div>
 </div>
-<div id="analytics-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;min-height:100vh;">
+<div id="analytics-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;animation:overlayIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;overflow-y:auto;overflow-x:hidden;min-height:100vh;height:100%;">
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(96,165,250,0.2);background:linear-gradient(160deg,rgba(5,20,60,0.45) 0%,transparent 60%);flex-shrink:0;">
   <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
     <div>
@@ -5542,7 +5542,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     </div>
   </div>
 </div>
-  <div style="padding:32px;display:flex;flex-direction:column;gap:20px;">
+  <div style="padding:32px;display:flex;flex-direction:column;gap:20px;flex:1;background:inherit;">
     <div class="analytics-grid">
       <div class="analytics-card ac-blue">
         <div class="ac-label">Avg Prep Time</div>
