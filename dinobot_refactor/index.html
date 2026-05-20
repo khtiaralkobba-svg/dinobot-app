@@ -1785,6 +1785,8 @@ function openHeatmapOverlay() {
   hmCurrentView = 'week';
   const el = document.getElementById('heatmap-overlay');
   el.style.display = 'flex';
+  el.style.flexDirection = 'column';
+  el.style.width = '100%';
   document.body.style.overflow = 'hidden';
   hmRenderAll();
   if(hmRefreshTimer) clearInterval(hmRefreshTimer);
@@ -5851,7 +5853,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
   </div>
 </div>
 <!-- HEATMAP OVERLAY -->
-<div id="heatmap-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:100vh;width:100vw;left:0;top:0;">
+<div id="heatmap-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;">
   <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(255,107,26,0.2);background:linear-gradient(160deg,rgba(40,15,5,0.45) 0%,transparent 60%);flex-shrink:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
@@ -5864,7 +5866,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       </div>
     </div>
   </div>
-  <div style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;width:100%;box-sizing:border-box;" id="heatmap-body"></div>
+  <div style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box;" id="heatmap-body"></div>
 </div>
 <div id="robot-alarm-banner">
   <span class="alarm-banner-icon">🛑</span>
