@@ -116,6 +116,10 @@ router.get(
       const weekAgo  = new Date(now - 7  * 24*60*60*1000);
       const monthAgo = new Date(now - 30 * 24*60*60*1000);
 
+      const weekOrders = orders.filter(o => new Date(o.placed_at) >= weekAgo);
+      console.log('[heatmap] total orders:', orders.length, 'week orders:', weekOrders.length, 'weekAgo:', weekAgo);
+      if (weekOrders.length > 0) console.log('[heatmap] sample:', weekOrders[0].placed_at, new Date(weekOrders[0].placed_at).getDay(), new Date(weekOrders[0].placed_at).getHours());
+
       orders.forEach(order => {
         if (order.status === 'cancelled') return;
         const date = new Date(order.placed_at);
