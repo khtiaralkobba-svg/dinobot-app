@@ -540,8 +540,6 @@ body.light-mode #heatmap-overlay [id="hm-detail"] { background: #e8f4fd !importa
 body.light-mode #heatmap-overlay [id="hm-detail"] div { color: #1C0F00 !important; }
 body.light-mode #heatmap-overlay [style*="grid-template-columns:repeat(4"] > div { background: #e8f4fd !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode #heatmap-overlay [style*="grid-template-columns:repeat(4"] > div div { color: #1C0F00 !important; }
-body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] { background: #e8f4fd !important; border-color: rgba(180,80,0,0.2) !important; }
-body.light-mode #heatmap-overlay [style*="rgba(10,25,60"] div { color: #1C0F00 !important; }
 body.light-mode #heatmap-overlay button { border-color: rgba(180,80,0,0.3) !important; color: #1C0F00 !important; background: rgba(255,106,0,0.06) !important; }
 body.light-mode #heatmap-overlay button[style*="#FF6B1A"] { border-color: #FF6A00 !important; color: #FF6A00 !important; background: rgba(255,106,0,0.12) !important; }
 body.light-mode #heatmap-overlay { color: #1C0F00 !important; }
@@ -1917,7 +1915,7 @@ return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="flex:1;h
             </div>`).join('')}
         </div>
       </div>
-      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:200px;flex-shrink:0;">
+      <div style="background:linear-gradient(160deg,#0a1938,#050f28);border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:200px;flex-shrink:0;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#FF6B1A;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,107,26,0.2);padding-bottom:8px;">⬡ Color Legend</div>
         ${[
           ['rgba(128,128,128,0.08)','0 orders','No activity'],
@@ -1939,10 +1937,10 @@ return `<div onclick="hmShowDetail('${day}',${h},${val},${max})" style="flex:1;h
         </div>
       </div>
     </div>
-    <div id="hm-detail" style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
+    <div id="hm-detail" style="background:linear-gradient(160deg,#0a1938,#050f28);border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:rgba(180,210,245,0.7);">SELECT A CELL TO VIEW DETAIL</div>
     </div>
-    <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
+    <div style="background:linear-gradient(160deg,#0a1938,#050f28);border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FF6B1A;text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
