@@ -1877,13 +1877,11 @@ function hmRenderAll() {
     console.log('[hmRenderAll] NO DATA for view:', hmCurrentView, '— hmDatasets:', hmDatasets);
     return;
   }
-  // Ensure all days/hours exist
   HM_DAYS.forEach(d => {
     if (!data[d]) data[d] = {};
     HM_HOURS.forEach(h => {
-      // JSON keys are always strings — convert string keys to numbers
-      if (data[d][String(h)] !== undefined) data[d][h] = data[d][String(h)];
-      if (data[d][h] === undefined) data[d][h] = 0;
+      const strVal = data[d][String(h)];
+      data[d][h] = strVal !== undefined ? Number(strVal) : (data[d][h] !== undefined ? Number(data[d][h]) : 0);
     });
   });
   const max = hmMaxVal(data);
