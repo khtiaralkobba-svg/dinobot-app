@@ -470,7 +470,10 @@ body.light-mode .cc-layer-critical    { background: linear-gradient(135deg, rgba
 
 body.light-mode #control-center button[onclick="openMapOverlay()"],
 body.light-mode #control-center button[onclick="openStaffOverlay()"],
-body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #control-center button[onclick="openAnalyticsOverlay()"],
+body.light-mode #control-center button[onclick="openHeatmapOverlay()"] { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #control-center button[onclick="openHeatmapOverlay()"] div { color: #1C0F00 !important; }
+body.light-mode #control-center button[onclick="openHeatmapOverlay()"] { color: #1C0F00 !important; }
 body.light-mode #control-center button[onclick="openMapOverlay()"] div,
 body.light-mode #control-center button[onclick="openStaffOverlay()"] div,
 body.light-mode #control-center button[onclick="openAnalyticsOverlay()"] div { color: #1C0F00 !important; }
@@ -529,6 +532,9 @@ body.light-mode .layer-sublabel { color: rgba(20,8,0,0.5); }
 /* Analytics */
 body.light-mode #analytics-overlay > div:first-child { background: #f4faff !important; border-color: rgba(30,100,200,0.2) !important; }
 body.light-mode #analytics-overlay > div:last-child { background: #f4faff !important; flex: 1; }
+body.light-mode #heatmap-overlay { background: #f4faff !important; }
+body.light-mode #heatmap-overlay > div:first-child { background: linear-gradient(160deg,rgba(255,106,0,0.08) 0%,transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #heatmap-body { background: #f4faff; }
 body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255, 106, 0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
 body.light-mode .analytics-layer .cc-layer-tag { background: #020b1a !important; color: rgba(180,80,0,0.7) !important; border-color: rgba(180,80,0,0.2) !important; }
 body.light-mode .analytics-card { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; box-shadow: 0 1px 4px rgba(30,100,200,0.08); }
