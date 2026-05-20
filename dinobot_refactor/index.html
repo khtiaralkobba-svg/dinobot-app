@@ -1812,7 +1812,7 @@ function hmRenderAll() {
 
   const body = document.getElementById('heatmap-body');
   body.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;">
       ${[
         ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#FF6B1A'],
         ['Avg Per Slot', avgPerHour, 'orders / hour', 'var(--text)']
@@ -1828,7 +1828,7 @@ function hmRenderAll() {
       <div style="flex:1"></div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);">CLICK CELL FOR DETAIL</div>
     </div>
-    <div style="overflow-x:auto;">
+    <div style="overflow-x:auto;width:100%;">
       <div style="display:flex;gap:3px;margin-left:44px;margin-bottom:4px;">
         ${HM_HOURS.map(h=>`<div style="width:38px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);flex-shrink:0;">${h}:00</div>`).join('')}
       </div>
@@ -5770,7 +5770,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
 </div>
 <!-- HEATMAP OVERLAY -->
 <div id="heatmap-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#020b1a;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:100vh;">
-  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(74,222,128,0.2);background:linear-gradient(160deg,rgba(5,40,20,0.45) 0%,transparent 60%);flex-shrink:0;">
+  <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(255,107,26,0.2);background:linear-gradient(160deg,rgba(40,15,5,0.45) 0%,transparent 60%);flex-shrink:0;">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
       <div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(255,107,26,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Critical / Operations</div>
@@ -5782,7 +5782,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       </div>
     </div>
   </div>
-  <div style="padding:32px 48px;display:flex;flex-direction:column;gap:20px;flex:1;min-height:0;" id="heatmap-body"></div>
+  <div style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;flex:1;min-height:0;width:100%;" id="heatmap-body"></div>
 </div>
 <div id="robot-alarm-banner">
   <span class="alarm-banner-icon">🛑</span>
