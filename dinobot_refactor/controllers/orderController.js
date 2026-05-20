@@ -48,13 +48,9 @@ async function getOrders(req, res) {
 
 async function updateStatus(req, res) {
   try {
-    const handledBy = req.body.status === 'prep' 
-      ? (req.user?.employee_id || req.user?.employeeId || null)
-      : null;
     const result = await orderService.updateOrderStatus(
       req.params.orderRef,
-      req.body.status,
-      handledBy
+      req.body.status
     );
 
     if (!result) {

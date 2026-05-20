@@ -3011,11 +3011,10 @@ function startAnalyticsPolling() {
       ref,
       status,
       table,
-      placed_at: order.placed_at || new Date().toISOString(),
+      placed_at: order.placed_at || new Date().toISOString(),  // ← needed for sort
       prep_started_at: order.prep_started_at || null,
-      handled_by: order.handled_by || null,
       timerInterval: null,
-      waitInterval: null
+      waitInterval: null   // ← incoming wait timer
     };
  
     const itemLines = (order.items || []).map(i =>
@@ -3048,7 +3047,6 @@ function startAnalyticsPolling() {
         <div class="ticket-id-block">
           <span class="ticket-id">${ref}</span>
           <span class="ticket-table">Table ${table}</span>
-          ${order.handled_by ? `<span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:#C084FC;margin-top:2px;">👤 ${order.handled_by}</span>` : ''}
         </div>
         <div>
           <div class="ticket-timer idle" id="timer-${ref}">—:——</div>
@@ -3301,7 +3299,6 @@ function startAnalyticsPolling() {
     slowestPrep: null,
     waitTimes: [],
     stuckOrders: 0,        // minutes spent in incoming before prep
-    staffStats: {},
   };
   // ══════════════════════════════════════════════════════════
 //  PREDICTIVE DELAY ENGINE
@@ -3475,20 +3472,6 @@ if (stuckEl) stuckEl.className = 'ab-val ' + (analytics.stuckOrders === 0 ? 'goo
     if (slowestEl && analytics.slowestPrep !== null) {
       slowestEl.className = 'ab-val ' + (analytics.slowestPrep < 10 ? 'good' : analytics.slowestPrep < 15 ? 'warn' : 'bad');
     }
-    const staffDiv = document.getElementById('an-staff-breakdown');
-    if (staffDiv) {
-      const entries = Object.entries(analytics.staffStats || {});
-      if (entries.length === 0) {
-        staffDiv.innerHTML = '<div class="ab-row"><span class="ab-label" style="color:var(--text-dim);">No staff data yet</span></div>';
-      } else {
-        staffDiv.innerHTML = entries.map(([id, stats]) => `
-          <div class="ab-row">
-            <span class="ab-label">👤 ${id}</span>
-            <span class="ab-val">${stats.orders} orders · ${stats.late} late</span>
-          </div>
-        `).join('');
-      }
-    }
   }
   // ── Load analytics from DB on login ──────────────────────
 async function loadAnalyticsFromDB() {
@@ -3542,16 +3525,6 @@ async function loadAnalyticsFromDB() {
         const wait = (new Date(order.prep_started_at) - new Date(order.placed_at)) / 60000;
         if (wait > 0 && wait < 60) analytics.waitTimes.push(wait);
       }
-      if (order.handled_by) {
-        if (!analytics.staffStats[order.handled_by]) {
-          analytics.staffStats[order.handled_by] = { orders: 0, late: 0 };
-        }
-        analytics.staffStats[order.handled_by].orders++;
-        if (order.prep_started_at && order.ready_at) {
-          const mins = (new Date(order.ready_at) - new Date(order.prep_started_at)) / 60000;
-          if (mins > 15) analytics.staffStats[order.handled_by].late++;
-        }
-      }
     });
 
     try {
@@ -3567,8 +3540,7 @@ async function loadAnalyticsFromDB() {
     }
   } catch (e) { 
     console.log('[stuck] error:', e);
-    analytics.stuckOrders = 0;
-    analytics.staffStats = {}; 
+    analytics.stuckOrders = 0; 
   }
 
     updateAnalyticsUI();
@@ -5630,9 +5602,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <div class="ab-row"><span class="ab-label">Robot Dispatches</span><span class="ab-val blue" id="an-dispatches" style="color:#60A5FA">0</span></div>
       <div class="ab-row"><span class="ab-label">Avg Wait (Incoming)</span><span class="ab-val" id="an-avg-wait">—</span></div>
     <div class="ab-row"><span class="ab-label">Stuck Orders (Total)</span><span class="ab-val" id="an-stuck">0</span></div>
-    <div class="analytics-section-title" style="margin-top:20px;">⬡ Staff Performance</div>
-<div id="an-staff-breakdown" style="display:flex;flex-direction:column;gap:6px;"></div>
-  </div>
+    </div>
   </div>
 </div>
 <!-- PICKUP OVERLAY -->

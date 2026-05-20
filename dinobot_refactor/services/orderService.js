@@ -133,15 +133,11 @@ async function getAllOrders() {
 // ==========================
 // UPDATE STATUS
 // ==========================
-async function updateOrderStatus(orderRef, status, handledBy = null) {
+async function updateOrderStatus(orderRef, status) {
   const updateData = { 
     status,
     updated_at: new Date().toISOString()
   };
-
-  if (status === 'prep' && handledBy) {
-    updateData.handled_by = handledBy;
-  }
 
   if (status === 'delivered') {
     updateData.delivered_at = new Date().toISOString();
