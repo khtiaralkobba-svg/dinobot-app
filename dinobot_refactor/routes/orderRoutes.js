@@ -102,7 +102,11 @@ router.get(
   authorizeRoles('manager'),
   async (req, res) => {
     try {
-      const orders = await orderService.getAllOrders();
+      const { supabase } = require('../db');
+      const now = new Date();
+      const weekAgo  = new Date(now - 7  * 24*60*60*1000);
+      const monthAgo = new Date(now - 30 * 24*60*60*1000);
+
       const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
       const hours = Array.from({length:14}, (_,i) => i + 8);
 
@@ -112,16 +116,27 @@ router.get(
         hours.forEach(h => { data.week[d][h]=0; data.month[d][h]=0; data.all[d][h]=0; });
       });
 
-      const now = new Date();
-      const weekAgo  = new Date(now - 7  * 24*60*60*1000);
-      const monthAgo = new Date(now - 30 * 24*60*60*1000);
+      // Fetch only needed fields, no items needed, paginate through all
+      let allOrders = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data: batch, error } = await supabase
+          .from('orders')
+          .select('placed_at, status')
+          .neq('status', 'cancelled')
+          .order('placed_at', { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (!batch || batch.length === 0) break;
+        allOrders = allOrders.concat(batch);
+        if (batch.length < pageSize) break;
+        from += pageSize;
+      }
 
-      const weekOrders = orders.filter(o => new Date(o.placed_at) >= weekAgo);
-      console.log('[heatmap] total orders:', orders.length, 'week orders:', weekOrders.length, 'weekAgo:', weekAgo);
-      if (weekOrders.length > 0) console.log('[heatmap] sample:', weekOrders[0].placed_at, new Date(weekOrders[0].placed_at).getDay(), new Date(weekOrders[0].placed_at).getHours());
+      console.log('[heatmap] total fetched:', allOrders.length);
 
-      orders.forEach(order => {
-        if (order.status === 'cancelled') return;
+      allOrders.forEach(order => {
         const date = new Date(order.placed_at);
         const day  = days[date.getDay()];
         const hour = date.getHours();
