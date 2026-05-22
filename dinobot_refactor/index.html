@@ -6173,15 +6173,6 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
       <button id="delete-table-btn" onclick="deleteSelectedTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);opacity:0.4;pointer-events:none;">✕ DELETE SELECTED TABLE</button>
       <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
-      <!-- Obstacle Panel -->
-      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
-      <div class="op-section-title">⬡ Virtual Obstacles</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="emoji-picker">
-      <!-- built by JS -->
-     </div>
-     <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" class="op-btn" style="background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-size:13px;letter-spacing:3px;margin-bottom:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PLACE OBSTACLE</button>
-     <button onclick="clearAllObstacles()" class="op-btn" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:rgba(239,68,68,0.6);font-size:12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">✕ CLEAR ALL OBSTACLES</button>
-    </div>
   </div>
 </div>
   <div>
@@ -6243,7 +6234,15 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
         </div>
       </div>
     </div>
-
+    <!-- Obstacle Panel -->
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+      <div class="op-section-title">⬡ Virtual Obstacles</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="emoji-picker">
+      <!-- built by JS -->
+     </div>
+     <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" class="op-btn" style="background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-size:13px;letter-spacing:3px;margin-bottom:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PLACE OBSTACLE</button>
+     <button onclick="clearAllObstacles()" class="op-btn" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:rgba(239,68,68,0.6);font-size:12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">✕ CLEAR ALL OBSTACLES</button>
+    </div>
   </div><!-- end scrollable body -->
 </div><!-- end #map-overlay -->
 <!-- Staff Management Overlay -->
