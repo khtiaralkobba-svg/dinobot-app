@@ -2189,6 +2189,7 @@ function closeStaffOverlay() {
   document.body.style.overflow = 'hidden';
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
+  rebuildDispatchButtons();
   setTimeout(() => {
     initOverlayMap();
     setupTableDrag();
@@ -4059,12 +4060,61 @@ function loadTables() {
         const saved = localStorage.getItem('dinobotTableLayout');
         if (saved) {
             const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length === 8) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         }
     } catch(e) {}
     return DEFAULT_TABLES.map(t => ({...t}));
 }
 const tables = loadTables();
+
+function addTable() {
+    const maxId = tables.length > 0 ? Math.max(...tables.map(t => t.id)) : 0;
+    const newId = maxId + 1;
+    tables.push({ id: newId, x: 0.5 + (Math.random() - 0.5) * 0.3, y: 0.5 + (Math.random() - 0.5) * 0.3 });
+    saveTables();
+    rebuildDispatchButtons();
+    rebuildStudentTableGrid();
+    showToast('⬡ Table ' + newId + ' added — drag to position it');
+}
+
+function removeTable(id) {
+    const idx = tables.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    if (tables.length <= 1) { showToast('✗ Cannot remove the last table'); return; }
+    tables.splice(idx, 1);
+    saveTables();
+    rebuildDispatchButtons();
+    rebuildStudentTableGrid();
+    showToast('⬡ Table ' + id + ' removed');
+}
+
+function removeLastTable() {
+    if (tables.length <= 1) { showToast('✗ Cannot remove the last table'); return; }
+    const last = tables[tables.length - 1];
+    removeTable(last.id);
+}
+
+function rebuildDispatchButtons() {
+    const grid = document.getElementById('dispatch-btn-grid');
+    if (!grid) return;
+    grid.innerHTML = tables.map(t =>
+        `<button class="dispatch-btn" onclick="dispatch(${t.id})">Table ${t.id}</button>`
+    ).join('');
+}
+
+function rebuildStudentTableGrid() {
+    const grid = document.getElementById('table-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    tables.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'table-btn';
+        btn.id = 'tbtn-' + t.id;
+        btn.innerHTML = `<span class="t-num">${t.id}</span><span class="t-label">TABLE</span>`;
+        btn.onclick = () => selectStudentTable(t.id);
+        grid.appendChild(btn);
+    });
+}
 
 window.addEventListener('storage', function(e) {
   if (e.key === 'dinobotTableLayout' && e.newValue) {
@@ -4275,8 +4325,11 @@ function toggleEditLayout() {
 }
 
 function resetTableLayout() {
-    DEFAULT_TABLES.forEach((def, i) => { tables[i].x = def.x; tables[i].y = def.y; });
+    tables.length = 0;
+    DEFAULT_TABLES.forEach(def => tables.push({...def}));
     saveTables();
+    rebuildDispatchButtons();
+    rebuildStudentTableGrid();
     showToast('⬡ Table layout reset to default');
 }
   function toggleEStop() {
@@ -4688,12 +4741,7 @@ function stopMove() {
   let activeTrackingRef = null;
  
   (function buildTables(){
-    const grid=document.getElementById('table-grid'); if(!grid) return;
-    for(let i=1;i<=8;i++){
-      const btn=document.createElement('button'); btn.className='table-btn'; btn.id='tbtn-'+i;
-      btn.innerHTML=`<span class="t-num">${i}</span><span class="t-label">TABLE</span>`;
-      btn.onclick=()=>selectStudentTable(i); grid.appendChild(btn);
-    }
+    rebuildStudentTableGrid();
   })();
  
   function selectStudentTable(n){
@@ -5944,16 +5992,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
    <div id="map-controls-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;position:relative;z-index:2;pointer-events:auto;">
   <div>
     <div class="op-section-title">⬡ Dispatch</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-      <button class="dispatch-btn" onclick="dispatch(1)">Table 1</button>
-      <button class="dispatch-btn" onclick="dispatch(2)">Table 2</button>
-      <button class="dispatch-btn" onclick="dispatch(3)">Table 3</button>
-      <button class="dispatch-btn" onclick="dispatch(4)">Table 4</button>
-      <button class="dispatch-btn" onclick="dispatch(5)">Table 5</button>
-      <button class="dispatch-btn" onclick="dispatch(6)">Table 6</button>
-      <button class="dispatch-btn" onclick="dispatch(7)">Table 7</button>
-      <button class="dispatch-btn" onclick="dispatch(8)">Table 8</button>
-    </div>
+    <div id="dispatch-btn-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
   </div>
   <div style="position:relative;z-index:2;">
     <div class="op-section-title">⬡ Unit Control</div>
@@ -5962,6 +6001,8 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PAUSE UNIT</button>
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
       <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
+      <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
+      <button onclick="removeLastTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">− REMOVE LAST TABLE</button>
       <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
     </div>
   </div>
