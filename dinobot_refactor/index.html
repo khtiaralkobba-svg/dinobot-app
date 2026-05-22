@@ -6063,7 +6063,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
   </div>
 </div>
 
-    <!-- Map + Right Column -->
+   <!-- Map + Manual Override -->
     <div style="display:grid;grid-template-columns:3fr 1fr;gap:16px;align-items:start;pointer-events:auto;">
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Live Floor Map</div>
@@ -6099,16 +6099,6 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
             <div class="manual-kbd-hint">W A S D / arrows</div>
           </div>
         </div>
-
-        <!-- Obstacle Panel — in right column -->
-        <div style="position:relative;padding:14px;border:1px solid rgba(251,185,36,0.2);background:linear-gradient(135deg,rgba(251,185,36,0.03) 0%,rgba(2,8,26,0.6) 100%);">
-          <div style="position:absolute;top:-11px;left:12px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;padding:2px 10px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(251,185,36,0.6);border:1px solid rgba(251,185,36,0.15);">⬡ OBSTACLES</div>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;" id="emoji-picker"></div>
-          <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" style="width:100%;padding:8px;background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;margin-bottom:4px;">⬡ PLACE</button>
-          <button onclick="clearAllObstacles()" style="width:100%;padding:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.7);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;">✕ CLEAR ALL</button>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;margin-top:6px;text-align:center;">Click map · Right-click remove</div>
-        </div>
-
         <div class="mon-section-title" style="margin-top:8px;">⬡ Activity Feed</div>
         <div id="activityFeed" style="max-height:200px;overflow-y:auto;">
           <div class="activity-item new"><div class="activity-dot dot-system"></div><div><div class="activity-msg">System <strong>initialized</strong></div><div class="activity-time">TODAY 08:00:00</div></div></div>
@@ -6123,7 +6113,17 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       </div>
     </div>
 
+    <!-- Obstacle Panel — slim full-width strip -->
+    <div style="position:relative;padding:12px 20px;border:1px solid rgba(251,185,36,0.2);background:linear-gradient(135deg,rgba(251,185,36,0.03) 0%,rgba(2,8,26,0.6) 100%);pointer-events:auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(251,185,36,0.6);text-transform:uppercase;white-space:nowrap;">⬡ OBSTACLES</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="emoji-picker"></div>
+      <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" style="padding:8px 16px;background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);white-space:nowrap;">⬡ PLACE</button>
+      <button onclick="clearAllObstacles()" style="padding:8px 16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.7);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);white-space:nowrap;">✕ CLEAR ALL</button>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;">Click map to place · Right-click to remove</div>
+    </div>
+
   </div><!-- end scrollable body -->
+</div><!-- end #map-overlay -->
 </div><!-- end #map-overlay -->
         <div id="dpad-panel" style="background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);padding:12px;display:flex;flex-direction:column;gap:10px;">
           <button class="manual-mode-toggle" id="manual-toggle" onclick="toggleManual()">⬡ ENABLE MANUAL CONTROL</button>
