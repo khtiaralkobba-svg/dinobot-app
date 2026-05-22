@@ -4065,6 +4065,21 @@ function loadTables() {
     return DEFAULT_TABLES.map(t => ({...t}));
 }
 const tables = loadTables();
+
+window.addEventListener('storage', function(e) {
+  if (e.key === 'dinobotTableLayout' && e.newValue) {
+    try {
+      const updated = JSON.parse(e.newValue);
+      if (Array.isArray(updated) && updated.length === 8) {
+        updated.forEach((t, i) => {
+          tables[i].x = t.x;
+          tables[i].y = t.y;
+        });
+        console.log('[tables] Layout synced from manager tab');
+      }
+    } catch(e) {}
+  }
+});
 function saveTables() {
   localStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
   fetch(API_BASE + '/api/tables/layout', {
