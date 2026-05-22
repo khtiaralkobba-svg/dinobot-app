@@ -4066,7 +4066,12 @@ function loadTables() {
 }
 const tables = loadTables();
 function saveTables() {
-    localStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
+  localStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
+  fetch(API_BASE + '/api/tables/layout', {
+    method: 'POST',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ tables: tables })
+  }).catch(() => {});
 }
   const dockX=0.08, dockY=0.5;
   let editLayoutMode = false;
