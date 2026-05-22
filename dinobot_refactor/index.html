@@ -2190,9 +2190,22 @@ function openMapOverlay() {
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
   rebuildDispatchButtons();
+  rebuildRemoveButtons();
+  // Build emoji picker
+  const picker = document.getElementById('emoji-picker');
+  if (picker) {
+    picker.innerHTML = OBSTACLE_EMOJIS.map(e => `
+      <button class="obs-emoji-btn" data-emoji="${e}" onclick="selectObstacleEmoji('${e}')"
+        style="font-size:20px;padding:6px 8px;background:${e===selectedObstacleEmoji?'rgba(251,185,36,0.2)':'rgba(5,20,60,0.5)'};
+        border:1px solid ${e===selectedObstacleEmoji?'#FBB924':'var(--border)'};cursor:pointer;
+        clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.15s;">
+        ${e}
+      </button>`).join('');
+  }
   setTimeout(() => {
     initOverlayMap();
     setupTableDrag();
+    setupObstacleClick();
   }, 100);
   syncOverlayState();
 }
@@ -2276,7 +2289,26 @@ const isSelected=selectedTableId===t.id;
   ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 9, 0, Math.PI*2); ctx.fill();
   ctx.shadowBlur=0; ctx.fillStyle=document.body.classList.contains('light-mode')?'rgba(20,8,0,0.7)':'rgba(74,222,128,0.8)'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='center';
   ctx.fillText('DOCK', dockX*W, dockY*H+22);
-
+// ── Obstacles ──
+obstacles.forEach(obs => {
+  const ox = obs.x * W, oy = obs.y * H;
+  ctx.font = '24px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(obs.emoji, ox, oy);
+  // Danger ring
+  ctx.strokeStyle = 'rgba(239,68,68,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.arc(ox, oy, 18, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Right-click hint
+  ctx.font = '8px Share Tech Mono, monospace';
+  ctx.fillStyle = 'rgba(239,68,68,0.5)';
+  ctx.fillText('right-click to remove', ox, oy + 26);
+});
   // Robot
   const rs = 13;
   ctx.save(); ctx.translate(robotX*W, robotY*H); ctx.rotate(robotAngle);
@@ -4165,6 +4197,65 @@ function saveTables() {
   let draggingTable = null;
   let dragOffsetX = 0, dragOffsetY = 0;
   let selectedTableId = null;
+  let obstacles = loadObstacles();
+let placingObstacle = false;
+let selectedObstacleEmoji = '🚧';
+
+function loadObstacles() {
+  try {
+    const saved = localStorage.getItem('dinobotObstacles');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return [];
+}
+
+function saveObstacles() {
+  localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles));
+  fetch(API_BASE + '/api/obstacles', {
+    method: 'POST',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ obstacles })
+  }).catch(() => {});
+}
+const OBSTACLE_EMOJIS = ['🚧','🪑','🧍','👤','📦','🗑️','🧒'];
+
+function togglePlaceObstacle() {
+  placingObstacle = !placingObstacle;
+  const btn = document.getElementById('place-obstacle-btn');
+  const canvas = document.getElementById('overlayMap');
+  if (placingObstacle) {
+    btn.textContent = '✓ CLICK MAP TO PLACE';
+    btn.style.background = 'rgba(251,185,36,0.2)';
+    btn.style.borderColor = '#FBB924';
+    btn.style.color = '#FBB924';
+    if (canvas) canvas.style.cursor = 'crosshair';
+  } else {
+    btn.textContent = '⬡ PLACE OBSTACLE';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    if (canvas) canvas.style.cursor = editLayoutMode ? 'crosshair' : 'default';
+  }
+}
+
+function selectObstacleEmoji(emoji) {
+  selectedObstacleEmoji = emoji;
+  document.querySelectorAll('.obs-emoji-btn').forEach(b => {
+    b.style.background = b.dataset.emoji === emoji ? 'rgba(251,185,36,0.2)' : 'rgba(5,20,60,0.5)';
+    b.style.borderColor = b.dataset.emoji === emoji ? '#FBB924' : 'var(--border)';
+  });
+}
+
+function clearAllObstacles() {
+  obstacles.length = 0;
+  saveObstacles();
+  showToast('⬡ All obstacles cleared');
+}
+
+function removeObstacleAt(id) {
+  const idx = obstacles.findIndex(o => o.id === id);
+  if (idx !== -1) { obstacles.splice(idx, 1); saveObstacles(); }
+}
  
   function setRobotState(state, label, color) {
     const badge=document.getElementById('robot-state-badge'); if (!badge) return;
@@ -4338,6 +4429,48 @@ function saveTables() {
     canvas.addEventListener('touchend', () => {
         if (draggingTable) { saveTables(); draggingTable = null; }
     });
+}
+function setupObstacleClick() {
+  const canvas = document.getElementById('overlayMap');
+  if (!canvas || canvas._obstacleSetup) return;
+  canvas._obstacleSetup = true;
+
+  canvas.addEventListener('click', e => {
+    if (!placingObstacle) return;
+    const rect = canvas.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top) / rect.height;
+    const id = Date.now();
+    obstacles.push({ id, x: nx, y: ny, emoji: selectedObstacleEmoji });
+    saveObstacles();
+    showToast(selectedObstacleEmoji + ' Obstacle placed');
+
+    // Auto turn off placing mode after one click
+    placingObstacle = false;
+    const btn = document.getElementById('place-obstacle-btn');
+    if (btn) {
+      btn.textContent = '⬡ PLACE OBSTACLE';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }
+    canvas.style.cursor = editLayoutMode ? 'crosshair' : 'default';
+  });
+
+  // Right-click to remove obstacle
+  canvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top) / rect.height;
+    const hit = obstacles.find(o =>
+      Math.hypot(o.x - nx, o.y - ny) < 0.04
+    );
+    if (hit) {
+      removeObstacleAt(hit.id);
+      showToast('⬡ Obstacle removed');
+    }
+  });
 }
 
 function toggleEditLayout() {
@@ -6040,8 +6173,17 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
       <button id="delete-table-btn" onclick="deleteSelectedTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);opacity:0.4;pointer-events:none;">✕ DELETE SELECTED TABLE</button>
       <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
+      <!-- Obstacle Panel -->
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+      <div class="op-section-title">⬡ Virtual Obstacles</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="emoji-picker">
+      <!-- built by JS -->
+     </div>
+     <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" class="op-btn" style="background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-size:13px;letter-spacing:3px;margin-bottom:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PLACE OBSTACLE</button>
+     <button onclick="clearAllObstacles()" class="op-btn" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:rgba(239,68,68,0.6);font-size:12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">✕ CLEAR ALL OBSTACLES</button>
     </div>
   </div>
+</div>
   <div>
     <div class="op-section-title">⬡ Telemetry</div>
     <div class="telem-box">

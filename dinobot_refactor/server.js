@@ -101,6 +101,16 @@ app.get('/api/tables/layout', (req, res) => {
     {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28}
   ]});
 });
+let obstacleLayout = [];
+
+app.get('/api/obstacles', (req, res) => {
+  res.json({ obstacles: obstacleLayout });
+});
+
+app.post('/api/obstacles', (req, res) => {
+  obstacleLayout = req.body.obstacles || [];
+  res.json({ success: true });
+});
 
 app.post('/api/tables/layout', (req, res) => {
   tableLayout = req.body.tables;
@@ -138,6 +148,7 @@ robotProxyRoutes.forEach(({ path: robotPath, method }) => {
     }
   });
 });
+
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
