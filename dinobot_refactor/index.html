@@ -4192,37 +4192,53 @@ const OBSTACLE_TYPES = {
   trash:    { label: 'Trash',     emoji: '🗑️', color: '#6b7280', radius: 0.016 },
 };
 
+let obstacleDeleteMode = false;
+
 function toggleObstacleMode() {
   obstacleMode = !obstacleMode;
+  if (!obstacleMode) obstacleDeleteMode = false;
   const btn = document.getElementById('obs-mode-btn');
   const row = document.getElementById('obs-type-row');
   const canvas = document.getElementById('overlayMap');
-
   if (obstacleMode) {
     btn.classList.add('active');
     btn.textContent = '⬡ OBSTACLE MODE ON — CLICK MAP';
     row.classList.add('active');
-    if (canvas) {
-      canvas.style.cursor = 'crosshair';
-      canvas.style.pointerEvents = 'auto';
-    }
-    // Disable edit layout mode if it was on
+    if (canvas) { canvas.style.cursor = 'crosshair'; canvas.style.pointerEvents = 'auto'; }
     editLayoutMode = false;
     draggingTable = null;
     const editBtn = document.getElementById('edit-layout-btn');
-    if (editBtn) {
-      editBtn.textContent = '⬡ EDIT TABLE LAYOUT';
-      editBtn.style.background = '';
-      editBtn.style.borderColor = '';
-      editBtn.style.color = '';
-    }
+    if (editBtn) { editBtn.textContent = '⬡ EDIT TABLE LAYOUT'; editBtn.style.background=''; editBtn.style.borderColor=''; editBtn.style.color=''; }
+    updateDeleteModeBtn();
   } else {
     btn.classList.remove('active');
     btn.textContent = '⬡ PLACE OBSTACLES';
     row.classList.remove('active');
     if (canvas) canvas.style.cursor = 'default';
+    updateDeleteModeBtn();
   }
   updateObstacleCount();
+}
+
+function toggleObstacleDeleteMode() {
+  if (!obstacleMode) return;
+  obstacleDeleteMode = !obstacleDeleteMode;
+  const canvas = document.getElementById('overlayMap');
+  if (canvas) canvas.style.cursor = obstacleDeleteMode ? 'not-allowed' : 'crosshair';
+  updateDeleteModeBtn();
+  const row = document.getElementById('obs-type-row');
+  if (row) row.style.opacity = obstacleDeleteMode ? '0.3' : '1';
+  showToast(obstacleDeleteMode ? '⬡ Click any obstacle to delete it' : '⬡ Click map to place obstacle');
+}
+
+function updateDeleteModeBtn() {
+  const btn = document.getElementById('obs-delete-mode-btn');
+  if (!btn) return;
+  btn.classList.toggle('active', obstacleDeleteMode);
+  btn.textContent = obstacleDeleteMode ? '🗑 DELETE MODE ON — CLICK OBSTACLE' : '🗑 DELETE MODE';
+  btn.style.background = obstacleDeleteMode ? 'rgba(239,68,68,0.18)' : '';
+  btn.style.borderColor = obstacleDeleteMode ? '#ef4444' : '';
+  btn.style.color = obstacleDeleteMode ? '#ef4444' : '';
 }
 
 function selectObstacleType(type) {
@@ -4239,14 +4255,19 @@ function clearAllObstacles() {
 }
 
 function removeObstacleAt(nx, ny) {
-  const before = obstacles.length;
-  obstacles = obstacles.filter(o => {
-    const dx = o.x - nx, dy = o.y - ny;
-    return Math.sqrt(dx*dx + dy*dy) > 0.03;
+  let closestIdx = -1;
+  let closestDist = Infinity;
+  obstacles.forEach((o, i) => {
+    const dist = Math.sqrt((o.x - nx) ** 2 + (o.y - ny) ** 2);
+    if (dist < closestDist) { closestDist = dist; closestIdx = i; }
   });
-  if (obstacles.length < before) {
+  if (closestIdx !== -1 && closestDist < 0.06) {
+    const removed = obstacles[closestIdx];
+    const def = OBSTACLE_TYPES[removed.type] || OBSTACLE_TYPES.person;
+    obstacles.splice(closestIdx, 1);
     syncObstaclesToRobot();
     updateObstacleCount();
+    showToast('⬡ ' + def.emoji + ' ' + def.label + ' removed');
     return true;
   }
   return false;
@@ -4290,25 +4311,26 @@ function drawObstacles(ctx, W, H) {
     const def = OBSTACLE_TYPES[o.type] || OBSTACLE_TYPES.person;
     const px = o.x * W, py = o.y * H;
     const r = o.r * Math.min(W, H);
+    const isHovered = obstacleDeleteMode && window._hoveredObstacleIdx === i;
 
-    // Danger ring
+    // Danger ring (pulsing, or red highlight if hovered for deletion)
     ctx.save();
     ctx.beginPath();
-    ctx.arc(px, py, r + 6, 0, Math.PI * 2);
-    ctx.strokeStyle = def.color;
-    ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.25 + 0.15 * Math.sin(Date.now() / 400 + i);
-    ctx.setLineDash([4, 3]);
+    ctx.arc(px, py, r + (isHovered ? 10 : 6), 0, Math.PI * 2);
+    ctx.strokeStyle = isHovered ? '#ef4444' : def.color;
+    ctx.lineWidth = isHovered ? 2.5 : 1;
+    ctx.globalAlpha = isHovered ? 0.9 : (0.25 + 0.15 * Math.sin(Date.now() / 400 + i));
+    ctx.setLineDash(isHovered ? [] : [4, 3]);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
 
-    // Filled circle
+    // Filled circle (red tint if hovered)
     ctx.save();
     ctx.beginPath();
     ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.fillStyle = def.color;
-    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = isHovered ? '#ef4444' : def.color;
+    ctx.globalAlpha = isHovered ? 0.35 : 0.22;
     ctx.fill();
     ctx.restore();
 
@@ -4316,28 +4338,40 @@ function drawObstacles(ctx, W, H) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.strokeStyle = def.color;
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = isHovered ? '#ef4444' : def.color;
+    ctx.lineWidth = isHovered ? 2 : 1.5;
     ctx.globalAlpha = 0.85;
     ctx.stroke();
     ctx.restore();
 
-    // Emoji label
+    // Emoji
     ctx.save();
     ctx.font = Math.round(r * 1.25) + 'px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = isHovered ? 0.4 : 1;
     ctx.fillText(def.emoji, px, py);
     ctx.restore();
+
+    // Delete X overlay when hovered
+    if (isHovered) {
+      ctx.save();
+      ctx.font = 'bold ' + Math.round(r * 1.1) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ef4444';
+      ctx.globalAlpha = 1;
+      ctx.fillText('✕', px, py);
+      ctx.restore();
+    }
 
     // Type label below
     ctx.save();
     ctx.font = '9px Share Tech Mono,monospace';
     ctx.textAlign = 'center';
-    ctx.fillStyle = def.color;
+    ctx.fillStyle = isHovered ? '#ef4444' : def.color;
     ctx.globalAlpha = 0.85;
-    ctx.fillText(def.label.toUpperCase(), px, py + r + 11);
+    ctx.fillText(isHovered ? 'CLICK TO DELETE' : def.label.toUpperCase(), px, py + r + 11);
     ctx.restore();
   });
 }
@@ -4440,7 +4474,6 @@ function drawObstacles(ctx, W, H) {
         }) || null;
     }
 
-    // Obstacle placement handler — must be first
     if (!canvas._obstacleSetup) {
         canvas._obstacleSetup = true;
 
@@ -4450,11 +4483,28 @@ function drawObstacles(ctx, W, H) {
             const rect = canvas.getBoundingClientRect();
             const nx = (e.clientX - rect.left) / rect.width;
             const ny = (e.clientY - rect.top) / rect.height;
-            if (e.shiftKey) {
-                removeObstacleAt(nx, ny);
-            } else {
-                placeObstacle(nx, ny);
+
+            if (obstacleDeleteMode || e.shiftKey) {
+                let closestIdx = -1;
+                let closestDist = Infinity;
+                obstacles.forEach((o, i) => {
+                    const dist = Math.sqrt((o.x - nx) ** 2 + (o.y - ny) ** 2);
+                    if (dist < closestDist) { closestDist = dist; closestIdx = i; }
+                });
+                if (closestIdx !== -1 && closestDist < 0.06) {
+                    const removed = obstacles[closestIdx];
+                    const def = OBSTACLE_TYPES[removed.type] || OBSTACLE_TYPES.person;
+                    obstacles.splice(closestIdx, 1);
+                    syncObstaclesToRobot();
+                    updateObstacleCount();
+                    showToast('⬡ ' + def.emoji + ' ' + def.label + ' removed');
+                } else {
+                    showToast('⬡ No obstacle there — click closer to one');
+                }
+                return;
             }
+
+            placeObstacle(nx, ny);
         });
 
         canvas.addEventListener('contextmenu', e => {
@@ -4486,7 +4536,23 @@ function drawObstacles(ctx, W, H) {
     });
 
     canvas.addEventListener('mousemove', e => {
-        if (obstacleMode) { canvas.style.cursor = 'crosshair'; return; }
+        if (obstacleMode) {
+            const rect = canvas.getBoundingClientRect();
+            const nx = (e.clientX - rect.left) / rect.width;
+            const ny = (e.clientY - rect.top) / rect.height;
+            if (obstacleDeleteMode) {
+                const nearest = obstacles.reduce((best, o, i) => {
+                    const d = Math.sqrt((o.x - nx) ** 2 + (o.y - ny) ** 2);
+                    return d < best.d ? { d, i } : best;
+                }, { d: Infinity, i: -1 });
+                window._hoveredObstacleIdx = nearest.d < 0.06 ? nearest.i : -1;
+                canvas.style.cursor = window._hoveredObstacleIdx !== -1 ? 'pointer' : 'not-allowed';
+            } else {
+                window._hoveredObstacleIdx = -1;
+                canvas.style.cursor = 'crosshair';
+            }
+            return;
+        }
         if (!editLayoutMode) return;
         const rect = canvas.getBoundingClientRect();
         const nx = (e.clientX - rect.left) / rect.width;
@@ -4522,16 +4588,20 @@ function drawObstacles(ctx, W, H) {
 
     canvas.addEventListener('mouseleave', () => {
         if (draggingTable) { saveTables(); draggingTable = null; }
+        window._hoveredObstacleIdx = -1;
     });
 
-    // Touch support
     canvas.addEventListener('touchstart', e => {
         if (obstacleMode) {
             const rect = canvas.getBoundingClientRect();
             const t = e.touches[0];
             const nx = (t.clientX - rect.left) / rect.width;
             const ny = (t.clientY - rect.top) / rect.height;
-            placeObstacle(nx, ny);
+            if (obstacleDeleteMode) {
+                removeObstacleAt(nx, ny);
+            } else {
+                placeObstacle(nx, ny);
+            }
             e.preventDefault();
             return;
         }
@@ -6280,6 +6350,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
           <button class="obs-type-btn"           id="obs-btn-trash"   onclick="selectObstacleType('trash')"   >🗑️<br>Trash</button>
         </div>
         <div class="obs-count-badge" id="obs-count">no obstacles</div>
+        <button class="obs-clear-btn" id="obs-delete-mode-btn" onclick="toggleObstacleDeleteMode()" style="border-color:rgba(239,68,68,0.25);color:#ef4444;margin-top:4px;">🗑 DELETE MODE</button>
         <button class="obs-clear-btn" onclick="clearAllObstacles()">✕ CLEAR ALL OBSTACLES</button>
         <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(251,185,36,0.35);margin-top:6px;text-align:center;">CLICK MAP TO PLACE · RIGHT-CLICK OR SHIFT+CLICK TO REMOVE</div>
       </div>
