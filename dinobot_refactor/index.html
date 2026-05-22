@@ -3538,6 +3538,7 @@ function startAnalyticsPolling() {
     resetBtn.style.pointerEvents = 'auto';
     resetBtn.style.cursor = 'pointer';
     resetBtn.title = '';
+    resetBtn.style.zIndex = '99999'; 
   }
 }
  
@@ -6355,7 +6356,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
     <div style="display:flex;flex-direction:column;gap:6px;">
       <button onclick="recallUnit()" class="op-btn op-btn-blue" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ RECALL TO DOCK</button>
       <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PAUSE UNIT</button>
-      <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
+      <button type="button" id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;pointer-events:auto;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
     </div>
   </div>
 
