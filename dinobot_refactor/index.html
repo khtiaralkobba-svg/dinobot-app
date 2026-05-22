@@ -2190,7 +2190,6 @@ function openMapOverlay() {
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
   rebuildDispatchButtons();
-  rebuildRemoveButtons();
   setTimeout(() => {
     initOverlayMap();
     setupTableDrag();
@@ -2251,6 +2250,7 @@ function animateOverlayMap() {
       const tx=t.x*W, ty=t.y*H;
       const isT=currentTarget&&currentTarget.id===t.id;
       const isDragged=draggingTable&&draggingTable.id===t.id;
+const isSelected=selectedTableId===t.id;
       const isLightOv=document.body.classList.contains('light-mode');
       const r = isDragged ? 14 : isT ? 10 : editLayoutMode ? 9 : 7;
       if (editLayoutMode) {
@@ -2260,7 +2260,7 @@ function animateOverlayMap() {
         ctx.beginPath(); ctx.arc(tx, ty, r + 8, 0, Math.PI*2); ctx.stroke();
         ctx.setLineDash([]);
       }
-      ctx.fillStyle=isDragged?'#4ADE80':isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA');
+      ctx.fillStyle=isDragged?'#4ADE80':isSelected?'#ef4444':isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA');
       ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=isDragged?20:isT?16:8;
       ctx.beginPath(); ctx.arc(tx,ty,r,0,Math.PI*2); ctx.fill();
       ctx.shadowBlur=0; ctx.fillStyle=isLightOv?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
@@ -4094,14 +4094,27 @@ function removeLastTable() {
     const last = tables[tables.length - 1];
     removeTable(last.id);
 }
-
-function rebuildRemoveButtons() {
-  const container = document.getElementById('remove-table-btns');
-  if (!container) return;
-  container.innerHTML = tables.map(t => `
-    <button onclick="removeTable(${t.id})" style="padding:8px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ T${t.id}</button>
-  `).join('');
+function deleteSelectedTable() {
+    if (selectedTableId === null) { showToast('⬡ Click a table on the map first'); return; }
+    removeTable(selectedTableId);
+    selectedTableId = null;
+    updateDeleteBtn();
 }
+
+function updateDeleteBtn() {
+    const btn = document.getElementById('delete-table-btn');
+    if (!btn) return;
+    if (selectedTableId !== null) {
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+        btn.textContent = '✕ DELETE TABLE ' + selectedTableId;
+    } else {
+        btn.style.opacity = '0.4';
+        btn.style.pointerEvents = 'none';
+        btn.textContent = '✕ DELETE SELECTED TABLE';
+    }
+}
+
 
 function rebuildDispatchButtons() {
     const grid = document.getElementById('dispatch-btn-grid');
@@ -4109,7 +4122,6 @@ function rebuildDispatchButtons() {
     grid.innerHTML = tables.map(t =>
         `<button class="dispatch-btn" onclick="dispatch(${t.id})">Table ${t.id}</button>`
     ).join('');
-    rebuildRemoveButtons();
 }
 
 
@@ -4153,6 +4165,7 @@ function saveTables() {
   let editLayoutMode = false;
   let draggingTable = null;
   let dragOffsetX = 0, dragOffsetY = 0;
+  let selectedTableId = null;
  
   function setRobotState(state, label, color) {
     const badge=document.getElementById('robot-state-badge'); if (!badge) return;
@@ -4255,12 +4268,14 @@ function saveTables() {
         const ny = (e.clientY - rect.top) / rect.height;
         draggingTable = getTableAt(nx, ny);
         if (draggingTable) {
-            dragOffsetX = draggingTable.x - nx;
-            dragOffsetY = draggingTable.y - ny;
-            canvas.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
-    });
+          draggingTable._startX = draggingTable.x;
+          draggingTable._startY = draggingTable.y;
+          dragOffsetX = draggingTable.x - nx;
+          dragOffsetY = draggingTable.y - ny;
+          canvas.style.cursor = 'grabbing';
+          e.preventDefault();
+    }
+});
 
     canvas.addEventListener('mousemove', e => {
         if (!editLayoutMode) return;
@@ -4277,12 +4292,23 @@ function saveTables() {
 
     canvas.addEventListener('mouseup', e => {
         if (draggingTable) {
-            saveTables();
-            showToast('⬡ Table ' + draggingTable.id + ' position saved');
+            const moved = Math.abs(draggingTable.x - (draggingTable._startX || draggingTable.x)) > 0.01 ||
+                          Math.abs(draggingTable.y - (draggingTable._startY || draggingTable.y)) > 0.01;
+            if (moved) {
+                saveTables();
+                showToast('⬡ Table ' + draggingTable.id + ' position saved');
+            } else {
+                if (selectedTableId === draggingTable.id) {
+                    selectedTableId = null;
+                } else {
+                    selectedTableId = draggingTable.id;
+                }
+                updateDeleteBtn();
+            }
             draggingTable = null;
             canvas.style.cursor = editLayoutMode ? 'crosshair' : 'default';
-        }
-    });
+    }
+});
 
     canvas.addEventListener('mouseleave', () => {
         if (draggingTable) { saveTables(); draggingTable = null; }
@@ -6013,7 +6039,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
       <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
-      <div style="display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap;" id="remove-table-btns"></div>
+      <button id="delete-table-btn" onclick="deleteSelectedTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);opacity:0.4;pointer-events:none;">✕ DELETE SELECTED TABLE</button>
       <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
     </div>
   </div>
