@@ -1443,6 +1443,17 @@ body.light-mode #an-leaderboard [style*="rgba(255,255,255,0.06)"] { background: 
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* ── OBSTACLE SYSTEM ─────────────────────────────────────── */
+.obs-mode-toggle{width:100%;padding:10px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);margin-top:4px;}
+.obs-mode-toggle.active{background:rgba(251,185,36,0.18);border-color:#FBB924;box-shadow:0 0 12px rgba(251,185,36,0.2);}
+.obs-type-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;opacity:0.35;pointer-events:none;transition:opacity 0.2s;}
+.obs-type-row.active{opacity:1;pointer-events:auto;}
+.obs-type-btn{flex:1;min-width:44px;padding:7px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;}
+.obs-type-btn:hover{border-color:rgba(251,185,36,0.5);color:#FBB924;}
+.obs-type-btn.selected{border-color:#FBB924;color:#000;background:#FBB924;}
+.obs-clear-btn{width:100%;padding:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.18s;margin-top:4px;}
+.obs-clear-btn:hover{background:rgba(239,68,68,0.15);}
+.obs-count-badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(251,185,36,0.7);margin-top:6px;text-align:center;}
 </style>
 
 </head>
@@ -2285,7 +2296,7 @@ const isSelected=selectedTableId===t.id;
   ctx.closePath();
   ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=20;
   ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); ctx.restore();
-
+  drawObstacles(ctx, W, H);
   syncOverlayState();
   overlayMapFrame = requestAnimationFrame(animateOverlayMap);
 }
@@ -4161,6 +4172,155 @@ function saveTables() {
   }).catch(() => {});
 }
   const dockX=0.08, dockY=0.5;
+  /* ── OBSTACLE SYSTEM DATA & LOGIC ───────────────────────── */
+let obstacles = [];
+let obstacleMode = false;
+let selectedObstacleType = 'person';
+
+const OBSTACLE_TYPES = {
+  person:   { label: 'Person',    emoji: '🧍', color: '#ef4444', radius: 0.022 },
+  kid:      { label: 'Kid',       emoji: '🧒', color: '#f97316', radius: 0.016 },
+  stroller: { label: 'Stroller',  emoji: '🍼', color: '#a78bfa', radius: 0.020 },
+  chair:    { label: 'Chair',     emoji: '🪑', color: '#60A5FA', radius: 0.018 },
+  table:    { label: 'Table',     emoji: '🪵', color: '#84cc16', radius: 0.028 },
+  bag:      { label: 'Bag',       emoji: '🎒', color: '#fbbf24', radius: 0.014 },
+  cone:     { label: 'Cone',      emoji: '🚧', color: '#fb923c', radius: 0.016 },
+  robot:    { label: 'Bot Unit',  emoji: '🤖', color: '#c084fc', radius: 0.022 },
+  barrier:  { label: 'Barrier',   emoji: '🚫', color: '#ef4444', radius: 0.030 },
+  pet:      { label: 'Pet',       emoji: '🐕', color: '#34d399', radius: 0.016 },
+  box:      { label: 'Box',       emoji: '📦', color: '#94a3b8', radius: 0.020 },
+  trash:    { label: 'Trash',     emoji: '🗑️', color: '#6b7280', radius: 0.016 },
+};
+
+function toggleObstacleMode() {
+  obstacleMode = !obstacleMode;
+  const btn = document.getElementById('obs-mode-btn');
+  const row = document.getElementById('obs-type-row');
+  const canvas = document.getElementById('overlayMap');
+  if (obstacleMode) {
+    btn.classList.add('active');
+    btn.textContent = '⬡ OBSTACLE MODE ON — CLICK MAP';
+    row.classList.add('active');
+    if (canvas) canvas.style.cursor = 'crosshair';
+    editLayoutMode = false;
+    const editBtn = document.getElementById('edit-layout-btn');
+    if (editBtn) { editBtn.textContent = '⬡ EDIT TABLE LAYOUT'; editBtn.style.background=''; editBtn.style.borderColor=''; editBtn.style.color=''; }
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '⬡ PLACE OBSTACLES';
+    row.classList.remove('active');
+    if (canvas) canvas.style.cursor = 'default';
+  }
+  updateObstacleCount();
+}
+
+function selectObstacleType(type) {
+  selectedObstacleType = type;
+  document.querySelectorAll('.obs-type-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('obs-btn-' + type)?.classList.add('selected');
+}
+
+function clearAllObstacles() {
+  obstacles = [];
+  syncObstaclesToRobot();
+  updateObstacleCount();
+  showToast('⬡ All obstacles cleared');
+}
+
+function removeObstacleAt(nx, ny) {
+  const before = obstacles.length;
+  obstacles = obstacles.filter(o => {
+    const dx = o.x - nx, dy = o.y - ny;
+    return Math.sqrt(dx*dx + dy*dy) > 0.03;
+  });
+  if (obstacles.length < before) {
+    syncObstaclesToRobot();
+    updateObstacleCount();
+    return true;
+  }
+  return false;
+}
+
+function placeObstacle(nx, ny) {
+  // Right-click or shift-click = remove
+  const def = OBSTACLE_TYPES[selectedObstacleType];
+  obstacles.push({ x: nx, y: ny, type: selectedObstacleType, r: def.radius });
+  syncObstaclesToRobot();
+  updateObstacleCount();
+  showToast('⬡ ' + def.emoji + ' ' + def.label + ' placed');
+}
+
+function updateObstacleCount() {
+  const el = document.getElementById('obs-count');
+  if (el) el.textContent = obstacles.length > 0 ? obstacles.length + ' obstacle' + (obstacles.length > 1 ? 's' : '') + ' active' : 'no obstacles';
+}
+
+async function syncObstaclesToRobot() {
+  try {
+    await fetch(API_BASE + '/api/robot/obstacles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ obstacles: obstacles.map(o => ({ x: o.x, y: o.y, type: o.type, radius: o.r })) })
+    });
+  } catch { /* silent — robot may be offline */ }
+}
+
+function drawObstacles(ctx, W, H) {
+  obstacles.forEach((o, i) => {
+    const def = OBSTACLE_TYPES[o.type] || OBSTACLE_TYPES.person;
+    const px = o.x * W, py = o.y * H;
+    const r = o.r * Math.min(W, H);
+
+    // Danger ring
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(px, py, r + 6, 0, Math.PI * 2);
+    ctx.strokeStyle = def.color;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.25 + 0.15 * Math.sin(Date.now() / 400 + i);
+    ctx.setLineDash([4, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Filled circle
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = def.color;
+    ctx.globalAlpha = 0.22;
+    ctx.fill();
+    ctx.restore();
+
+    // Border
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.strokeStyle = def.color;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.85;
+    ctx.stroke();
+    ctx.restore();
+
+    // Emoji label
+    ctx.save();
+    ctx.font = Math.round(r * 1.25) + 'px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.globalAlpha = 1;
+    ctx.fillText(def.emoji, px, py);
+    ctx.restore();
+
+    // Type label below
+    ctx.save();
+    ctx.font = '9px Share Tech Mono,monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = def.color;
+    ctx.globalAlpha = 0.85;
+    ctx.fillText(def.label.toUpperCase(), px, py + r + 11);
+    ctx.restore();
+  });
+}
   let editLayoutMode = false;
   let draggingTable = null;
   let dragOffsetX = 0, dragOffsetY = 0;
@@ -4249,6 +4409,26 @@ function saveTables() {
     }
 }
  function setupTableDrag() {
+    // Obstacle click handler
+    if (!canvas._obstacleSetup) {
+      canvas._obstacleSetup = true;
+      canvas.addEventListener('click', e => {
+        if (!obstacleMode) return;
+        const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        if (e.shiftKey) { removeObstacleAt(nx, ny); return; }
+        placeObstacle(nx, ny);
+      });
+      canvas.addEventListener('contextmenu', e => {
+        if (!obstacleMode) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        removeObstacleAt(nx, ny);
+      });
+    }
     const canvas = document.getElementById('overlayMap');
     if (!canvas || canvas._dragSetup) return;
     canvas._dragSetup = true;
@@ -4661,7 +4841,7 @@ ctx.fillStyle=isTarget?(isLight?'#7c3aed':'#C084FC'):(isLight?'#1d4ed8':'#60A5FA
                        navMode === 'AVOIDANCE' ? '#FBB924' : '#FF6B1A';
     ctx.fillStyle=robotColor; ctx.shadowColor=robotColor; ctx.shadowBlur=16;
     ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke(); ctx.restore();
-
+    drawObstacles(ctx, W, H);
     mapAnimFrame=requestAnimationFrame(animateMap);
   }
  
@@ -5074,6 +5254,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
     ctx.save(); ctx.translate(robotX*W,robotY*H); ctx.rotate(robotAngle+Math.PI/2);
     ctx.shadowColor=isLightRobot?'#e05800':'#FF6B1A'; ctx.shadowBlur=isLightRobot?8:20; ctx.fillStyle=isLightRobot?'#FF6F3C':'#FF6B1A';
     ctx.beginPath(); ctx.moveTo(0,-10); ctx.lineTo(6,6); ctx.lineTo(0,2); ctx.lineTo(-6,6); ctx.closePath(); ctx.fill(); ctx.restore();
+    drawObstacles(ctx, W, H);
     trackMapFrame = requestAnimationFrame(() => animateTrackMap(ref, tableNum));
   }
  
@@ -6036,6 +6217,27 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button onclick="recallUnit()" class="op-btn op-btn-blue" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ RECALL TO DOCK</button>
       <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PAUSE UNIT</button>
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
+      <div style="margin-top:12px;border-top:1px solid rgba(251,185,36,0.12);padding-top:12px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(251,185,36,0.5);text-transform:uppercase;margin-bottom:8px;">⬡ Obstacles</div>
+        <button class="obs-mode-toggle" id="obs-mode-btn" onclick="toggleObstacleMode()">⬡ PLACE OBSTACLES</button>
+        <div class="obs-type-row" id="obs-type-row">
+          <button class="obs-type-btn selected" id="obs-btn-person"   onclick="selectObstacleType('person')"  >🧍<br>Person</button>
+          <button class="obs-type-btn"           id="obs-btn-kid"     onclick="selectObstacleType('kid')"     >🧒<br>Kid</button>
+          <button class="obs-type-btn"           id="obs-btn-stroller"onclick="selectObstacleType('stroller')">🍼<br>Stroller</button>
+          <button class="obs-type-btn"           id="obs-btn-chair"   onclick="selectObstacleType('chair')"   >🪑<br>Chair</button>
+          <button class="obs-type-btn"           id="obs-btn-table"   onclick="selectObstacleType('table')"   >🪵<br>Table</button>
+          <button class="obs-type-btn"           id="obs-btn-bag"     onclick="selectObstacleType('bag')"     >🎒<br>Bag</button>
+          <button class="obs-type-btn"           id="obs-btn-cone"    onclick="selectObstacleType('cone')"    >🚧<br>Cone</button>
+          <button class="obs-type-btn"           id="obs-btn-robot"   onclick="selectObstacleType('robot')"   >🤖<br>Bot Unit</button>
+          <button class="obs-type-btn"           id="obs-btn-barrier" onclick="selectObstacleType('barrier')" >🚫<br>Barrier</button>
+          <button class="obs-type-btn"           id="obs-btn-pet"     onclick="selectObstacleType('pet')"     >🐕<br>Pet</button>
+          <button class="obs-type-btn"           id="obs-btn-box"     onclick="selectObstacleType('box')"     >📦<br>Box</button>
+          <button class="obs-type-btn"           id="obs-btn-trash"   onclick="selectObstacleType('trash')"   >🗑️<br>Trash</button>
+        </div>
+        <div class="obs-count-badge" id="obs-count">no obstacles</div>
+        <button class="obs-clear-btn" onclick="clearAllObstacles()">✕ CLEAR ALL OBSTACLES</button>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(251,185,36,0.35);margin-top:6px;text-align:center;">CLICK MAP TO PLACE · RIGHT-CLICK OR SHIFT+CLICK TO REMOVE</div>
+      </div>
       <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
       <button id="delete-table-btn" onclick="deleteSelectedTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);opacity:0.4;pointer-events:none;">✕ DELETE SELECTED TABLE</button>
