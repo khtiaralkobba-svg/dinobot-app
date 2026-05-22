@@ -4197,14 +4197,25 @@ function toggleObstacleMode() {
   const btn = document.getElementById('obs-mode-btn');
   const row = document.getElementById('obs-type-row');
   const canvas = document.getElementById('overlayMap');
+
   if (obstacleMode) {
     btn.classList.add('active');
     btn.textContent = '⬡ OBSTACLE MODE ON — CLICK MAP';
     row.classList.add('active');
-    if (canvas) canvas.style.cursor = 'crosshair';
+    if (canvas) {
+      canvas.style.cursor = 'crosshair';
+      canvas.style.pointerEvents = 'auto';
+    }
+    // Disable edit layout mode if it was on
     editLayoutMode = false;
+    draggingTable = null;
     const editBtn = document.getElementById('edit-layout-btn');
-    if (editBtn) { editBtn.textContent = '⬡ EDIT TABLE LAYOUT'; editBtn.style.background=''; editBtn.style.borderColor=''; editBtn.style.color=''; }
+    if (editBtn) {
+      editBtn.textContent = '⬡ EDIT TABLE LAYOUT';
+      editBtn.style.background = '';
+      editBtn.style.borderColor = '';
+      editBtn.style.color = '';
+    }
   } else {
     btn.classList.remove('active');
     btn.textContent = '⬡ PLACE OBSTACLES';
@@ -4242,12 +4253,11 @@ function removeObstacleAt(nx, ny) {
 }
 
 function placeObstacle(nx, ny) {
-  // Right-click or shift-click = remove
   const def = OBSTACLE_TYPES[selectedObstacleType];
   obstacles.push({ x: nx, y: ny, type: selectedObstacleType, r: def.radius });
   syncObstaclesToRobot();
   updateObstacleCount();
-  showToast('⬡ ' + def.emoji + ' ' + def.label + ' placed');
+  showToast('⬡ ' + def.emoji + ' ' + def.label + ' placed — robot will avoid it');
 }
 
 function updateObstacleCount() {
@@ -4257,12 +4267,22 @@ function updateObstacleCount() {
 
 async function syncObstaclesToRobot() {
   try {
+    localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles));
+  } catch {}
+  try {
     await fetch(API_BASE + '/api/robot/obstacles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ obstacles: obstacles.map(o => ({ x: o.x, y: o.y, type: o.type, radius: o.r })) })
+      body: JSON.stringify({
+        obstacles: obstacles.map(o => ({
+          x: o.x,
+          y: o.y,
+          type: o.type,
+          radius: o.r
+        }))
+      })
     });
-  } catch { /* silent — robot may be offline */ }
+  } catch { /* robot may be offline — map still shows them */ }
 }
 
 function drawObstacles(ctx, W, H) {
@@ -4409,26 +4429,6 @@ function drawObstacles(ctx, W, H) {
     }
 }
  function setupTableDrag() {
-    // Obstacle click handler
-    if (!canvas._obstacleSetup) {
-      canvas._obstacleSetup = true;
-      canvas.addEventListener('click', e => {
-        if (!obstacleMode) return;
-        const rect = canvas.getBoundingClientRect();
-        const nx = (e.clientX - rect.left) / rect.width;
-        const ny = (e.clientY - rect.top) / rect.height;
-        if (e.shiftKey) { removeObstacleAt(nx, ny); return; }
-        placeObstacle(nx, ny);
-      });
-      canvas.addEventListener('contextmenu', e => {
-        if (!obstacleMode) return;
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const nx = (e.clientX - rect.left) / rect.width;
-        const ny = (e.clientY - rect.top) / rect.height;
-        removeObstacleAt(nx, ny);
-      });
-    }
     const canvas = document.getElementById('overlayMap');
     if (!canvas || canvas._dragSetup) return;
     canvas._dragSetup = true;
@@ -4440,23 +4440,53 @@ function drawObstacles(ctx, W, H) {
         }) || null;
     }
 
+    // Obstacle placement handler — must be first
+    if (!canvas._obstacleSetup) {
+        canvas._obstacleSetup = true;
+
+        canvas.addEventListener('click', e => {
+            if (!obstacleMode) return;
+            e.stopPropagation();
+            const rect = canvas.getBoundingClientRect();
+            const nx = (e.clientX - rect.left) / rect.width;
+            const ny = (e.clientY - rect.top) / rect.height;
+            if (e.shiftKey) {
+                removeObstacleAt(nx, ny);
+            } else {
+                placeObstacle(nx, ny);
+            }
+        });
+
+        canvas.addEventListener('contextmenu', e => {
+            if (!obstacleMode) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const rect = canvas.getBoundingClientRect();
+            const nx = (e.clientX - rect.left) / rect.width;
+            const ny = (e.clientY - rect.top) / rect.height;
+            removeObstacleAt(nx, ny);
+        });
+    }
+
     canvas.addEventListener('mousedown', e => {
+        if (obstacleMode) { e.stopPropagation(); return; }
         if (!editLayoutMode) return;
         const rect = canvas.getBoundingClientRect();
         const nx = (e.clientX - rect.left) / rect.width;
         const ny = (e.clientY - rect.top) / rect.height;
         draggingTable = getTableAt(nx, ny);
         if (draggingTable) {
-          draggingTable._startX = draggingTable.x;
-          draggingTable._startY = draggingTable.y;
-          dragOffsetX = draggingTable.x - nx;
-          dragOffsetY = draggingTable.y - ny;
-          canvas.style.cursor = 'grabbing';
-          e.preventDefault();
-    }
-});
+            draggingTable._startX = draggingTable.x;
+            draggingTable._startY = draggingTable.y;
+            dragOffsetX = draggingTable.x - nx;
+            dragOffsetY = draggingTable.y - ny;
+            canvas.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
 
     canvas.addEventListener('mousemove', e => {
+        if (obstacleMode) { canvas.style.cursor = 'crosshair'; return; }
         if (!editLayoutMode) return;
         const rect = canvas.getBoundingClientRect();
         const nx = (e.clientX - rect.left) / rect.width;
@@ -4470,6 +4500,7 @@ function drawObstacles(ctx, W, H) {
     });
 
     canvas.addEventListener('mouseup', e => {
+        if (obstacleMode) { e.stopPropagation(); return; }
         if (draggingTable) {
             const moved = Math.abs(draggingTable.x - (draggingTable._startX || draggingTable.x)) > 0.01 ||
                           Math.abs(draggingTable.y - (draggingTable._startY || draggingTable.y)) > 0.01;
@@ -4486,8 +4517,8 @@ function drawObstacles(ctx, W, H) {
             }
             draggingTable = null;
             canvas.style.cursor = editLayoutMode ? 'crosshair' : 'default';
-    }
-});
+        }
+    });
 
     canvas.addEventListener('mouseleave', () => {
         if (draggingTable) { saveTables(); draggingTable = null; }
@@ -4495,6 +4526,15 @@ function drawObstacles(ctx, W, H) {
 
     // Touch support
     canvas.addEventListener('touchstart', e => {
+        if (obstacleMode) {
+            const rect = canvas.getBoundingClientRect();
+            const t = e.touches[0];
+            const nx = (t.clientX - rect.left) / rect.width;
+            const ny = (t.clientY - rect.top) / rect.height;
+            placeObstacle(nx, ny);
+            e.preventDefault();
+            return;
+        }
         if (!editLayoutMode) return;
         const rect = canvas.getBoundingClientRect();
         const t = e.touches[0];
@@ -4505,6 +4545,7 @@ function drawObstacles(ctx, W, H) {
     }, {passive: false});
 
     canvas.addEventListener('touchmove', e => {
+        if (obstacleMode) { e.preventDefault(); return; }
         if (!draggingTable) return;
         const rect = canvas.getBoundingClientRect();
         const t = e.touches[0];
@@ -4579,6 +4620,10 @@ function resetTableLayout() {
 }
  
 function initMap() {
+  try {
+    const saved = localStorage.getItem('dinobotObstacles');
+    if (saved) { obstacles = JSON.parse(saved); updateObstacleCount(); }
+  } catch {}
     const container=document.getElementById('map-container'); 
     const canvas=document.getElementById('overlayMap'); 
     if (!canvas||!container) return;
