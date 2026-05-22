@@ -741,9 +741,7 @@ body.light-mode #an-leaderboard [style*="rgba(255,255,255,0.06)"] { background: 
   .manual-speed-wrap { display: flex; align-items: center; gap: 10px; font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text-dim); }
   .manual-speed-wrap input[type=range] { flex: 1; height: 3px; cursor: pointer; accent-color: var(--orange); }
   .manual-kbd-hint { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 2px; color: rgba(255,107,26,0.35); text-align: center; text-transform: uppercase; }
-  .obs-type-btn.selected { border-color: var(--orange) !important; color: var(--orange) !important; background: rgba(255,107,26,0.12) !important; }
-.obs-type-btn:hover { border-color: rgba(255,107,26,0.4) !important; color: var(--text) !important; }
-#obs-delete-mode-btn.active { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,0.12) !important; }
+ 
   /* KITCHEN */
   #kitchen-center { display: none; }
   #kitchen-center.unlocked { display: block; animation: ccReveal 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
@@ -4285,7 +4283,7 @@ function placeObstacle(nx, ny) {
 
 function updateObstacleCount() {
   const el = document.getElementById('obs-count');
-  if (el) el.textContent = obstacles.length > 0 ? obstacles.length + ' OBSTACLE' + (obstacles.length > 1 ? 'S' : '') + ' ACTIVE' : 'NO OBSTACLES';
+  if (el) el.textContent = obstacles.length > 0 ? obstacles.length + ' obstacle' + (obstacles.length > 1 ? 's' : '') + ' active' : 'no obstacles';
 }
 
 async function syncObstaclesToRobot() {
@@ -6334,41 +6332,28 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button onclick="recallUnit()" class="op-btn op-btn-blue" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ RECALL TO DOCK</button>
       <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PAUSE UNIT</button>
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
-      <div style="margin-top:12px;border-top:1px solid rgba(255,107,26,0.12);padding-top:14px;">
-  <div class="op-section-title">⬡ Obstacles</div>
-
-  <button class="manual-mode-toggle" id="obs-mode-btn" onclick="toggleObstacleMode()" style="margin-bottom:6px;">
-    ⬡ PLACE OBSTACLES
-  </button>
-
-  <div class="obs-type-row" id="obs-type-row" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;opacity:0.35;pointer-events:none;transition:opacity 0.2s;">
-    <button class="obs-type-btn selected" id="obs-btn-person"    onclick="selectObstacleType('person')"   style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🧍<br>Person</button>
-    <button class="obs-type-btn"           id="obs-btn-kid"      onclick="selectObstacleType('kid')"      style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🧒<br>Kid</button>
-    <button class="obs-type-btn"           id="obs-btn-stroller" onclick="selectObstacleType('stroller')" style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🍼<br>Stroller</button>
-    <button class="obs-type-btn"           id="obs-btn-chair"    onclick="selectObstacleType('chair')"    style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🪑<br>Chair</button>
-    <button class="obs-type-btn"           id="obs-btn-table"    onclick="selectObstacleType('table')"    style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🪵<br>Table</button>
-    <button class="obs-type-btn"           id="obs-btn-bag"      onclick="selectObstacleType('bag')"      style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🎒<br>Bag</button>
-    <button class="obs-type-btn"           id="obs-btn-cone"     onclick="selectObstacleType('cone')"     style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🚧<br>Cone</button>
-    <button class="obs-type-btn"           id="obs-btn-robot"    onclick="selectObstacleType('robot')"    style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🤖<br>Bot Unit</button>
-    <button class="obs-type-btn"           id="obs-btn-barrier"  onclick="selectObstacleType('barrier')"  style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🚫<br>Barrier</button>
-    <button class="obs-type-btn"           id="obs-btn-pet"      onclick="selectObstacleType('pet')"      style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🐕<br>Pet</button>
-    <button class="obs-type-btn"           id="obs-btn-box"      onclick="selectObstacleType('box')"      style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">📦<br>Box</button>
-    <button class="obs-type-btn"           id="obs-btn-trash"    onclick="selectObstacleType('trash')"    style="flex:1;min-width:48px;padding:8px 4px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.6;">🗑️<br>Trash</button>
-  </div>
-
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,107,26,0.5);text-transform:uppercase;" id="obs-count">NO OBSTACLES</span>
-    <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--text-dim);">RIGHT-CLICK TO REMOVE</span>
-  </div>
-
-  <button id="obs-delete-mode-btn" onclick="toggleObstacleDeleteMode()" class="dispatch-btn" style="width:100%;margin-bottom:4px;padding:11px 8px;text-align:center;letter-spacing:2px;">
-    🗑 DELETE MODE
-  </button>
-
-  <button onclick="clearAllObstacles()" class="dispatch-btn" style="width:100%;padding:11px 8px;text-align:center;letter-spacing:2px;color:rgba(239,68,68,0.6);border-color:rgba(239,68,68,0.2);">
-    ✕ CLEAR ALL
-  </button>
-</div>
+      <div style="margin-top:12px;border-top:1px solid rgba(251,185,36,0.12);padding-top:12px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(251,185,36,0.5);text-transform:uppercase;margin-bottom:8px;">⬡ Obstacles</div>
+        <button class="obs-mode-toggle" id="obs-mode-btn" onclick="toggleObstacleMode()">⬡ PLACE OBSTACLES</button>
+        <div class="obs-type-row" id="obs-type-row">
+          <button class="obs-type-btn selected" id="obs-btn-person"   onclick="selectObstacleType('person')"  >🧍<br>Person</button>
+          <button class="obs-type-btn"           id="obs-btn-kid"     onclick="selectObstacleType('kid')"     >🧒<br>Kid</button>
+          <button class="obs-type-btn"           id="obs-btn-stroller"onclick="selectObstacleType('stroller')">🍼<br>Stroller</button>
+          <button class="obs-type-btn"           id="obs-btn-chair"   onclick="selectObstacleType('chair')"   >🪑<br>Chair</button>
+          <button class="obs-type-btn"           id="obs-btn-table"   onclick="selectObstacleType('table')"   >🪵<br>Table</button>
+          <button class="obs-type-btn"           id="obs-btn-bag"     onclick="selectObstacleType('bag')"     >🎒<br>Bag</button>
+          <button class="obs-type-btn"           id="obs-btn-cone"    onclick="selectObstacleType('cone')"    >🚧<br>Cone</button>
+          <button class="obs-type-btn"           id="obs-btn-robot"   onclick="selectObstacleType('robot')"   >🤖<br>Bot Unit</button>
+          <button class="obs-type-btn"           id="obs-btn-barrier" onclick="selectObstacleType('barrier')" >🚫<br>Barrier</button>
+          <button class="obs-type-btn"           id="obs-btn-pet"     onclick="selectObstacleType('pet')"     >🐕<br>Pet</button>
+          <button class="obs-type-btn"           id="obs-btn-box"     onclick="selectObstacleType('box')"     >📦<br>Box</button>
+          <button class="obs-type-btn"           id="obs-btn-trash"   onclick="selectObstacleType('trash')"   >🗑️<br>Trash</button>
+        </div>
+        <div class="obs-count-badge" id="obs-count">no obstacles</div>
+        <button class="obs-clear-btn" id="obs-delete-mode-btn" onclick="toggleObstacleDeleteMode()" style="border-color:rgba(239,68,68,0.25);color:#ef4444;margin-top:4px;">🗑 DELETE MODE</button>
+        <button class="obs-clear-btn" onclick="clearAllObstacles()">✕ CLEAR ALL OBSTACLES</button>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(251,185,36,0.35);margin-top:6px;text-align:center;">CLICK MAP TO PLACE · RIGHT-CLICK OR SHIFT+CLICK TO REMOVE</div>
+      </div>
       <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
       <button id="delete-table-btn" onclick="deleteSelectedTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);opacity:0.4;pointer-events:none;">✕ DELETE SELECTED TABLE</button>
