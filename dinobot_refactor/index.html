@@ -4103,7 +4103,7 @@ const tables = loadTables();
 function addTable() {
     const maxId = tables.length > 0 ? Math.max(...tables.map(t => t.id)) : 0;
     const newId = maxId + 1;
-    tables.push({ id: newId, x: 0.5 + (Math.random() - 0.5) * 0.3, y: 0.5 + (Math.random() - 0.5) * 0.3 });
+    tables.push({ id: newId, x: 0.5 + (Math.random() - 0.5) * 0.2, y: 0.5 + (Math.random() - 0.5) * 0.2 });
     saveTables();
     rebuildDispatchButtons();
     rebuildStudentTableGrid();
@@ -6234,15 +6234,17 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
         </div>
       </div>
     </div>
-    <!-- Obstacle Panel -->
-      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
-      <div class="op-section-title">⬡ Virtual Obstacles</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="emoji-picker">
-      <!-- built by JS -->
-     </div>
-     <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" class="op-btn" style="background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-size:13px;letter-spacing:3px;margin-bottom:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PLACE OBSTACLE</button>
-     <button onclick="clearAllObstacles()" class="op-btn" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:rgba(239,68,68,0.6);font-size:12px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">✕ CLEAR ALL OBSTACLES</button>
+    <!-- Obstacle Panel — full width below map -->
+    <div style="position:relative;padding:20px 24px;border:1px solid rgba(251,185,36,0.2);background:linear-gradient(135deg,rgba(251,185,36,0.03) 0%,rgba(2,8,26,0.6) 100%);pointer-events:auto;">
+      <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(251,185,36,0.6);border:1px solid rgba(251,185,36,0.15);">⬡ VIRTUAL OBSTACLES</div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="emoji-picker"></div>
+        <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" style="padding:10px 20px;background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">⬡ PLACE OBSTACLE</button>
+        <button onclick="clearAllObstacles()" style="padding:10px 20px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.7);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">✕ CLEAR ALL</button>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;">Click map to place · Right-click to remove</div>
+      </div>
     </div>
+
   </div><!-- end scrollable body -->
 </div><!-- end #map-overlay -->
 <!-- Staff Management Overlay -->
