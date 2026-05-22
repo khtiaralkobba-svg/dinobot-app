@@ -22,7 +22,8 @@ async function createOrder({ tableNumber, items, notes }) {
       table_number: Number(tableNumber),
       status: 'new',
       total,
-      notes: notes || null
+      notes: notes || null,
+      placed_at: new Date().toISOString()
     })
     .select('id')
     .single();
@@ -238,4 +239,39 @@ module.exports = {
   resetStuckOrders,
   logStuckOrder,
   getStuckOrders
+};
+
+async function getActiveOrders() {
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('*')
+    .in('status', ['new', 'prep', 'ready', 'dispatched', 'delivering'])
+    .order('placed_at', { ascending: true });
+
+  if (error) throw error;
+  if (!orders || orders.length === 0) return [];
+
+  const orderIds = orders.map(o => o.id);
+  const { data: allItems, error: itemsError } = await supabase
+    .from('order_items')
+    .select('*')
+    .in('order_id', orderIds);
+
+  if (itemsError) throw itemsError;
+
+  const itemsByOrder = {};
+  for (const item of allItems || []) {
+    if (!itemsByOrder[item.order_id]) itemsByOrder[item.order_id] = [];
+    itemsByOrder[item.order_id].push({
+      id: item.item_id, name: item.name, emoji: item.emoji,
+      qty: item.qty, unitPrice: item.unit_price
+    });
+  }
+
+  return orders.map(order => ({ ...order, items: itemsByOrder[order.id] || [] }));
+}
+
+module.exports = {
+  createOrder, getOrderByRef, getAllOrders, getActiveOrders,
+  updateOrderStatus, cancelOrder, resetStuckOrders, logStuckOrder, getStuckOrders
 };

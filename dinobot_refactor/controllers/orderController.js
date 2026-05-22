@@ -38,7 +38,9 @@ async function getOrder(req, res) {
 
 async function getOrders(req, res) {
   try {
-    const orders = await orderService.getAllOrders();
+    const orders = req.user?.role === 'kitchen'
+      ? await orderService.getActiveOrders()
+      : await orderService.getAllOrders();
     return res.json({ success: true, orders });
   } catch (err) {
     console.error('Get orders error:', err);
