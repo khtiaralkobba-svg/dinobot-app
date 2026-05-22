@@ -5033,12 +5033,17 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
   }
  
   async function placeOrder(){
+    console.log('[placeOrder] selectedTable:', selectedTable);
+    console.log('[placeOrder] cart:', JSON.stringify(cart));
     const btn=document.getElementById('btn-place-order');
     if(btn){btn.disabled=true;btn.textContent='PLACING ORDER...';}
     try {
       const orderItems=MENU_ITEMS.filter(m=>(cart[m.id]||0)>0).map(m=>({id:m.id,name:m.name,emoji:m.emoji,qty:cart[m.id],unitPrice:m.price}));
+      console.log('[placeOrder] orderItems:', JSON.stringify(orderItems));
       const res=await fetch(API_BASE+'/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tableNumber:selectedTable,items:orderItems})});
+      console.log('[placeOrder] status:', res.status);
       const data=await res.json();
+      console.log('[placeOrder] data:', JSON.stringify(data));
       if(!res.ok)throw new Error(data.error||'Failed');
       const order=data.order;
       const now=new Date();
@@ -5062,6 +5067,7 @@ for(let j=0;j<H;j+=40){ctx.beginPath();ctx.moveTo(0,j);ctx.lineTo(W,j);ctx.strok
       window.scrollTo(0,0);
       if(btn){btn.disabled=false;btn.textContent='PLACE ORDER →';}
     } catch(err){
+      console.error('[placeOrder] ERROR:', err.message, err);
       showToast('✗ '+(err.message||'Failed to place order'));
       if(btn){btn.disabled=false;btn.textContent='PLACE ORDER →';}
     }
