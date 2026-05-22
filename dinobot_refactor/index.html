@@ -2189,10 +2189,12 @@ function closeStaffOverlay() {
   document.body.style.overflow = 'hidden';
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
-  setTimeout(() => initOverlayMap(), 100);
+  setTimeout(() => {
+    initOverlayMap();
+    setupTableDrag();
+  }, 100);
   syncOverlayState();
 }
-
 function closeMapOverlay() {
   const el = document.getElementById('map-overlay');
   cancelAnimationFrame(overlayMapFrame);
@@ -2244,13 +2246,28 @@ function animateOverlayMap() {
 
   // Tables
   tables.forEach(t => {
-    const tx=t.x*W, ty=t.y*H, isT=currentTarget&&currentTarget.id===t.id;
-    const isLightOv=document.body.classList.contains('light-mode');
-    ctx.fillStyle=isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA'); ctx.shadowColor=isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA'); ctx.shadowBlur=isT?16:8;
-    ctx.beginPath(); ctx.arc(tx,ty,isT?10:7,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0; ctx.fillStyle=isLightOv?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText('T'+t.id, tx, ty+22);
-  });
+      const tx=t.x*W, ty=t.y*H;
+      const isT=currentTarget&&currentTarget.id===t.id;
+      const isDragged=draggingTable&&draggingTable.id===t.id;
+      const isLightOv=document.body.classList.contains('light-mode');
+      const r = isDragged ? 14 : isT ? 10 : editLayoutMode ? 9 : 7;
+      if (editLayoutMode) {
+        ctx.strokeStyle = isDragged ? '#4ADE80' : 'rgba(74,222,128,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.arc(tx, ty, r + 8, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.fillStyle=isDragged?'#4ADE80':isT?(isLightOv?'#7c3aed':'#C084FC'):(isLightOv?'#1d4ed8':'#60A5FA');
+      ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=isDragged?20:isT?16:8;
+      ctx.beginPath(); ctx.arc(tx,ty,r,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0; ctx.fillStyle=isLightOv?'rgba(20,8,0,0.7)':'rgba(220,232,248,0.8)'; ctx.font='11px Share Tech Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText('T'+t.id, tx, ty+r+12);
+      if (editLayoutMode && !isDragged) {
+        ctx.fillStyle = 'rgba(74,222,128,0.6)'; ctx.font = '9px Share Tech Mono,monospace';
+        ctx.fillText('drag', tx, ty + r + 22);
+      }
+    });
 
   // Dock
   ctx.fillStyle='#16a34a'; ctx.shadowColor='#16a34a'; ctx.shadowBlur=document.body.classList.contains('light-mode')?6:14;
@@ -4033,11 +4050,28 @@ function connectSocket(room) {
   let robotX=0.08, robotY=0.5, targetX=0.08, targetY=0.5, robotAngle=0;
   let mapAnimFrame=null, paused=false;
  
-  const tables = [
+  const DEFAULT_TABLES = [
     {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
     {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28},
-  ];
+];
+function loadTables() {
+    try {
+        const saved = localStorage.getItem('dinobotTableLayout');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length === 8) return parsed;
+        }
+    } catch(e) {}
+    return DEFAULT_TABLES.map(t => ({...t}));
+}
+const tables = loadTables();
+function saveTables() {
+    localStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
+}
   const dockX=0.08, dockY=0.5;
+  let editLayoutMode = false;
+  let draggingTable = null;
+  let dragOffsetX = 0, dragOffsetY = 0;
  
   function setRobotState(state, label, color) {
     const badge=document.getElementById('robot-state-badge'); if (!badge) return;
@@ -4121,7 +4155,110 @@ function connectSocket(room) {
         fetch(API_BASE + '/api/robot/resume', { method: 'POST' }).catch(() => {});
     }
 }
- 
+ function setupTableDrag() {
+    const canvas = document.getElementById('overlayMap');
+    if (!canvas || canvas._dragSetup) return;
+    canvas._dragSetup = true;
+
+    function getTableAt(nx, ny) {
+        return tables.find(t => {
+            const dist = Math.sqrt((t.x - nx) ** 2 + (t.y - ny) ** 2);
+            return dist < 0.045;
+        }) || null;
+    }
+
+    canvas.addEventListener('mousedown', e => {
+        if (!editLayoutMode) return;
+        const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        draggingTable = getTableAt(nx, ny);
+        if (draggingTable) {
+            dragOffsetX = draggingTable.x - nx;
+            dragOffsetY = draggingTable.y - ny;
+            canvas.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mousemove', e => {
+        if (!editLayoutMode) return;
+        const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        const ny = (e.clientY - rect.top) / rect.height;
+        if (draggingTable) {
+            draggingTable.x = Math.max(0.05, Math.min(0.97, nx + dragOffsetX));
+            draggingTable.y = Math.max(0.05, Math.min(0.95, ny + dragOffsetY));
+        } else {
+            canvas.style.cursor = getTableAt(nx, ny) ? 'grab' : 'crosshair';
+        }
+    });
+
+    canvas.addEventListener('mouseup', e => {
+        if (draggingTable) {
+            saveTables();
+            showToast('⬡ Table ' + draggingTable.id + ' position saved');
+            draggingTable = null;
+            canvas.style.cursor = editLayoutMode ? 'crosshair' : 'default';
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (draggingTable) { saveTables(); draggingTable = null; }
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', e => {
+        if (!editLayoutMode) return;
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        const nx = (t.clientX - rect.left) / rect.width;
+        const ny = (t.clientY - rect.top) / rect.height;
+        draggingTable = getTableAt(nx, ny);
+        if (draggingTable) { dragOffsetX = draggingTable.x - nx; dragOffsetY = draggingTable.y - ny; e.preventDefault(); }
+    }, {passive: false});
+
+    canvas.addEventListener('touchmove', e => {
+        if (!draggingTable) return;
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        const nx = (t.clientX - rect.left) / rect.width;
+        const ny = (t.clientY - rect.top) / rect.height;
+        draggingTable.x = Math.max(0.05, Math.min(0.97, nx + dragOffsetX));
+        draggingTable.y = Math.max(0.05, Math.min(0.95, ny + dragOffsetY));
+        e.preventDefault();
+    }, {passive: false});
+
+    canvas.addEventListener('touchend', () => {
+        if (draggingTable) { saveTables(); draggingTable = null; }
+    });
+}
+
+function toggleEditLayout() {
+    editLayoutMode = !editLayoutMode;
+    const btn = document.getElementById('edit-layout-btn');
+    const canvas = document.getElementById('overlayMap');
+    if (editLayoutMode) {
+        btn.textContent = '✓ DONE EDITING';
+        btn.style.background = 'rgba(74,222,128,0.15)';
+        btn.style.borderColor = 'rgba(74,222,128,0.6)';
+        btn.style.color = '#4ADE80';
+        if (canvas) canvas.style.cursor = 'crosshair';
+        showToast('⬡ Drag tables to reposition them');
+    } else {
+        btn.textContent = '⬡ EDIT TABLE LAYOUT';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        if (canvas) canvas.style.cursor = 'default';
+    }
+}
+
+function resetTableLayout() {
+    DEFAULT_TABLES.forEach((def, i) => { tables[i].x = def.x; tables[i].y = def.y; });
+    saveTables();
+    showToast('⬡ Table layout reset to default');
+}
   function toggleEStop() {
     eStopActive=!eStopActive;
     const btn=document.getElementById('estop-btn'); 
@@ -5798,6 +5935,8 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button onclick="recallUnit()" class="op-btn op-btn-blue" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ RECALL TO DOCK</button>
       <button id="pause-btn" onclick="pauseUnit()" class="op-btn op-btn-yellow" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ PAUSE UNIT</button>
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
+      <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
+      <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
     </div>
   </div>
   <div>
