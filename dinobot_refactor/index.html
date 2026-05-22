@@ -2184,12 +2184,13 @@ function closeStaffOverlay() {
     document.body.style.overflow = '';
   }, 300);
 }
-  function openMapOverlay() {
+function openMapOverlay() {
   document.getElementById('map-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
   rebuildDispatchButtons();
+  rebuildRemoveButtons();
   setTimeout(() => {
     initOverlayMap();
     setupTableDrag();
@@ -4094,13 +4095,23 @@ function removeLastTable() {
     removeTable(last.id);
 }
 
+function rebuildRemoveButtons() {
+  const container = document.getElementById('remove-table-btns');
+  if (!container) return;
+  container.innerHTML = tables.map(t => `
+    <button onclick="removeTable(${t.id})" style="padding:8px 12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ T${t.id}</button>
+  `).join('');
+}
+
 function rebuildDispatchButtons() {
     const grid = document.getElementById('dispatch-btn-grid');
     if (!grid) return;
     grid.innerHTML = tables.map(t =>
         `<button class="dispatch-btn" onclick="dispatch(${t.id})">Table ${t.id}</button>`
     ).join('');
+    rebuildRemoveButtons();
 }
+
 
 function rebuildStudentTableGrid() {
     const grid = document.getElementById('table-grid');
@@ -6002,7 +6013,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button id="reset-stuck-btn" onclick="resetStuckOrders()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:17px;letter-spacing:4px;position:relative;z-index:99999;margin-top:8px;pointer-events:all !important;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">⬡ RESET STUCK</button>
       <button id="edit-layout-btn" onclick="toggleEditLayout()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:8px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">⬡ EDIT TABLE LAYOUT</button>
       <button onclick="addTable()" class="op-btn" style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:rgba(74,222,128,0.8);font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">+ ADD TABLE</button>
-      <button onclick="removeLastTable()" class="op-btn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;letter-spacing:3px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">− REMOVE LAST TABLE</button>
+      <div style="display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap;" id="remove-table-btns"></div>
       <button onclick="resetTableLayout()" class="op-btn" style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:rgba(96,165,250,0.6);font-size:12px;letter-spacing:2px;margin-top:4px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);">↺ RESET TO DEFAULT</button>
     </div>
   </div>
