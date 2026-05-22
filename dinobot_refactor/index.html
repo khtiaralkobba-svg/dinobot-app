@@ -4203,7 +4203,7 @@ function toggleObstacleMode() {
   if (obstacleMode) {
     btn.classList.add('active');
     btn.textContent = '⬡ OBSTACLE MODE ON — CLICK MAP';
-    row.classList.add('active');
+    if (row) { row.style.opacity = '1'; row.style.pointerEvents = 'auto'; }
     if (canvas) { canvas.style.cursor = 'crosshair'; canvas.style.pointerEvents = 'auto'; }
     editLayoutMode = false;
     draggingTable = null;
@@ -4213,7 +4213,7 @@ function toggleObstacleMode() {
   } else {
     btn.classList.remove('active');
     btn.textContent = '⬡ PLACE OBSTACLES';
-    row.classList.remove('active');
+    if (row) { row.style.opacity = '0.35'; row.style.pointerEvents = 'none'; }
     if (canvas) canvas.style.cursor = 'default';
     updateDeleteModeBtn();
   }
@@ -4224,10 +4224,10 @@ function toggleObstacleDeleteMode() {
   if (!obstacleMode) return;
   obstacleDeleteMode = !obstacleDeleteMode;
   const canvas = document.getElementById('overlayMap');
-  if (canvas) canvas.style.cursor = obstacleDeleteMode ? 'not-allowed' : 'crosshair';
-  updateDeleteModeBtn();
   const row = document.getElementById('obs-type-row');
+  if (canvas) canvas.style.cursor = obstacleDeleteMode ? 'not-allowed' : 'crosshair';
   if (row) row.style.opacity = obstacleDeleteMode ? '0.3' : '1';
+  updateDeleteModeBtn();
   showToast(obstacleDeleteMode ? '⬡ Click any obstacle to delete it' : '⬡ Click map to place obstacle');
 }
 
