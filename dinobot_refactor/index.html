@@ -512,7 +512,18 @@ body.light-mode #estop-layer { background: linear-gradient(135deg, rgba(239,68,6
 body.light-mode #estop-layer .cc-layer-tag { background: #020b1a !important; color: rgba(185,28,28,0.8) !important; border-color: rgba(185,28,28,0.25) !important; }
 
 body.light-mode #map-controls-grid { background: transparent; }
-body.light-mode #map-controls-grid > div { background: rgba(215,215,215,0.4); }
+body.light-mode #map-controls-grid > div { background: #e8f4fd; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #map-controls-grid + div > div { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #map-controls-grid + div .obs-type-btn { background: #cce5f9 !important; border-color: rgba(30,100,200,0.2) !important; color: #0f3d6e !important; }
+body.light-mode #map-controls-grid + div .obs-type-btn.selected { background: #90c4e8 !important; border-color: rgba(30,100,200,0.6) !important; color: #0f3d6e !important; }
+body.light-mode #map-controls-grid + div .manual-mode-toggle { background: rgba(255,106,0,0.1) !important; border-color: rgba(180,80,0,0.5) !important; color: #e05800 !important; }
+body.light-mode #map-controls-grid + div .manual-mode-toggle.active { background: rgba(255,106,0,0.2) !important; border-color: #FF6F3C !important; color: #FF6F3C !important; }
+body.light-mode #map-controls-grid + div .dispatch-btn { background: linear-gradient(160deg, rgba(255,106,0,0.12), rgba(215,215,215,0.6)) !important; border-color: rgba(180,80,0,0.45) !important; color: #7c2d00 !important; }
+body.light-mode #map-controls-grid + div [style*="rgba(239,68,68"] { background: rgba(185,28,28,0.08) !important; border-color: rgba(185,28,28,0.4) !important; color: #b91c1c !important; }
+body.light-mode #map-controls-grid + div [style*="rgba(74,222,128"] { background: rgba(22,163,74,0.08) !important; border-color: rgba(22,163,74,0.4) !important; color: #15803d !important; }
+body.light-mode #map-controls-grid + div [style*="rgba(96,165,250"] { background: rgba(29,78,216,0.06) !important; border-color: rgba(29,78,216,0.3) !important; color: #1d4ed8 !important; }
+body.light-mode #map-controls-grid + div .op-section-title { color: #FF6F3C !important; border-color: rgba(180,80,0,0.14) !important; }
+body.light-mode #map-controls-grid + div #obs-count { color: rgba(180,80,0,0.6) !important; }
 body.light-mode #dpad-panel { background: linear-gradient(160deg, #E0E0E0, #DCE0E8) !important; border-color: rgba(80,80,80,0.2) !important; }
 body.light-mode #activityFeed { background: transparent; }
 body.light-mode #activityFeed .activity-item { background: rgba(215,215,215,0.6); }
