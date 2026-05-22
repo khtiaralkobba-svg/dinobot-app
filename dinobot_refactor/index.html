@@ -2683,6 +2683,7 @@ let announcedOrders = new Set();
     if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
     window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
     startAlertEngine();
+    startKitchenRobotPolling();
     setTimeout(initMap, 300);
 }
       document.getElementById('ub-icon').textContent = r.icon;
