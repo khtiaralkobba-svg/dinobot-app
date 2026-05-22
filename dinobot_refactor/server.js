@@ -106,6 +106,16 @@ app.post('/api/tables/layout', (req, res) => {
   tableLayout = req.body.tables;
   res.json({ success: true });
 });
+let obstacleLayout = [];
+
+app.get('/api/obstacles', (req, res) => {
+  res.json({ obstacles: obstacleLayout });
+});
+
+app.post('/api/obstacles', (req, res) => {
+  obstacleLayout = req.body.obstacles || [];
+  res.json({ success: true });
+});
 
 const robotProxyRoutes = [
   { path: '/pickup',       method: 'POST' },

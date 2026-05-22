@@ -2190,9 +2190,20 @@ function openMapOverlay() {
   cancelAnimationFrame(mapAnimFrame);
   mapAnimFrame = null;
   rebuildDispatchButtons();
+  const picker = document.getElementById('emoji-picker');
+  if (picker) {
+    picker.innerHTML = OBSTACLE_EMOJIS.map(e => `
+      <button class="obs-emoji-btn" data-emoji="${e}" onclick="selectObstacleEmoji('${e}')"
+        style="font-size:20px;padding:6px 8px;background:${e===selectedObstacleEmoji?'rgba(251,185,36,0.2)':'rgba(5,20,60,0.5)'};
+        border:1px solid ${e===selectedObstacleEmoji?'#FBB924':'var(--border)'};cursor:pointer;
+        clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.15s;">
+        ${e}
+      </button>`).join('');
+  }
   setTimeout(() => {
     initOverlayMap();
     setupTableDrag();
+    setupObstacleClick();
   }, 100);
   syncOverlayState();
 }
@@ -6099,6 +6110,17 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
           <div class="legend-item"><span class="legend-dot" style="background:#60A5FA;"></span>Table</div>
           <div class="legend-item"><span class="legend-dot" style="background:#C084FC;"></span>Target</div>
         </div>
+      </div>
+    </div>
+
+  <!-- Obstacle Panel -->
+    <div style="position:relative;padding:20px 24px;border:1px solid rgba(251,185,36,0.2);background:linear-gradient(135deg,rgba(251,185,36,0.03) 0%,rgba(2,8,26,0.6) 100%);pointer-events:auto;">
+      <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(251,185,36,0.6);border:1px solid rgba(251,185,36,0.15);">⬡ VIRTUAL OBSTACLES</div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="emoji-picker"></div>
+        <button id="place-obstacle-btn" onclick="togglePlaceObstacle()" style="padding:10px 20px;background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">⬡ PLACE OBSTACLE</button>
+        <button onclick="clearAllObstacles()" style="padding:10px 20px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.7);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">✕ CLEAR ALL</button>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;">Click map to place · Right-click to remove</div>
       </div>
     </div>
 
