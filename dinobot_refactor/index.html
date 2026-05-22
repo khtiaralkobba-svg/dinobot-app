@@ -4143,11 +4143,10 @@ window.addEventListener('storage', function(e) {
   if (e.key === 'dinobotTableLayout' && e.newValue) {
     try {
       const updated = JSON.parse(e.newValue);
-      if (Array.isArray(updated) && updated.length === 8) {
-        updated.forEach((t, i) => {
-          tables[i].x = t.x;
-          tables[i].y = t.y;
-        });
+      if (Array.isArray(updated) && updated.length > 0) {
+        tables.length = 0;
+        updated.forEach(t => tables.push({...t}));
+        rebuildStudentTableGrid();
         console.log('[tables] Layout synced from manager tab');
       }
     } catch(e) {}
