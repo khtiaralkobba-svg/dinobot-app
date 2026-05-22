@@ -5954,7 +5954,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="op-section-title">⬡ Live Floor Map</div>
         <div id="map-container" style="position:relative;height:65vh;background:rgba(2,8,26,0.85);border:1px solid rgba(255,107,26,0.15);overflow:hidden;">
-         <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+         <canvas id="overlayMap" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;"></canvas>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
