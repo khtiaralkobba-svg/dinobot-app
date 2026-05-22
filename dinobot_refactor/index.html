@@ -2683,7 +2683,7 @@ let announcedOrders = new Set();
     if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
     window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
     startAlertEngine();
-    startKitchenRobotPolling();
+    setTimeout(initMap, 300);
 }
       document.getElementById('ub-icon').textContent = r.icon;
       document.getElementById('ub-name').textContent = ((data.user?.fullName || data.user?.full_name || r.label) + '').toUpperCase();
@@ -3259,12 +3259,8 @@ function startKitchenRobotPolling() {
             // Always sync dispatch buttons on every tick
             const isNowBusy = ['MOVING_TO_TABLE', 'DELIVERING'].includes(data.state);
             robotBusy = isNowBusy;
-            document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
-                btn.disabled = isNowBusy;
-                btn.style.opacity = isNowBusy ? '0.4' : '';
-                btn.style.pointerEvents = isNowBusy ? 'none' : '';
-                btn.title = isNowBusy ? 'Robot is busy delivering' : '';
-            });
+            robotBusy = isNowBusy;
+            setAllDispatchButtons(!isNowBusy);
 
         } catch {
             if (window._pythonOnline !== false) {
@@ -3521,7 +3517,9 @@ function startAnalyticsPolling() {
   document.querySelectorAll('[id^="action-"]').forEach(btn => {
     const isDispatchBtn = btn.dataset.dispatch === 'true' ||
                           btn.textContent.includes('Dispatch Robot') ||
-                          btn.textContent.includes('Robot En Route');
+                          btn.textContent.includes('Robot En Route') ||
+                          btn.textContent.includes('RE-DISPATCH') ||
+                          btn.textContent.includes('Re-Dispatch');
     if (isDispatchBtn) {
       btn.disabled = !enabled;
       btn.style.opacity = enabled ? '1' : '0.4';
@@ -3564,7 +3562,7 @@ function startAnalyticsPolling() {
       addActivity('dot-robot',`Robot dispatched for <strong>${ref}</strong> → Table ${tableNum}`);
       sfxDispatched();
     } catch(err) {
-      if (err.message === 'Robot rejected dispatch' || err.message === 'Failed to update order') {
+      if (err.message === 'Robot rejected dispatch' || err.message === 'Failed to update order' || err.message.includes('502') || err.message.includes('fetch')) {
         if (btn) { btn.disabled=false; btn.textContent='🤖 Dispatch Robot → Table '+tableNum; btn.className='ticket-action ticket-action-prep'; }
         showToast('✗ '+(err.message||'Failed to dispatch robot'));
       } else {
@@ -6393,7 +6391,7 @@ await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
       <button class="obs-type-btn"           id="obs-btn-trash"    onclick="selectObstacleType('trash')"    style="padding:6px 2px;background:rgba(5,22,65,0.8);border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:8px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);transition:all 0.18s;text-align:center;line-height:1.5;">🗑️<br>Trash</button>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,107,26,0.5);text-transform:uppercase;" id="obs-count">NO OBSTACLES</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,107,26,0.5);text-transform:uppercase;" id="obs-count">no obstacles</span>
       <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);">RIGHT-CLICK = REMOVE</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
