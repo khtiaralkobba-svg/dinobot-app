@@ -96,16 +96,35 @@ const ROBOT_URL = process.env.ROBOT_URL || 'http://localhost:5000';
 // ── Table layout ──────────────────────────────────────────────────────────────
 let tableLayout = null;
 
-app.get('/api/tables/layout', (req, res) => {
-  res.json({ tables: tableLayout || [
-    {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
-    {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28}
-  ]});
+const { supabase } = require('./db');
+
+app.get('/api/tables/layout', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('table_layout')
+      .select('tables')
+      .eq('id', 1)
+      .single();
+    if (error) throw error;
+    res.json({ tables: data.tables });
+  } catch (err) {
+    res.json({ tables: [
+      {id:1,x:0.55,y:0.18},{id:2,x:0.72,y:0.28},{id:3,x:0.82,y:0.50},{id:4,x:0.72,y:0.72},
+      {id:5,x:0.55,y:0.82},{id:6,x:0.38,y:0.82},{id:7,x:0.28,y:0.72},{id:8,x:0.28,y:0.28}
+    ]});
+  }
 });
 
-app.post('/api/tables/layout', (req, res) => {
-  tableLayout = req.body.tables;
-  res.json({ success: true });
+app.post('/api/tables/layout', async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('table_layout')
+      .upsert({ id: 1, tables: req.body.tables, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 const robotProxyRoutes = [
