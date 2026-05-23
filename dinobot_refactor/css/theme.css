@@ -668,3 +668,33 @@ body.light-mode #heatmap-body th {
 body.light-mode #heatmap-body > div > span[style*="CLICK"] {
   color: rgba(20,8,0,0.3) !important;
 }
+
+/* ── LIGHT MODE — HEATMAP LEGEND & SELECT BAR FORCE FIX ─── */
+body.light-mode #heatmap-overlay * {
+  border-color: rgba(30,100,200,0.15) !important;
+}
+/* Color legend dark panel */
+body.light-mode #heatmap-overlay div[style*="background:rgba(2"],
+body.light-mode #heatmap-overlay div[style*="background: rgba(2"],
+body.light-mode #heatmap-overlay div[style*="background:#020"],
+body.light-mode #heatmap-overlay div[style*="background: #020"],
+body.light-mode #heatmap-overlay div[style*="background:linear-gradient(160deg,#07"],
+body.light-mode #heatmap-overlay div[style*="background: linear-gradient(160deg, #07"] {
+  background: #e8f4fd !important;
+  color: #1C0F00 !important;
+}
+/* SELECT A CELL bar specifically */
+body.light-mode #heatmap-overlay div[style*="#020b1a"],
+body.light-mode #heatmap-overlay div[style*="020b1a"] {
+  background: #dceef8 !important;
+  color: rgba(20,8,0,0.6) !important;
+}
+/* All text in heatmap */
+body.light-mode #heatmap-overlay span,
+body.light-mode #heatmap-overlay p,
+body.light-mode #heatmap-overlay div {
+  color: inherit;
+}
+body.light-mode #heatmap-body {
+  color: #1C0F00 !important;
+}
