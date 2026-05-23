@@ -589,3 +589,82 @@ body.light-mode #staff-list-panel > div[style*="position:absolute"] {
   font-weight: 700 !important;
   letter-spacing: 3px !important;
 }
+
+/* ── LIGHT MODE — HEATMAP OVERLAY FULL FIX ──────────────── */
+body.light-mode #heatmap-overlay {
+  background: #f4faff !important;
+}
+body.light-mode #heatmap-overlay > div:first-child {
+  background: linear-gradient(160deg, rgba(255,106,0,0.08) 0%, transparent 60%) !important;
+  border-color: rgba(180,80,0,0.2) !important;
+}
+/* Stat cards at top */
+body.light-mode #heatmap-body > div:first-child > div {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+body.light-mode #heatmap-body > div:first-child > div > div:first-child {
+  color: rgba(20,8,0,0.5) !important;
+}
+body.light-mode #heatmap-body > div:first-child > div > div:nth-child(3) {
+  color: rgba(20,8,0,0.5) !important;
+}
+/* Filter buttons THIS WEEK / THIS MONTH / ALL TIME */
+body.light-mode #heatmap-body button {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.3) !important;
+  color: rgba(20,8,0,0.7) !important;
+}
+body.light-mode #heatmap-body button.active,
+body.light-mode #heatmap-body button[style*="background"] {
+  background: rgba(255,106,0,0.12) !important;
+  border-color: rgba(255,106,0,0.5) !important;
+  color: #FF6F3C !important;
+}
+/* Heatmap grid container */
+body.light-mode #heatmap-body > div:nth-child(3) {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* Grid cells */
+body.light-mode #heatmap-body td,
+body.light-mode #heatmap-body th {
+  color: rgba(20,8,0,0.7) !important;
+  border-color: rgba(30,100,200,0.1) !important;
+}
+/* Color legend panel */
+body.light-mode #heatmap-body > div:nth-child(2) {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* SELECT A CELL bar */
+body.light-mode #heatmap-body > div[style*="SELECT"] {
+  background: #dceef8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: rgba(20,8,0,0.5) !important;
+}
+/* Chart/distribution section */
+body.light-mode #heatmap-body > div:last-child {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+body.light-mode #heatmap-body > div:last-child > div {
+  color: rgba(20,8,0,0.6) !important;
+}
+/* COLOR LEGEND title */
+body.light-mode #heatmap-body span[style*="COLOR LEGEND"],
+body.light-mode #heatmap-body div[style*="COLOR LEGEND"] {
+  color: rgba(30,100,200,0.6) !important;
+}
+/* Day labels MON TUE etc */
+body.light-mode #heatmap-body td:first-child {
+  color: rgba(20,8,0,0.5) !important;
+}
+/* Hour labels */
+body.light-mode #heatmap-body th {
+  color: rgba(20,8,0,0.4) !important;
+}
+/* CLICK CELL TO DETAIL label */
+body.light-mode #heatmap-body > div > span[style*="CLICK"] {
+  color: rgba(20,8,0,0.3) !important;
+}
