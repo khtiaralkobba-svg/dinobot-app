@@ -540,3 +540,10 @@ body.light-mode #map-overlay > div:first-child div[style*="color:#4ADE80"],
 body.light-mode #map-overlay > div:first-child div[style*="color: #4ADE80"] {
   color: #16a34a !important;
 }
+
+/* ── LIGHT MODE — CRITICAL TAG IN MAP OVERLAY ────────────── */
+body.light-mode #map-overlay #estop-layer > div[style*="position:absolute"] {
+  background: #f4faff !important;
+  color: rgba(239,68,68,0.7) !important;
+  border-color: rgba(239,68,68,0.2) !important;
+}
