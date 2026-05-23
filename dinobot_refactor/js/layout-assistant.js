@@ -56,6 +56,53 @@ function layoutHideTyping() {
   document.getElementById('layout-typing')?.remove();
 }
 
+/* ── Try every possible way to extract layout JSON ──────── */
+function extractLayouts(text) {
+  // Method 1: LAYOUTS_JSON: [...] END_LAYOUTS markers
+  const m1 = text.match(/LAYOUTS_JSON:\s*([\s\S]*?)\s*END_LAYOUTS/);
+  if (m1) {
+    try {
+      const parsed = JSON.parse(m1[1].trim());
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
+    } catch(e) {}
+  }
+
+  // Method 2: ```json [...] ``` code block
+  const m2 = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (m2) {
+    try {
+      const parsed = JSON.parse(m2[1].trim());
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
+    } catch(e) {}
+  }
+
+  // Method 3: Find the outermost [...] array in the text
+  let depth = 0, start = -1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '[') { if (depth === 0) start = i; depth++; }
+    else if (text[i] === ']') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        try {
+          const parsed = JSON.parse(text.slice(start, i + 1));
+          if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
+        } catch(e) {}
+        start = -1;
+      }
+    }
+  }
+  return null;
+}
+
+/* ── Strip all JSON and code blocks from display text ───── */
+function cleanReplyText(text) {
+  return text
+    .replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\[\s*\{[\s\S]*?\}\s*\]/g, '')
+    .trim();
+}
+
 async function sendLayoutMessage() {
   const input = document.getElementById('layout-chat-input');
   const text  = input?.value?.trim();
@@ -77,38 +124,18 @@ async function sendLayoutMessage() {
     const rawReply = data?.reply || 'Sorry, try again!';
     layoutHideTyping();
 
-    // Try to find LAYOUTS_JSON markers
-    const markerMatch = rawReply.match(/LAYOUTS_JSON:\s*([\s\S]*?)\s*END_LAYOUTS/);
-    if (markerMatch) {
-      try {
-        const parsed = JSON.parse(markerMatch[1].trim());
-        layoutOptions = parsed; selectedLayoutIdx = null;
-        const cleanText = rawReply.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/, '').replace(/```[\s\S]*?```/g, '').trim();
-        if (cleanText) layoutAddMessage('bot', cleanText);
-        layoutAddMessage('bot', 'Here are your 3 layout options — click PREVIEW to see it, then APPLY to use it on your live map.');
-        renderLayoutOptions();
-      } catch(e) {
-        layoutAddMessage('bot', 'I generated layouts but had a formatting issue. Please try again.');
-      }
+    // Try to extract layouts from the reply
+    const extracted = extractLayouts(rawReply);
+
+    if (extracted) {
+      layoutOptions = extracted; selectedLayoutIdx = null;
+      // Show only the clean text, no JSON
+      const cleanText = cleanReplyText(rawReply);
+      if (cleanText) layoutAddMessage('bot', cleanText);
+      layoutAddMessage('bot', 'Here are your ' + extracted.length + ' layout options — click PREVIEW to see it highlighted, then APPLY to set it as your live map.');
+      renderLayoutOptions();
     } else {
-      // Fallback: try to find a JSON array anywhere in the reply
-      const s = rawReply.indexOf('['), e = rawReply.lastIndexOf(']') + 1;
-      if (s !== -1 && e > s + 10) {
-        try {
-          const parsed = JSON.parse(rawReply.slice(s, e));
-          if (Array.isArray(parsed) && parsed[0]?.tables) {
-            layoutOptions = parsed; selectedLayoutIdx = null;
-            layoutAddMessage('bot', 'Here are your 3 layout options — click PREVIEW to see it, then APPLY to use it on your live map.');
-            renderLayoutOptions();
-          } else {
-            layoutAddMessage('bot', rawReply);
-          }
-        } catch(e2) {
-          layoutAddMessage('bot', rawReply);
-        }
-      } else {
-        layoutAddMessage('bot', rawReply);
-      }
+      layoutAddMessage('bot', rawReply);
     }
 
     layoutChatHistory.push({ role: 'assistant', content: rawReply });
@@ -134,15 +161,15 @@ function renderLayoutOptions() {
     card.style.cssText = 'padding:14px 16px;background:linear-gradient(160deg,#0d1e36,#0b1828);border:1px solid var(--border);border-left:3px solid var(--border);cursor:pointer;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
 
     const preview = document.createElement('canvas');
-    preview.width = 240; preview.height = 130;
+    preview.width = 260; preview.height = 140;
     preview.style.cssText = 'display:block;margin-bottom:10px;border:1px solid var(--border);width:100%;';
     drawLayoutPreview(preview, layout);
 
     const info = document.createElement('div');
     info.innerHTML =
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:var(--orange);margin-bottom:4px;">' + layout.name + '</div>' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:var(--orange);margin-bottom:4px;">' + (layout.name || 'Layout ' + (idx+1)) + '</div>' +
       '<div style="font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;">' + layout.tables.length + ' TABLES · ' + (layout.obstacles?.length || 0) + ' OBSTACLES</div>' +
-      '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;">' + layout.description + '</div>' +
+      '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;">' + (layout.description || '') + '</div>' +
       '<div style="display:flex;gap:8px;">' +
         '<button onclick="previewLayout(' + idx + ')" style="flex:1;padding:8px;background:rgba(255,107,26,0.08);border:1px solid var(--border-bright);color:var(--orange);font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">👁 PREVIEW</button>' +
         '<button onclick="applyLayout(' + idx + ')" style="flex:1;padding:8px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);color:#4ADE80;font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">✓ APPLY</button>' +
@@ -152,34 +179,54 @@ function renderLayoutOptions() {
     card.appendChild(info);
     cards.appendChild(card);
   });
+
+  // Scroll to show the cards
+  setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
 function drawLayoutPreview(canvas, layout) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   const isLight = document.body.classList.contains('light-mode');
+
   ctx.fillStyle = isLight ? '#e8f4fd' : '#020b1a';
   ctx.fillRect(0, 0, W, H);
+
+  // Grid
   ctx.strokeStyle = isLight ? 'rgba(30,100,200,0.1)' : 'rgba(5,22,65,0.9)';
   ctx.lineWidth = 0.5;
   for (let i = 0; i < W; i += 20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
   for (let j = 0; j < H; j += 20) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
+
+  // Route lines from dock to each table
+  const jx = 0.42 * W, jy = 0.5 * H;
+  ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
+  layout.tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
+  ctx.setLineDash([]);
+
+  // Dock
   ctx.fillStyle = '#16a34a'; ctx.shadowColor = '#16a34a'; ctx.shadowBlur = 6;
-  ctx.beginPath(); ctx.arc(dockX * W, dockY * H, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 5, 0, Math.PI*2); ctx.fill();
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#4ADE80'; ctx.font = '7px monospace'; ctx.textAlign = 'center';
-  ctx.fillText('D', dockX * W, dockY * H + 12);
+  ctx.fillText('DOCK', dockX*W, dockY*H + 13);
+
+  // Tables
   layout.tables.forEach(t => {
     ctx.fillStyle = '#60A5FA'; ctx.shadowColor = '#60A5FA'; ctx.shadowBlur = 4;
-    ctx.beginPath(); ctx.arc(t.x * W, t.y * H, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(t.x*W, t.y*H, 5, 0, Math.PI*2); ctx.fill();
     ctx.shadowBlur = 0;
     ctx.fillStyle = 'rgba(220,232,248,0.9)'; ctx.font = '7px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('T'+t.id, t.x * W, t.y * H + 12);
+    ctx.fillText('T'+t.id, t.x*W, t.y*H + 13);
   });
+
+  // Obstacles
   (layout.obstacles || []).forEach(o => {
-    ctx.fillStyle = 'rgba(239,68,68,0.4)'; ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(o.x * W, o.y * H, 4, 0, Math.PI*2);
-    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(239,68,68,0.35)'; ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1;
+    ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 3;
+    ctx.beginPath(); ctx.arc(o.x*W, o.y*H, 4, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
   });
 }
 
@@ -187,8 +234,9 @@ function previewLayout(idx) {
   selectedLayoutIdx = idx;
   const layout = layoutOptions[idx];
   document.querySelectorAll('[id^="layout-card-"]').forEach((c, i) => {
-    c.style.borderColor = i === idx ? 'var(--orange)' : 'var(--border)';
-    c.style.background  = i === idx ? 'rgba(255,107,26,0.07)' : 'linear-gradient(160deg,#0d1e36,#0b1828)';
+    c.style.borderColor     = i === idx ? 'var(--orange)' : 'var(--border)';
+    c.style.borderLeftColor = i === idx ? 'var(--orange)' : 'var(--border)';
+    c.style.background      = i === idx ? 'rgba(255,107,26,0.07)' : 'linear-gradient(160deg,#0d1e36,#0b1828)';
   });
   showToast('Previewing: ' + layout.name + ' — click APPLY to use it');
 }
@@ -196,20 +244,27 @@ function previewLayout(idx) {
 function applyLayout(idx) {
   const layout = layoutOptions[idx];
   if (!layout) return;
+
+  // Apply tables
   tables.length = 0;
   layout.tables.forEach(t => tables.push({ id: t.id, x: t.x, y: t.y }));
   saveTables(); rebuildDispatchButtons(); rebuildStudentTableGrid();
+
+  // Apply obstacles
   if (layout.obstacles && layout.obstacles.length > 0) {
     obstacles.length = 0;
     layout.obstacles.forEach(o => {
-      const def = OBSTACLE_TYPES[o.type] || OBSTACLE_TYPES.person;
+      const def = OBSTACLE_TYPES[o.type] || OBSTACLE_TYPES.barrier;
       obstacles.push({ x: o.x, y: o.y, type: o.type || 'barrier', r: def.radius });
     });
     syncObstaclesToRobot(); updateObstacleCount();
   }
+
   closeLayoutAssistant();
   showToast('Layout "' + layout.name + '" applied — ' + layout.tables.length + ' tables set!');
-  addActivity('dot-system', 'AI layout <strong>' + layout.name + '</strong> applied');
+  addActivity('dot-system', 'AI layout <strong>' + layout.name + '</strong> applied — ' + layout.tables.length + ' tables');
+
+  // Reset for next time
   layoutChatHistory = []; layoutOptions = []; selectedLayoutIdx = null;
   const messages = document.getElementById('layout-chat-messages');
   if (messages) messages.innerHTML = '';
@@ -218,35 +273,29 @@ function applyLayout(idx) {
 }
 
 function buildLayoutSystemPrompt() {
-  return 'You are an AI floor layout assistant for Dinobot, an autonomous campus dining robot system.' +
-    ' Your job: ask the manager questions ONE AT A TIME, collect all info, then generate 3 complete layouts.' +
-    '\n\nSTEP 1 - Collect info by asking these questions one at a time (do not skip any):' +
-    '\n1. How many tables do you need?' +
-    '\n2. What is the room shape and size? (small/medium/large, square/rectangular/L-shaped)' +
-    '\n3. Are there any fixed obstacles like pillars, walls, or counters?' +
-    '\n4. What is the dining style? (casual, formal, open, intimate)' +
-    '\n\nSTEP 2 - Only after you have answers to ALL 4 questions above, generate the layouts.' +
-    '\nDO NOT generate layouts until you have the room shape AND size. If the user only gave number of tables, ask the next question.' +
-    '\n\nSTEP 2 OUTPUT FORMAT:' +
-    '\nWrite: "Here are 3 layouts based on your space!" then IMMEDIATELY output:' +
-    '\nLAYOUTS_JSON: [FULL JSON ARRAY HERE] END_LAYOUTS' +
-    '\n\nThe JSON array must contain EXACTLY 3 layout objects, each with:' +
-    '\n- name: string' +
-    '\n- description: string' +
-    '\n- tables: array of {id, x, y} objects — generate ALL requested tables' +
-    '\n- obstacles: array of {x, y, type} objects' +
-    '\n\nEXAMPLE (for 4 tables, medium square room):' +
-    '\nHere are 3 layouts based on your space!' +
-    '\nLAYOUTS_JSON: [{"name":"Ring Layout","description":"Tables around the perimeter for open feel","tables":[{"id":1,"x":0.55,"y":0.18},{"id":2,"x":0.80,"y":0.40},{"id":3,"x":0.55,"y":0.75},{"id":4,"x":0.30,"y":0.50}],"obstacles":[{"x":0.42,"y":0.20,"type":"barrier"},{"x":0.70,"y":0.65,"type":"cone"}]},{"name":"Grid Layout","description":"Evenly spaced grid for maximum capacity","tables":[{"id":1,"x":0.40,"y":0.25},{"id":2,"x":0.65,"y":0.25},{"id":3,"x":0.40,"y":0.70},{"id":4,"x":0.65,"y":0.70}],"obstacles":[{"x":0.25,"y":0.50,"type":"barrier"},{"x":0.80,"y":0.50,"type":"barrier"}]},{"name":"Cluster Layout","description":"Intimate clusters for social dining","tables":[{"id":1,"x":0.35,"y":0.30},{"id":2,"x":0.50,"y":0.25},{"id":3,"x":0.60,"y":0.65},{"id":4,"x":0.75,"y":0.70}],"obstacles":[{"x":0.42,"y":0.50,"type":"person"},{"x":0.30,"y":0.70,"type":"cone"}]}] END_LAYOUTS' +
-    '\n\nCOORDINATE RULES:' +
-    '\n- x and y are 0 to 1' +
-    '\n- Dock is ALWAYS at x:0.08, y:0.5 — never put tables or obstacles within 0.10 of this point' +
-    '\n- Keep tables: x between 0.20 and 0.95, y between 0.10 and 0.90' +
-    '\n- Make each of the 3 layouts feel distinctly different' +
-    '\n- Generate EXACTLY as many tables as the manager requested' +
-    '\n- Obstacle types: person, kid, stroller, chair, table, bag, cone, robot, barrier, pet, box, trash' +
-    '\n- 2 to 6 obstacles per layout' +
-    '\n\nCRITICAL: NEVER output an empty LAYOUTS_JSON array. NEVER use markdown. NEVER explain the JSON.';
+  return 'You are an AI floor layout assistant for a campus dining robot system called Dinobot.\n' +
+    'Your job: chat with the manager, collect info, then generate 3 floor layout options.\n\n' +
+    'CONVERSATION - ask ONE question at a time, in this order:\n' +
+    '1. How many tables do they need?\n' +
+    '2. Room shape and size? (small/medium/large, square/rectangular/L-shaped)\n' +
+    '3. Any fixed obstacles? (pillars, walls, counters, doors)\n' +
+    '4. Dining style? (casual/formal, open/intimate)\n\n' +
+    'IMPORTANT: Do NOT generate layouts until you have answers to at least questions 1 and 2.\n\n' +
+    'WHEN READY TO GENERATE:\n' +
+    'Output a brief message then a valid JSON array. The array must:\n' +
+    '- Contain exactly 3 layout objects\n' +
+    '- Each object has: name (string), description (string), tables (array), obstacles (array)\n' +
+    '- tables array: [{id:1, x:0.55, y:0.18}, ...] — generate ALL requested tables\n' +
+    '- obstacles array: [{x:0.3, y:0.3, type:"barrier"}, ...]\n' +
+    '- Each layout must feel distinctly different from the others\n\n' +
+    'COORDINATE RULES:\n' +
+    '- x and y values are between 0 and 1\n' +
+    '- Robot dock is at x:0.08, y:0.5 — keep tables and obstacles away from this\n' +
+    '- Tables: x between 0.20 and 0.95, y between 0.10 and 0.90\n' +
+    '- Spread tables evenly across the room\n' +
+    '- Obstacle types: barrier, cone, chair, table, person, bag, pet, box, trash\n' +
+    '- Use 2 to 5 obstacles per layout\n\n' +
+    'OUTPUT: Just write your message and then the raw JSON array directly. No markdown. No code blocks. No extra explanation after the JSON.';
 }
 
 function resetLayoutAssistant() {
