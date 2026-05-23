@@ -96,11 +96,15 @@ function extractLayouts(text) {
 
 /* ── Strip all JSON and code blocks from display text ───── */
 function cleanReplyText(text) {
-  return text
-    .replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '')
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/\[\s*\{[\s\S]*?\}\s*\]/g, '')
-    .trim();
+  // Remove markers
+  let clean = text.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '');
+  // Remove code blocks
+  clean = clean.replace(/```[\s\S]*?```/g, '');
+  // Remove the JSON array — find first [ and remove everything from there to end
+  // since Gemma outputs text then JSON at the end
+  const jsonStart = clean.indexOf('[{');
+  if (jsonStart !== -1) clean = clean.slice(0, jsonStart);
+  return clean.trim();
 }
 
 async function sendLayoutMessage() {
