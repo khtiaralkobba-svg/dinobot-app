@@ -53,7 +53,8 @@ async function dispatch(tableId) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ table_number: tableId, order_ref: orderRef })
     });
-    if (!res.ok) { showToast('⬡ Robot busy or unavailable'); return; }
+    const errData = await res.json().catch(() => ({}));
+    if (!res.ok) { showToast('⬡ ' + (errData.error || 'Robot unavailable')); return; }
   } catch { showToast('✗ Cannot reach robot server'); return; }
 
   document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
