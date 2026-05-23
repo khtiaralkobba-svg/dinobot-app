@@ -99,18 +99,32 @@ async function sendLayoutMessage() {
 
     layoutHideTyping();
 
-    // Check if response contains layout JSON
-    const layoutMatch = rawReply.match(/LAYOUTS_JSON:\s*(\[[\s\S]*?\])\s*END_LAYOUTS/);
+    // Check if response contains layout JSON — strip it from chat, show visual cards only
+    const layoutMatch = rawReply.match(/LAYOUTS_JSON:\s*([\s\S]*?)\s*END_LAYOUTS/);
     if (layoutMatch) {
       try {
-        const parsed = JSON.parse(layoutMatch[1]);
+        const parsed = JSON.parse(layoutMatch[1].trim());
         layoutOptions     = parsed;
         selectedLayoutIdx = null;
-        const cleanText = rawReply.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/, '').trim();
-        layoutAddMessage('bot', cleanText);
+        // Never show raw JSON — strip it completely
+        const cleanText = rawReply
+          .replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/, '')
+          .replace(/```[\s\S]*?```/g, '')
+          .trim();
+        if (cleanText) layoutAddMessage('bot', cleanText);
+        layoutAddMessage('bot', 'Here are your 3 layout options below — click PREVIEW to highlight it, then APPLY to set it as your live map.');
         renderLayoutOptions();
       } catch(e) {
-        layoutAddMessage('bot', rawReply);
+        // Fallback: try extracting JSON array directly
+        try {
+          const s = rawReply.indexOf('['), e2 = rawReply.lastIndexOf(']') + 1;
+          if (s !== -1 && e2 > s) {
+            const parsed = JSON.parse(rawReply.slice(s, e2));
+            layoutOptions = parsed; selectedLayoutIdx = null;
+            layoutAddMessage('bot', 'Here are your 3 layout options below — click PREVIEW to highlight it, then APPLY to set it as your live map.');
+            renderLayoutOptions();
+          } else { layoutAddMessage('bot', rawReply.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/,'').trim()); }
+        } catch(e3) { layoutAddMessage('bot', rawReply.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/,'').trim()); }
       }
     } else {
       layoutAddMessage('bot', rawReply);
@@ -328,7 +342,9 @@ OBSTACLE PLACEMENT:
 - Don't block the path between dock and tables completely
 - Suggest 2-6 obstacles per layout based on room complexity
 
-Be conversational, professional but friendly. Ask ONE question at a time. Don't generate layouts until you have at least the number of tables and room size/shape.`;
+Be conversational, professional but friendly. Ask ONE question at a time. Don't generate layouts until you have at least the number of tables and room size/shape.
+
+CRITICAL: When generating layouts, ONLY output a brief summary sentence before the LAYOUTS_JSON block. Do NOT repeat the JSON as text. Do NOT explain the coordinates. Do NOT show the JSON in a code block. The JSON block will be hidden from the user automatically — they will see visual map previews instead.`;
 }
 
 /* ── RESET ASSISTANT ─────────────────────────────────────── */
