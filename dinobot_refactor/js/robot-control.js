@@ -16,7 +16,8 @@ function toggleEStop() {
     document.getElementById('speed-val').textContent = '0 cm/s';
     document.getElementById('speed-bar').style.width = '0%';
     addActivity('dot-system', '🛑 <strong>EMERGENCY STOP</strong> activated');
-    fetch(API_BASE + '/api/robot/stop', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/stop', { method: 'POST', headers: authHeaders() }).catch(() => {});
   } else {
     btn.classList.remove('active');
     btn.innerHTML = '<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
@@ -25,7 +26,8 @@ function toggleEStop() {
     targetX = dockX; targetY = dockY; robotState = 'RETURNING'; currentTarget = null;
     document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
     addActivity('dot-system', '✓ Emergency stop <strong>released</strong> — returning to dock');
-    fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
   }
 }
 
@@ -33,7 +35,6 @@ function toggleEStop() {
 async function dispatch(tableId) {
   if (eStopActive) { showToast('⚠ EMERGENCY STOP ACTIVE'); return; }
 
-  // Find ready order for this table
   let orderRef = null;
   try {
     const ordRes  = await fetch(API_BASE + '/api/orders', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
@@ -50,8 +51,9 @@ async function dispatch(tableId) {
 
   try {
     console.log('Dispatching:', { table_number: tableId, order_ref: orderRef });
+    // ✅ FIX
     const res = await fetch(API_BASE + '/api/robot/dispatch', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ table_number: tableId, order_ref: orderRef })
     });
     const errData = await res.json().catch(() => ({}));
@@ -78,7 +80,8 @@ function recallUnit() {
   document.getElementById('speed-bar').style.width = '90%';
   addActivity('dot-robot', 'UNIT-01 recalled to <strong>Dock</strong>');
   showToast('⬡ UNIT-01 recalling to dock');
-  fetch(API_BASE + '/api/robot/recall', { method: 'POST' }).catch(() => {});
+  // ✅ FIX
+  fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
 }
 
 /* ── PAUSE ───────────────────────────────────────────────── */
@@ -92,11 +95,13 @@ function pauseUnit() {
     document.getElementById('speed-val').textContent = '0 cm/s';
     document.getElementById('speed-bar').style.width = '0%';
     addActivity('dot-status', 'UNIT-01 <strong>paused</strong>');
-    fetch(API_BASE + '/api/robot/pause', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/pause', { method: 'POST', headers: authHeaders() }).catch(() => {});
   } else {
     btn.textContent = '⬡ PAUSE UNIT';
     addActivity('dot-status', 'UNIT-01 <strong>resumed</strong>');
-    fetch(API_BASE + '/api/robot/resume', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/resume', { method: 'POST', headers: authHeaders() }).catch(() => {});
   }
 }
 
@@ -127,12 +132,14 @@ function toggleManual() {
     toggle.classList.add('active'); toggle.textContent = '⬡ MANUAL CONTROL ACTIVE';
     dpad.style.opacity = '1'; dpad.style.pointerEvents = 'auto';
     setRobotState('MANUAL OVERRIDE', 'Operator', '#FBB924');
-    fetch(API_BASE + '/api/robot/manual/start', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/manual/start', { method: 'POST', headers: authHeaders() }).catch(() => {});
   } else {
     toggle.classList.remove('active'); toggle.textContent = '⬡ ENABLE MANUAL CONTROL';
     dpad.style.opacity = '0.35'; dpad.style.pointerEvents = 'none';
     stopMove();
-    fetch(API_BASE + '/api/robot/manual/stop', { method: 'POST' }).catch(() => {});
+    // ✅ FIX
+    fetch(API_BASE + '/api/robot/manual/stop', { method: 'POST', headers: authHeaders() }).catch(() => {});
     setRobotState('DOCKED — STANDBY', '—', '#4ADE80');
   }
 }
@@ -145,8 +152,9 @@ function moveRobot(dir) {
   const angles = { up: -Math.PI/2, down: Math.PI/2, left: Math.PI, right: 0 };
   robotAngle = angles[dir] ?? robotAngle;
   targetX = robotX; targetY = robotY;
+  // ✅ FIX
   fetch(API_BASE + '/api/robot/manual/move', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ direction: dir, speed: speedLevel })
   }).catch(() => {});
 }
@@ -164,8 +172,9 @@ function stopMove() {
   clearInterval(manualTimer); manualTimer = null;
   highlightDpad(null, false);
   if (manualActive) {
+    // ✅ FIX
     fetch(API_BASE + '/api/robot/manual/move', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ direction: 'stop', speed: 1 })
     }).catch(() => {});
   }
@@ -173,8 +182,9 @@ function stopMove() {
 
 function manualStop() {
   stopMove();
+  // ✅ FIX
   fetch(API_BASE + '/api/robot/manual/move', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ direction: 'stop', speed: 1 })
   }).catch(() => {});
   showToast('⬡ Manual stop');

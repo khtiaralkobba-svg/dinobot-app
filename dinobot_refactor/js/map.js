@@ -250,7 +250,7 @@ async function syncObstaclesToRobot() {
   try {
     await fetch(API_BASE + '/api/robot/obstacles', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ obstacles: obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })) })
     });
   } catch {}
@@ -664,7 +664,7 @@ function initMap() {
   if (window._robotPollInterval) clearInterval(window._robotPollInterval);
   window._robotPollInterval = setInterval(async () => {
     try {
-      const res  = await fetch(API_BASE + '/api/robot/status');
+      const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
       if (!res.ok) throw new Error('not ready');
       const data = await res.json();
 
@@ -699,13 +699,13 @@ function initMap() {
         currentTarget = null;
         if (robotBusy) {
           robotBusy = false; setAllDispatchButtons(true);
-          const toRemove = Object.entries(kitchenOrders).filter(([,o])=>o.status === 'delivered').map(([ref])=>ref);
+          const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['dispatched','delivering','delivered'].includes(o.status)).map(([ref])=>ref);
           toRemove.forEach(ref => {
             const card = document.getElementById('order-' + ref);
             if (card) { card.style.transition='opacity 0.4s,transform 0.4s';card.style.opacity='0';card.style.transform='translateX(20px)';setTimeout(()=>card.remove(),420); }
             clearInterval(kitchenOrders[ref]?.timerInterval); clearInterval(kitchenOrders[ref]?.waitInterval);
             delete kitchenOrders[ref];
-        });
+          });
           setTimeout(()=>resortColumns(),450);
           showToast('⬡ Robot back at dock — order complete');
         }

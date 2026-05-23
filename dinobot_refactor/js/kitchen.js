@@ -6,13 +6,11 @@ let kitchenOrders = {};
 let robotBusy = false;
 const _kitchenTransitioning = new Set();
 
-// ── Alert thresholds (minutes) ───────────────────────────
 const ALERT = { WARN: 10, LATE: 15, CRIT: 20 };
 const WAIT  = { WARN: 5,  CRIT: 9 };
 let alertDismissed = false;
 let _alertCheckInterval = null;
 
-// ── Sort by placed_at ascending (oldest first) ───────────
 function sortedOrders(statusList) {
   return Object.entries(kitchenOrders)
     .filter(([, o]) => statusList.includes(o.status))
@@ -60,7 +58,6 @@ async function loadKitchenOrders() {
     const data = await res.json();
     const incoming = data.orders || [];
 
-    // Remove cancelled cards
     Object.keys(kitchenOrders).forEach(ref => {
       const still = incoming.find(o => o.order_ref === ref);
       const isActiveOnRobot = kitchenOrders[ref] && ['dispatched','delivering'].includes(kitchenOrders[ref].status);
@@ -131,7 +128,6 @@ async function loadKitchenOrders() {
   }
 }
 
-// ── Incoming wait timer ──────────────────────────────────
 function startWaitTimer(ref) {
   const order = kitchenOrders[ref];
   if (!order || !order.placed_at) return;
@@ -172,7 +168,6 @@ function startWaitTimer(ref) {
   }, 1000);
 }
 
-// ── Prep timer anchored to server timestamp ──────────────
 function restartTimerFromServer(ref) {
   const order = kitchenOrders[ref];
   if (!order || !order.prep_started_at || order.status !== 'prep') return;
@@ -184,7 +179,7 @@ function restartTimerFromServer(ref) {
     const elapsed = Math.max(0, Date.now() - new Date(order.prep_started_at).getTime());
     const total = Math.floor(elapsed / 1000);
     const m = Math.floor(total / 60), s = total % 60;
-    el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'00');
+    el.textContent = String(m).padStart(2,'00') + ':' + String(s).padStart(2,'00');
 
     const mins = elapsed / 60000;
     el.className = mins >= ALERT.LATE ? 'ticket-timer late' : mins >= ALERT.WARN ? 'ticket-timer warn' : 'ticket-timer ok';
@@ -237,7 +232,6 @@ function updateAgeBadge(ref, mins) {
   else                          timerEl.className = 'ticket-timer ok';
 }
 
-// ── Global alert bar ─────────────────────────────────────
 function runAlertEngine() {
   let warnCount = 0, lateCount = 0, critCount = 0;
   Object.entries(kitchenOrders).forEach(([ref, order]) => {
@@ -303,7 +297,8 @@ function startKitchenRobotPolling() {
   if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
   window._kitchenRobotPoll = setInterval(async () => {
     try {
-      const res  = await fetch(API_BASE + '/api/robot/status');
+      // ✅ FIX: added authHeaders()
+      const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
       const data = await res.json();
       window._pythonOnline = true;
 
@@ -336,7 +331,6 @@ function startKitchenRobotPolling() {
   }, 1000);
 }
 
-// ── Status transitions ───────────────────────────────────
 function updateKitchenOrderStatus(ref, newStatus, tableNum) {
   const order = kitchenOrders[ref];
   if (!order) return;
@@ -593,7 +587,8 @@ async function resetStuckOrders() {
   }
 
   robotBusy = false; setAllDispatchButtons(true);
-  try { await fetch(API_BASE + '/api/robot/recall', { method: 'POST' }); } catch {}
+  // ✅ FIX: added authHeaders()
+  try { await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }); } catch {}
   setTimeout(() => resortColumns(), 400);
   showToast(`⬡ ${stuckRefs.length} stuck order(s) logged and removed`);
 }
