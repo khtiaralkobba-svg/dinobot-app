@@ -56,41 +56,34 @@ function layoutHideTyping() {
   document.getElementById('layout-typing')?.remove();
 }
 
-/* ── Extract all JSON objects with "tables" key from text ── */
+/* ── Extract layouts from AI reply no matter the format ─── */
 function extractLayouts(text) {
-  const results = [];
-  let i = 0;
-  while (i < text.length) {
-    if (text[i] === '{') {
-      // Try to parse a JSON object starting here
-      let depth = 0, j = i;
-      while (j < text.length) {
-        if (text[j] === '{') depth++;
-        else if (text[j] === '}') { depth--; if (depth === 0) break; }
-        j++;
-      }
-      try {
-        const obj = JSON.parse(text.slice(i, j + 1));
-        if (obj && Array.isArray(obj.tables) && obj.tables.length > 0) {
-          results.push(obj);
-        }
-      } catch(e) {}
-      i = j + 1;
-    } else {
-      i++;
+  // Find every [ and try to parse a JSON array from there
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== '[') continue;
+    // Find the matching closing ]
+    let depth = 0, j = i;
+    while (j < text.length) {
+      if (text[j] === '[') depth++;
+      else if (text[j] === ']') { depth--; if (depth === 0) break; }
+      j++;
     }
+    try {
+      const parsed = JSON.parse(text.slice(i, j + 1));
+      if (Array.isArray(parsed) && parsed.length >= 2 && parsed[0] && parsed[0].tables) {
+        return parsed.slice(0, 3);
+      }
+    } catch(e) {}
   }
-  return results.length >= 2 ? results.slice(0, 3) : null;
+  return null;
 }
 
-/* ── Remove all JSON-like content from text for display ─── */
+/* ── Remove all JSON from text for display ──────────────── */
 function stripJSON(text) {
-  // Remove everything from the first { or [ that contains "tables" or "name"
-  // Strategy: find first { and cut there
-  const firstBrace = text.search(/\{[^}]*"name"/);
-  if (firstBrace > 0) return text.slice(0, firstBrace).trim();
-  const firstBracket = text.search(/\[\s*\{/);
-  if (firstBracket > 0) return text.slice(0, firstBracket).trim();
+  // Cut everything from the first [ that starts a JSON array
+  const idx = text.search(/\[\s*\{/);
+  if (idx > 0) return text.slice(0, idx).trim();
+  if (idx === 0) return '';
   return text.trim();
 }
 
