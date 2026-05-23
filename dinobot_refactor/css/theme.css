@@ -419,3 +419,87 @@ body.light-mode #control-center > button > div > div[style*="letter-spacing:1px"
 body.light-mode #control-center > button > div:last-child > div[style*="letter-spacing:3px"] {
   color: rgba(20,8,0,0.35) !important;
 }
+
+/* ── LIGHT MODE — MAP OVERLAY PANELS ─────────────────────── */
+body.light-mode #map-overlay {
+  background: #f4faff !important;
+}
+body.light-mode #map-overlay > div:first-child {
+  background: linear-gradient(160deg, rgba(255,106,0,0.08) 0%, transparent 60%) !important;
+  border-color: rgba(30,100,200,0.15) !important;
+}
+/* Controls grid panels */
+body.light-mode #map-controls-grid > div,
+body.light-mode #map-overlay > div:nth-child(2) > div:nth-child(3) > div {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* Obstacles + Table Layout panels */
+body.light-mode #map-overlay > div:nth-child(2) > div:nth-child(4) > div {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* Map canvas container */
+body.light-mode #map-overlay > div:nth-child(2) > div:nth-child(5) > div:first-child > div {
+  background: rgba(232,244,253,0.85) !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* Manual control panel */
+body.light-mode #dpad-panel {
+  background: #e0ecf8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+/* Obstacle type buttons */
+body.light-mode .obs-type-btn {
+  background: #dceef8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: rgba(20,8,0,0.6) !important;
+}
+body.light-mode .obs-type-btn.selected {
+  background: #FBB924 !important;
+  border-color: #FBB924 !important;
+  color: #000 !important;
+}
+body.light-mode .obs-type-btn:hover {
+  border-color: rgba(251,185,36,0.6) !important;
+  color: #92400e !important;
+}
+/* Manual mode toggle in obstacle section */
+body.light-mode #obs-mode-btn {
+  background: rgba(30,100,200,0.08) !important;
+  border-color: rgba(30,100,200,0.3) !important;
+  color: #1d4ed8 !important;
+}
+body.light-mode #obs-mode-btn.active {
+  background: rgba(30,100,200,0.18) !important;
+  border-color: #1d4ed8 !important;
+}
+/* Obs count & right-click label */
+body.light-mode #obs-count { color: rgba(255,107,26,0.6) !important; }
+/* Delete mode btn */
+body.light-mode #obs-delete-mode-btn {
+  background: #dceef8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: rgba(20,8,0,0.6) !important;
+}
+body.light-mode #obs-delete-mode-btn.active {
+  background: rgba(239,68,68,0.1) !important;
+  border-color: #ef4444 !important;
+  color: #b91c1c !important;
+}
+/* Clear all button */
+body.light-mode #map-overlay .dispatch-btn[style*="239,68,68"] {
+  color: #b91c1c !important;
+  border-color: rgba(185,28,28,0.3) !important;
+}
+/* Legend items */
+body.light-mode .legend-item { color: rgba(20,8,0,0.6) !important; }
+body.light-mode .mon-section-title { color: rgba(30,100,200,0.5) !important; border-color: rgba(30,100,200,0.1) !important; }
+/* Activity feed in map overlay */
+body.light-mode #activityFeed .activity-item {
+  background: rgba(200,225,245,0.5) !important;
+  border-color: rgba(30,100,200,0.15) !important;
+}
+/* Overlay top bar title */
+body.light-mode #map-overlay > div:first-child * { color: #1C0F00 !important; }
+body.light-mode #map-overlay > div:first-child span[style*="color:#4ADE80"] { color: #16a34a !important; }
