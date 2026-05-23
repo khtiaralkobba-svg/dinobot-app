@@ -69,7 +69,7 @@ app.post('/api/groq', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gemma2-9b-it',
+        model: 'llama-3.3-70b-versatile',
         messages:    [{ role: 'system', content: system }, ...message],
         max_tokens: 3000,
         temperature: 0.8
