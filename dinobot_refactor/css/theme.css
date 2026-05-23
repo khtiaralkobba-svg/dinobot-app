@@ -503,3 +503,21 @@ body.light-mode #activityFeed .activity-item {
 /* Overlay top bar title */
 body.light-mode #map-overlay > div:first-child * { color: #1C0F00 !important; }
 body.light-mode #map-overlay > div:first-child span[style*="color:#4ADE80"] { color: #16a34a !important; }
+
+/* ── LIGHT MODE — E-STOP LAYER ───────────────────────────── */
+body.light-mode #estop-layer {
+  background: linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(225,232,240,0.9) 60%) !important;
+  border-color: rgba(239,68,68,0.25) !important;
+}
+body.light-mode #estop-layer .cc-layer-tag {
+  background: #f4faff !important;
+  color: rgba(239,68,68,0.7) !important;
+  border-color: rgba(239,68,68,0.2) !important;
+}
+body.light-mode #robot-state-badge {
+  background: rgba(240,250,255,0.9) !important;
+}
+body.light-mode #dest-label {
+  color: #FF6F3C !important;
+  filter: none !important;
+}
