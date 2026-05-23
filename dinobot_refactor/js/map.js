@@ -695,6 +695,7 @@ function initMap() {
           currentTarget = tables.find(t => t.id === data.target_table) || null;
           if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
+          syncObstaclesToRobot(); // Re-sync excluding new target table
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
         }
