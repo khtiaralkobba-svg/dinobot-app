@@ -49,6 +49,7 @@ async function dispatch(tableId) {
   } catch {}
 
   try {
+    console.log('Dispatching:', { table_number: tableId, order_ref: orderRef });
     const res = await fetch(API_BASE + '/api/robot/dispatch', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ table_number: tableId, order_ref: orderRef })
