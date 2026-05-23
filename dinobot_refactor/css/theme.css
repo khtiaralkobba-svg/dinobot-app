@@ -547,3 +547,34 @@ body.light-mode #map-overlay #estop-layer > div[style*="position:absolute"] {
   color: rgba(239,68,68,0.7) !important;
   border-color: rgba(239,68,68,0.2) !important;
 }
+
+/* ── LIGHT MODE — STAFF PANEL FIXES ─────────────────────── */
+/* CREATE NEW STAFF ACCOUNT and LIVE KITCHEN STATUS tags */
+body.light-mode #staff-create-panel > div[style*="position:absolute"],
+body.light-mode #staff-status-panel > div[style*="position:absolute"],
+body.light-mode #staff-list-panel > div[style*="position:absolute"] {
+  background: #e8f4fd !important;
+  color: rgba(192,132,252,0.7) !important;
+  border-color: rgba(192,132,252,0.2) !important;
+}
+
+/* ROLE: KITCHEN STAFF dark box */
+body.light-mode #staff-create-panel div[style*="ROLE:"] {
+  background: #dceef8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: rgba(20,8,0,0.6) !important;
+}
+
+/* CREATE ACCOUNT button */
+body.light-mode #staff-create-panel button[onclick="createStaffAccount()"] {
+  background: rgba(192,132,252,0.12) !important;
+  border-color: rgba(192,132,252,0.4) !important;
+  color: #7c3aed !important;
+}
+
+/* GENERATE button */
+body.light-mode button[onclick="generateStaffPassword()"] {
+  background: rgba(192,132,252,0.1) !important;
+  border-color: rgba(192,132,252,0.35) !important;
+  color: #7c3aed !important;
+}
