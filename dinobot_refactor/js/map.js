@@ -248,10 +248,16 @@ function updateObstacleCount() {
 async function syncObstaclesToRobot() {
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
+    // Include manager-placed obstacles + tables as physical obstacles
+    const tableObstacles = tables.map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.028 }));
+    const allObstacles = [
+      ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
+      ...tableObstacles
+    ];
     await fetch(API_BASE + '/api/robot/obstacles', {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ obstacles: obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })) })
+      body: JSON.stringify({ obstacles: allObstacles })
     });
   } catch {}
 }
