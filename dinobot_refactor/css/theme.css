@@ -1,0 +1,268 @@
+/* ── CSS VARIABLES — DARK MODE (DEFAULT) ─────────────────── */
+:root {
+  --orange: #FF6B1A;
+  --orange-bright: #FF8C3A;
+  --orange-glow: rgba(255, 107, 26, 0.4);
+  --black: #020b1a;
+  --dark: #041020;
+  --darker: #03091a;
+  --panel: #061422;
+  --border: rgba(255, 107, 26, 0.18);
+  --border-bright: rgba(255, 107, 26, 0.55);
+  --text: #dce8f8;
+  --text-dim: rgba(180, 210, 245, 0.5);
+  --hex-size: 60px;
+}
+
+/* ── LIGHT MODE OVERRIDES ────────────────────────────────── */
+body.light-mode {
+  --orange: #FF6A00;
+  --orange-bright: #E95F00;
+  --orange-glow: rgba(255, 106, 0, 0.3);
+  --black: #F5FFFF;
+  --dark: #EDFAFA;
+  --darker: #F0FAFA;
+  --panel: #FFFFFF;
+  --border: rgba(217, 234, 241, 0.8);
+  --border-bright: #D9EAF1;
+  --text: #0F172A;
+  --text-dim: #526071;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% -5%, rgba(255,106,0,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(255,106,0,0.04) 0%, transparent 55%);
+}
+
+html.light-mode-early body { background: #F5FFFF; }
+body.light-mode nav { background: rgba(245, 255, 255, 0.96); }
+body.light-mode .hex-bg { opacity: 0.15; filter: hue-rotate(180deg); }
+body.light-mode .scanline { opacity: 0.04; }
+
+body.light-mode .panel,
+body.light-mode .feature-card,
+body.light-mode .stat-card,
+body.light-mode .analytics-card,
+body.light-mode .order-ticket,
+body.light-mode .activity-item,
+body.light-mode .confirm-card,
+body.light-mode .track-status-card,
+body.light-mode .order-list-card,
+body.light-mode .pickup-box,
+body.light-mode .auth-fields.panel,
+body.light-mode .menu-item,
+body.light-mode .table-btn {
+  background: #e8f4fd;
+  border-color: rgba(30,100,200,0.2);
+}
+
+body.light-mode .form-input { background: #cce5f9; color: #0f3d6e; border-color: rgba(30,100,200,0.25); }
+body.light-mode #cine-loader { background: #F5FFFF; }
+body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE); }
+body.light-mode #pickup-overlay { background: rgba(2,11,26,0.97); }
+body.light-mode #map-overlay,
+body.light-mode #staff-overlay { background: #e8f4fd; }
+body.light-mode #analytics-overlay { background: #f4faff; min-height: 100vh; }
+body.light-mode #staff-body { background: #e8f4fd !important; }
+body.light-mode .staff-row { background: rgba(218,218,218,0.6); }
+
+/* ── LIGHT MODE — CHAT ───────────────────────────────────── */
+body.light-mode .chat-bubble-bot { background: rgba(212,212,212,0.9); color: #1C0F00; }
+body.light-mode #robot-chat-panel { background: #e8f4fd !important; border-color: rgba(30,100,200,0.25) !important; }
+body.light-mode #robot-chat-panel > div:first-child { background: #90c4e8 !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #robot-chat-panel > div:first-child div { color: #0f3d6e !important; }
+body.light-mode #robot-chat-messages { background: transparent !important; }
+body.light-mode .chat-bubble-bot { background: #cce5f9 !important; color: #0f3d6e !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #robot-chat-panel > div:last-child { background: #e8f4fd !important; border-color: rgba(30,100,200,0.15) !important; }
+body.light-mode #robot-chat-input { background: #f4faff !important; border-color: rgba(30,100,200,0.2) !important; color: #0f3d6e !important; }
+body.light-mode #robot-chat-input::placeholder { color: rgba(15,61,110,0.4) !important; }
+body.light-mode #chat-fab { background: #e8f4fd !important; border-color: rgba(30,100,200,0.35) !important; box-shadow: 0 0 30px rgba(30,100,200,0.2) !important; }
+body.light-mode .chat-bubble-user { background: rgba(255,106,0,0.08); border-color: rgba(180,80,0,0.2); color: #1C0F00; }
+
+/* ── LIGHT MODE — NAV ────────────────────────────────────── */
+body.light-mode .nav-links a { color: rgba(80,40,0,0.6); }
+body.light-mode .nav-links a:hover { color: #FF6F3C; background: rgba(255,106,0,0.08); border-color: rgba(180,80,0,0.2); }
+body.light-mode .nav-links a.active { color: #FF6F3C; background: rgba(255,106,0,0.12); border-color: rgba(180,80,0,0.35); }
+body.light-mode .logo-text { color: #1C0F00; }
+
+/* ── LIGHT MODE — HERO ───────────────────────────────────── */
+body.light-mode .hero-badge { background: rgba(255,106,0,0.08); border-color: rgba(180,80,0,0.3); }
+body.light-mode .hero-title .line2 { -webkit-text-stroke: 1px rgba(80,40,0,0.3); }
+body.light-mode .hero-sub { color: rgba(20,8,0,0.8); }
+body.light-mode .feature-hex { background: rgba(255,106,0,0.08); }
+body.light-mode .section-tag { color: #FF6F3C; }
+body.light-mode .section-title span { -webkit-text-stroke: 1px rgba(80,40,0,0.25); }
+body.light-mode .robot-hex-outer { background: rgba(173,216,230,0.2) !important; border-color: rgba(30,100,200,0.3) !important; }
+body.light-mode .robot-hex-mid { background: rgba(173,216,230,0.15) !important; border-color: rgba(255,107,26,0.45) !important; }
+body.light-mode .robot-hex-inner { background: rgba(173,216,230,0.25) !important; border-color: rgba(255,107,26,0.65) !important; }
+
+/* ── LIGHT MODE — CART & MENU ────────────────────────────── */
+body.light-mode .cart-bubble {
+  background: #FF6A00 !important; color: #ffffff !important;
+  box-shadow: 0 0 30px rgba(255,106,0,0.4) !important;
+  z-index: 99999 !important; bottom: 32px !important; right: 32px !important;
+  left: auto !important; top: auto !important; position: fixed !important;
+}
+body.light-mode .cart-bubble-count { background: #ffffff !important; color: #FF6A00 !important; }
+body.light-mode .menu-item-name { color: #1C0F00; }
+body.light-mode .menu-item-desc { color: rgba(20,8,0,0.75); }
+body.light-mode .menu-cat-btn { border-color: rgba(180,80,0,0.2); color: rgba(80,40,0,0.5); }
+body.light-mode .menu-cat-btn.active { border-color: #FF6F3C; color: #FF6F3C; background: rgba(255,106,0,0.07); }
+body.light-mode .cart-table td { color: #1C0F00; border-color: rgba(180,80,0,0.3); }
+body.light-mode .cart-table th { color: rgba(20,8,0,0.8); font-weight: 700; }
+body.light-mode .cart-qty-btn { background: rgba(212,212,212,0.5); border-color: rgba(180,80,0,0.2); color: #FF6F3C; }
+body.light-mode .cart-item-name { color: #1C0F00; }
+body.light-mode .cart-item-price { color: #FF6F3C; font-weight: 700; }
+
+/* ── LIGHT MODE — ORDER TRACKING ─────────────────────────── */
+body.light-mode .confirm-row { border-color: rgba(180,80,0,0.08); color: #1C0F00; }
+body.light-mode .confirm-row-label { color: rgba(80,40,0,0.5); }
+body.light-mode .confirm-total { color: #FF6F3C; }
+body.light-mode .confirm-card { border-color: rgba(180,80,0,0.2); }
+body.light-mode .olc-ref { color: #FF6F3C; }
+body.light-mode .olc-meta { color: rgba(20,8,0,0.7); }
+body.light-mode .order-list-card { border-color: rgba(180,80,0,0.2); }
+body.light-mode .order-list-card:hover { border-left-color: #FF6F3C; border-color: rgba(180,80,0,0.3); }
+body.light-mode .track-step-dot { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; color: #0f3d6e !important; }
+body.light-mode .track-step::after { background: rgba(180,80,0,0.15); }
+body.light-mode .track-step-title { color: #1C0F00; font-weight: 700; }
+body.light-mode .track-step-sub { color: rgba(20,8,0,0.7); }
+body.light-mode .track-eta-strip { background: rgba(255,106,0,0.05); border-color: rgba(255,106,0,0.15); }
+body.light-mode .track-table-tag { color: rgba(20,8,0,0.7); }
+body.light-mode #map-container { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode .track-map-wrap { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode .track-eta-val { color: #FF6F3C; font-weight: 700; }
+body.light-mode .track-eta-label { color: rgba(20,8,0,0.7); }
+
+/* ── LIGHT MODE — STATUS BADGES ──────────────────────────── */
+body.light-mode .olc-status-new      { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.1); font-weight: 600; }
+body.light-mode .olc-status-prep     { color: #92400e; border-color: #b45309; background: rgba(180,83,9,0.12); }
+body.light-mode .olc-status-ready    { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.1); }
+body.light-mode .olc-status-dispatched,
+body.light-mode .olc-status-delivering { color: #6d28d9; border-color: #6d28d9; background: rgba(109,40,217,0.08); }
+body.light-mode .olc-status-delivered { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.08); }
+body.light-mode .olc-status-cancelled { color: #b91c1c; border-color: #b91c1c; background: rgba(185,28,28,0.08); }
+
+/* ── LIGHT MODE — DASHBOARD ──────────────────────────────── */
+body.light-mode .dash-subtitle { color: #FF6F3C; }
+body.light-mode .dash-title { color: #1C0F00; }
+body.light-mode #clock { color: rgba(20,8,0,0.6); }
+body.light-mode .system-status { color: #16a34a; }
+body.light-mode .role-pill { background: #e8f4fd; border-color: rgba(30,100,200,0.25); color: rgba(20,60,120,0.7); }
+body.light-mode .role-pill.selected { background: #cce5f9; border-color: rgba(30,100,200,0.6); color: #1a5fa8; }
+body.light-mode .stat-card { border-color: rgba(180,80,0,0.15); }
+body.light-mode .stat-label { color: rgba(20,8,0,0.75); }
+body.light-mode .activity-item { border-color: rgba(180,80,0,0.15); border-left-color: rgba(180,80,0,0.3); }
+body.light-mode .activity-msg { color: #1C0F00; }
+body.light-mode .activity-time { color: rgba(80,40,0,0.4); }
+
+/* ── LIGHT MODE — CONTROL CENTER ─────────────────────────── */
+body.light-mode .cc-layer-operational { background: #e8f4fd; border-color: rgba(30,100,200,0.2); }
+body.light-mode .cc-layer-critical    { background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(225,225,225,0.8) 100%) !important; border-color: rgba(239,68,68,0.25) !important; }
+body.light-mode .estop-btn { background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%) !important; border-color: rgba(239,68,68,0.5) !important; color: #b91c1c !important; text-shadow: none !important; }
+body.light-mode .estop-icon { color: #b91c1c; }
+body.light-mode #estop-warning { color: #b91c1c; }
+body.light-mode .state-ok   { color: #15803d !important; background: rgba(22,163,74,0.1) !important; border-color: rgba(22,163,74,0.4) !important; }
+body.light-mode .state-warn { color: #92400e !important; background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.4) !important; }
+body.light-mode .op-section-title { color: #FF6F3C; }
+body.light-mode .op-btn-blue   { background: rgba(29,78,216,0.12) !important; border-color: rgba(29,78,216,0.5) !important; color: #1d4ed8 !important; font-weight: 700 !important; }
+body.light-mode .op-btn-yellow { background: rgba(180,83,9,0.1) !important; border-color: rgba(180,83,9,0.5) !important; color: #92400e !important; font-weight: 700 !important; }
+body.light-mode #reset-stuck-btn { background: rgba(185,28,28,0.1) !important; border-color: rgba(185,28,28,0.5) !important; color: #b91c1c !important; font-weight: 700 !important; }
+body.light-mode .dispatch-btn { background: linear-gradient(160deg, rgba(255,106,0,0.12), rgba(215,215,215,0.6)) !important; border-color: rgba(180,80,0,0.45) !important; color: #7c2d00 !important; font-weight: 700 !important; }
+body.light-mode .dispatch-btn:hover { border-color: #FF6F3C !important; color: #FF6F3C !important; background: rgba(255,106,0,0.12) !important; }
+body.light-mode .dispatch-btn.active { background: linear-gradient(135deg, #FF6F3C, #e05800) !important; color: #fff !important; border-color: #FF6F3C !important; box-shadow: 0 0 20px rgba(255,106,0,0.4) !important; }
+body.light-mode .telem-box { background: linear-gradient(160deg, #DADADA, #CECECE) !important; border-color: rgba(180,80,0,0.25) !important; }
+body.light-mode .metric-header span:first-child { color: rgba(20,8,0,0.8) !important; font-weight: 600 !important; }
+body.light-mode .metric-header span:last-child { color: #FF6F3C !important; font-weight: 700 !important; }
+body.light-mode .metric-bar { background: rgba(180,80,0,0.15) !important; }
+body.light-mode .dest-script { color: #FF6F3C !important; filter: none !important; }
+body.light-mode #dest-label { color: #FF6F3C; }
+
+/* ── LIGHT MODE — MANUAL CONTROL ─────────────────────────── */
+body.light-mode .dpad-btn { background: linear-gradient(160deg, #DADADA, #CECECE) !important; border-color: rgba(180,80,0,0.35) !important; color: #1C0F00 !important; box-shadow: 0 2px 6px rgba(180,80,0,0.15) !important; }
+body.light-mode .dpad-btn:hover { background: rgba(255,106,0,0.15) !important; border-color: #FF6F3C !important; }
+body.light-mode #btn-stop { background: rgba(185,28,28,0.1) !important; border-color: rgba(185,28,28,0.4) !important; color: #b91c1c !important; font-weight: 700 !important; }
+body.light-mode .dpad-center { background: rgba(180,80,0,0.08) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .manual-mode-toggle { background: rgba(255,106,0,0.1) !important; border-color: rgba(180,80,0,0.5) !important; color: #e05800 !important; font-weight: 600 !important; }
+body.light-mode .manual-mode-toggle.active { background: rgba(255,106,0,0.2) !important; border-color: #FF6F3C !important; color: #FF6F3C !important; }
+body.light-mode .manual-speed-wrap { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .manual-kbd-hint { color: rgba(180,80,0,0.5) !important; font-weight: 600 !important; }
+body.light-mode #dpad-panel { background: linear-gradient(160deg, #E0E0E0, #DCE0E8) !important; border-color: rgba(80,80,80,0.2) !important; }
+body.light-mode #activityFeed .activity-item { background: rgba(215,215,215,0.6); }
+
+/* ── LIGHT MODE — KITCHEN ─────────────────────────────────── */
+body.light-mode .kitch-col-head-new  { background: rgba(96,165,250,0.1); }
+body.light-mode .kitch-col-head-prep { background: rgba(251,185,36,0.1); }
+body.light-mode .kitch-col-head-ready{ background: rgba(74,222,128,0.15); }
+body.light-mode .kitch-col-empty { color: rgba(80,40,0,0.2); }
+body.light-mode .kitch-robot-bar { background: rgba(215,215,215,0.95); border-color: rgba(180,80,0,0.2); }
+body.light-mode .krb-eyebrow { color: rgba(80,40,0,0.5); border-color: rgba(180,80,0,0.12); }
+body.light-mode .krb-label { color: rgba(80,40,0,0.4); }
+body.light-mode .krb-val { color: #1C0F00; }
+body.light-mode .krb-cell { border-color: rgba(180,80,0,0.1); }
+body.light-mode .ticket-id { color: #FF6F3C; }
+body.light-mode .ticket-table { color: rgba(80,40,0,0.5); }
+body.light-mode .ticket-items { color: rgba(80,40,0,0.75); border-color: rgba(180,80,0,0.08); }
+body.light-mode .ticket-received { color: rgba(80,40,0,0.4); border-color: rgba(180,80,0,0.08); }
+body.light-mode .ticket-timer.idle { color: rgba(80,40,0,0.2); }
+body.light-mode .ticket-action-new  { color: #1d4ed8; border-color: #1d4ed8; background: rgba(29,78,216,0.08); }
+body.light-mode .ticket-action-prep { color: #15803d; border-color: #16a34a; background: rgba(22,163,74,0.08); }
+body.light-mode .kitch-col-count-new  { color: #1d4ed8; background: rgba(29,78,216,0.12); }
+body.light-mode .kitch-col-count-prep { color: #92400e; background: rgba(180,83,9,0.12); }
+body.light-mode .kitch-col-count-ready{ color: #15803d; background: rgba(22,163,74,0.12); }
+body.light-mode .kitch-col-title-new  { color: #1d4ed8; }
+body.light-mode .kitch-col-title-prep { color: #92400e; }
+body.light-mode .kitch-col-title-ready{ color: #15803d; }
+
+/* ── LIGHT MODE — ANALYTICS ──────────────────────────────── */
+body.light-mode #analytics-overlay > div:first-child { background: #f4faff !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #analytics-overlay > div:last-child { background: #f4faff !important; flex: 1; }
+body.light-mode .analytics-layer { background: linear-gradient(135deg, rgba(255,106,0,0.04) 0%, rgba(225,225,225,0.6) 100%) !important; border-color: rgba(180,80,0,0.15) !important; }
+body.light-mode .analytics-card { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; box-shadow: 0 1px 4px rgba(30,100,200,0.08); }
+body.light-mode .ac-label { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .ac-sub { color: rgba(20,8,0,0.6) !important; }
+body.light-mode .ac-bar-label { color: rgba(20,8,0,0.6) !important; }
+body.light-mode .ac-bar-track { background: rgba(180,80,0,0.12) !important; }
+body.light-mode .ab-row { background: #e8f4fd !important; border-color: rgba(30,100,200,0.15) !important; }
+body.light-mode .ab-label { color: rgba(20,8,0,0.7) !important; }
+body.light-mode .ab-val { color: #1C0F00 !important; }
+body.light-mode .analytics-section-title { color: rgba(30,100,200,0.7) !important; border-color: rgba(30,100,200,0.15) !important; }
+body.light-mode #an-leaderboard > div { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+
+/* ── LIGHT MODE — STAFF ──────────────────────────────────── */
+body.light-mode #staff-overlay > div:first-child { background: #e8f4fd !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #staff-create-panel,
+body.light-mode #staff-status-panel,
+body.light-mode #staff-list-panel { background: #cce5f9 !important; border-color: rgba(30,100,200,0.2) !important; }
+body.light-mode #staff-name,
+body.light-mode #staff-username,
+body.light-mode #staff-password { background: #e8f4fd !important; border-color: rgba(30,100,200,0.25) !important; color: #0f3d6e !important; }
+body.light-mode .staff-row { background: #e8f4fd !important; border-color: rgba(30,100,200,0.15) !important; border-left-color: rgba(30,100,200,0.4) !important; }
+body.light-mode .staff-cell { color: #1C0F00 !important; }
+body.light-mode .staff-btn-disable { color: #92400e !important; border-color: rgba(180,83,9,0.4) !important; background: rgba(180,83,9,0.08) !important; }
+body.light-mode .staff-btn-enable  { color: #15803d !important; border-color: rgba(22,163,74,0.4) !important; background: rgba(22,163,74,0.08) !important; }
+body.light-mode .staff-btn-delete  { color: #b91c1c !important; border-color: rgba(185,28,28,0.4) !important; background: rgba(185,28,28,0.08) !important; }
+body.light-mode #staff-online-list { background: transparent !important; color: rgba(20,8,0,0.6) !important; }
+
+/* ── LIGHT MODE — HEATMAP ────────────────────────────────── */
+body.light-mode #heatmap-overlay { background: #f4faff !important; color: #1C0F00 !important; }
+body.light-mode #heatmap-overlay > div:first-child { background: linear-gradient(160deg,rgba(255,106,0,0.08) 0%,transparent 60%) !important; border-color: rgba(180,80,0,0.2) !important; }
+body.light-mode #heatmap-body { background: #f4faff; }
+body.light-mode #heatmap-overlay button { border-color: rgba(180,80,0,0.3) !important; color: #1C0F00 !important; background: rgba(255,106,0,0.06) !important; }
+
+/* ── LIGHT MODE — DOTS & LEDS ────────────────────────────── */
+body.light-mode .dot-order  { background: #16a34a; box-shadow: 0 0 8px #16a34a; }
+body.light-mode .dot-status { background: #FF6F3C; box-shadow: 0 0 6px #FF6F3C; }
+body.light-mode .dot-robot  { background: #2563eb; box-shadow: 0 0 6px #2563eb; }
+body.light-mode .dot-system { background: #7c3aed; box-shadow: 0 0 6px #7c3aed; }
+body.light-mode .status-led { background: #16a34a; box-shadow: 0 0 10px #16a34a; }
+
+/* ── LIGHT MODE — STEP INDICATORS ───────────────────────── */
+body.light-mode .step-dot { background: rgba(109,215,253,0.15); border-color: rgba(109,215,253,0.5); color: #0F172A; }
+body.light-mode .step-item.active .step-dot { background: #FF6A00 !important; border-color: #FF6A00 !important; color: #ffffff !important; }
+body.light-mode .step-item.done .step-dot { background: rgba(74,222,128,0.15) !important; border-color: #4ADE80 !important; color: #16a34a !important; }
+body.light-mode .step-item.done .step-label { color: #16a34a !important; }
+body.light-mode .track-step.done .track-step-dot { background: rgba(22,163,74,0.12); border-color: #16a34a; color: #15803d; box-shadow: none; }
+body.light-mode .track-step.done .track-step-title { color: #15803d; }
+body.light-mode .track-step.done::after { background: #16a34a; }
+body.light-mode .track-step.active .track-step-dot { background: rgba(255,106,0,0.15); border-color: #FF6F3C; box-shadow: 0 0 16px rgba(255,106,0,0.3); }
+body.light-mode .track-step.active .track-step-title { color: #e05800; }
+body.light-mode .track-step.active::after { background: linear-gradient(to bottom, #FF6F3C, rgba(180,80,0,0.15)); }

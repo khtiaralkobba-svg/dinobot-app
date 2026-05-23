@@ -1,0 +1,98 @@
+/* ── ANIMATIONS & KEYFRAMES ─────────────────────────────── */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes robotBounce {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-16px); }
+}
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 20px rgba(74,222,128,0.3); }
+  50%     { box-shadow: 0 0 60px rgba(74,222,128,0.7); }
+}
+@keyframes itemReveal {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes overlayIn {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-hex {
+  0%, 100% { box-shadow: 0 0 0 0 var(--orange-glow); }
+  50% { box-shadow: 0 0 20px 8px var(--orange-glow); filter: brightness(1.2); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ccReveal {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(100px); }
+}
+@keyframes scanline {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100vh); }
+}
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes loaderExit {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes ldBarFill { to { width: 100%; } }
+@keyframes neonDraw { to { stroke-dashoffset: 0; } }
+@keyframes typingDot {
+  0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+@keyframes barRise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+@keyframes valPop {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes alarmSlideIn {
+  from { opacity: 0; transform: translateX(120px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes alarmSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(120px); }
+}
+
+/* ── ALERT ANIMATIONS ────────────────────────────────────── */
+@keyframes warn-pulse {
+  0%,100% { box-shadow: 0 0 0 1px rgba(251,185,36,0.3), inset 0 0 40px rgba(251,185,36,0.04); }
+  50%      { box-shadow: 0 0 0 2px rgba(251,185,36,0.6), inset 0 0 60px rgba(251,185,36,0.10); }
+}
+@keyframes late-strobe {
+  0%  { box-shadow: 0 0 0 1px rgba(239,68,68,0.4), inset 0 0 40px rgba(239,68,68,0.06); opacity: 1; }
+  50% { box-shadow: 0 0 0 2px rgba(239,68,68,0.7), inset 0 0 60px rgba(239,68,68,0.12); opacity: 0.92; }
+}
+@keyframes crit-scream {
+  0%  { box-shadow: 0 0 0 2px rgba(239,68,68,0.9), 0 0 60px rgba(239,68,68,0.4); opacity: 1; }
+  50% { box-shadow: 0 0 0 3px rgba(239,68,68,0.4), 0 0 20px rgba(239,68,68,0.1); opacity: 0.85; }
+}
+@keyframes crit-vignette-pulse {
+  0%  { box-shadow: inset 0 0 120px rgba(239,68,68,0.25); }
+  50% { box-shadow: inset 0 0 60px rgba(239,68,68,0.08); }
+}
