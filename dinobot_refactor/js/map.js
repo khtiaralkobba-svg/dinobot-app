@@ -745,5 +745,5 @@ function initMap() {
       const resetBtn = document.getElementById('reset-stuck-btn');
       if (resetBtn) { resetBtn.disabled=false;resetBtn.style.opacity='1';resetBtn.style.pointerEvents='auto'; }
     }
-  }, 150);
+  }, 2000);
 }

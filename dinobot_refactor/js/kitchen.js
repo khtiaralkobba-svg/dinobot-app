@@ -297,7 +297,6 @@ function startKitchenRobotPolling() {
   if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
   window._kitchenRobotPoll = setInterval(async () => {
     try {
-      // ✅ FIX: added authHeaders()
       const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
       const data = await res.json();
       window._pythonOnline = true;
@@ -328,7 +327,7 @@ function startKitchenRobotPolling() {
         });
       }
     }
-  }, 1000);
+  }, 3000);
 }
 
 function updateKitchenOrderStatus(ref, newStatus, tableNum) {
@@ -554,16 +553,13 @@ async function resetStuckOrders() {
   if (stuckRefs.length === 0) {
     try {
       const endpoint = currentRole === 'manager' ? '/api/orders/all' : '/api/orders';
-      console.log('[resetStuck] currentRole:', currentRole, 'endpoint:', endpoint);
       const res = await fetch(API_BASE + endpoint, { headers: authHeaders({ 'Content-Type': 'application/json' }) });
       const data = await res.json();
-      console.log('[resetStuck] orders fetched:', data.orders?.length, 'stuck:', data.orders?.filter(o => ['dispatched','delivering'].includes(o.status)).map(o => o.order_ref));
       stuckRefs = (data.orders || []).filter(o => o.status === 'delivering').map(o => o.order_ref);
-    } catch (e) { console.error('[resetStuck] fetch error:', e); showToast('✗ Could not fetch orders'); return; }
+    } catch (e) { showToast('✗ Could not fetch orders'); return; }
   }
 
   if (stuckRefs.length === 0) { showToast('⬡ No stuck orders to reset'); return; }
-  console.log('[resetStuck] Found stuck orders:', stuckRefs);
 
   for (const ref of stuckRefs) {
     try {
@@ -587,7 +583,6 @@ async function resetStuckOrders() {
   }
 
   robotBusy = false; setAllDispatchButtons(true);
-  // ✅ FIX: added authHeaders()
   try { await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }); } catch {}
   setTimeout(() => resortColumns(), 400);
   showToast(`⬡ ${stuckRefs.length} stuck order(s) logged and removed`);
