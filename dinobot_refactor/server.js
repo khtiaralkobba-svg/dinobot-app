@@ -138,6 +138,7 @@ const robotProxyRoutes = [
   { path: '/manual/start', method: 'POST' },
   { path: '/manual/stop',  method: 'POST' },
   { path: '/manual/move',  method: 'POST' },
+  { path: '/obstacles', method: 'POST' },
 ];
 
 robotProxyRoutes.forEach(({ path: robotPath, method }) => {
