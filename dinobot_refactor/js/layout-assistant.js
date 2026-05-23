@@ -245,7 +245,7 @@ function buildLayoutSystemPrompt() {
     '4. Dining style?\n\n' +
     'After collecting info, generate 3 layouts. Output ONLY a JSON array like this:\n' +
     '[{"name":"Name","description":"Desc","tables":[{"id":1,"x":0.55,"y":0.18}],"obstacles":[{"x":0.3,"y":0.3,"type":"barrier"}]},{"name":"Name2","description":"Desc2","tables":[{"id":1,"x":0.4,"y":0.3}],"obstacles":[]},{"name":"Name3","description":"Desc3","tables":[{"id":1,"x":0.6,"y":0.5}],"obstacles":[]}]\n\n' +
-    'Rules: x and y between 0-1. Dock at x:0.08,y:0.5 — avoid it. Tables: x 0.20-0.95, y 0.10-0.90. Generate exactly the number of tables requested. Make each layout different. 2-5 obstacles each.\n' +
+    'Rules: x and y between 0-1. Dock at x:0.08,y:0.5 — avoid it. Tables: x 0.20-0.95, y 0.10-0.90. Generate exactly the number of tables requested. Make each layout different. If the manager said no obstacles or none, set obstacles:[] for all layouts. Otherwise 2-5 obstacles each.\n' +
     'ONLY output the JSON array when generating. No explanation. No markdown.';
 }
 
