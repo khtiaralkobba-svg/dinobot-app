@@ -12,6 +12,7 @@ function openLayoutAssistant() {
   if (!panel) return;
   layoutAssistantOpen = true;
   panel.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
   if (layoutChatHistory.length === 0) {
     layoutAddMessage('bot', "Hey! I'm your AI Layout Assistant 🗺️\n\nI'll help you design the perfect floor plan. I'll ask a few questions, then generate 3 layout options with table positions and obstacle placements.\n\nLet's start — how many tables do you need?");
   }
@@ -23,6 +24,7 @@ function closeLayoutAssistant() {
   if (!panel) return;
   layoutAssistantOpen = false;
   panel.style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function layoutAddMessage(role, text) {
@@ -121,6 +123,13 @@ async function sendLayoutMessage() {
       layoutAddMessage('bot', rawReply);
     }
 
+    // Update step indicator based on conversation progress
+    const userMsgs = layoutChatHistory.filter(m => m.role === 'user').length;
+    if (userMsgs >= 1) updateLayoutStep(2);
+    if (userMsgs >= 2) updateLayoutStep(3);
+    if (userMsgs >= 3) updateLayoutStep(4);
+    if (userMsgs >= 4) updateLayoutStep(5);
+
     layoutChatHistory.push({ role: 'assistant', content: rawReply });
     if (layoutChatHistory.length > 20) layoutChatHistory = layoutChatHistory.slice(-20);
 
@@ -134,36 +143,64 @@ async function sendLayoutMessage() {
 function renderLayoutOptions() {
   const container = document.getElementById('layout-options-container');
   if (!container || layoutOptions.length === 0) return;
-  container.style.display = 'block';
-  container.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:4px;color:var(--orange);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">⬡ Choose a Layout</div><div style="display:flex;flex-direction:column;gap:10px;" id="layout-cards"></div>';
 
-  const cards = document.getElementById('layout-cards');
+  // Hide empty state, update title
+  const emptyState = document.getElementById('la-empty-state');
+  if (emptyState) emptyState.style.display = 'none';
+  const rightTitle = document.getElementById('la-right-title');
+  if (rightTitle) rightTitle.textContent = layoutOptions.length + ' Layouts Generated — Choose One';
+  rightTitle.style.color = 'var(--orange)';
+
+  // Mark step 5 active
+  updateLayoutStep(5);
+
+  // Remove old cards
+  document.querySelectorAll('.la-card').forEach(c => c.remove());
+
   layoutOptions.forEach((layout, idx) => {
     const card = document.createElement('div');
+    card.className = 'la-card';
     card.id = 'layout-card-' + idx;
-    card.style.cssText = 'padding:14px 16px;background:linear-gradient(160deg,#0d1e36,#0b1828);border:1px solid var(--border);border-left:3px solid var(--border);transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
 
     const preview = document.createElement('canvas');
-    preview.width = 260; preview.height = 140;
-    preview.style.cssText = 'display:block;margin-bottom:10px;border:1px solid var(--border);width:100%;';
+    preview.width = 480; preview.height = 200;
+    preview.style.cssText = 'display:block;width:100%;border-bottom:1px solid rgba(255,255,255,0.04);';
     drawLayoutPreview(preview, layout);
 
-    const info = document.createElement('div');
-    info.innerHTML =
-      '<div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:2px;color:var(--orange);margin-bottom:4px;">' + (layout.name || 'Layout ' + (idx+1)) + '</div>' +
-      '<div style="font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;">' + layout.tables.length + ' TABLES · ' + (layout.obstacles?.length || 0) + ' OBSTACLES</div>' +
-      '<div style="font-family:Rajdhani,sans-serif;font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;">' + (layout.description || '') + '</div>' +
-      '<div style="display:flex;gap:8px;">' +
-        '<button onclick="previewLayout(' + idx + ')" style="flex:1;padding:8px;background:rgba(255,107,26,0.08);border:1px solid var(--border-bright);color:var(--orange);font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">👁 PREVIEW</button>' +
-        '<button onclick="applyLayout(' + idx + ')" style="flex:1;padding:8px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);color:#4ADE80;font-family:Share Tech Mono,monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">✓ APPLY</button>' +
-      '</div>';
+    const header = document.createElement('div');
+    header.className = 'la-card-header';
+    header.innerHTML =
+      '<div>' +
+        '<div class="la-card-name">' + (layout.name || 'Layout ' + (idx+1)) + '</div>' +
+        '<div class="la-card-meta">' + layout.tables.length + ' TABLES · ' + (layout.obstacles?.length || 0) + ' OBSTACLES</div>' +
+      '</div>' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:32px;color:rgba(255,107,26,0.2);letter-spacing:2px;">0' + (idx+1) + '</div>';
+
+    const desc = document.createElement('div');
+    desc.className = 'la-card-desc';
+    desc.textContent = layout.description || '';
+
+    const actions = document.createElement('div');
+    actions.className = 'la-card-actions';
+    actions.innerHTML =
+      '<button class="la-card-preview-btn" onclick="previewLayout(' + idx + ')">👁 PREVIEW ON MAP</button>' +
+      '<button class="la-card-apply-btn" onclick="applyLayout(' + idx + ')">✓ APPLY THIS LAYOUT</button>';
 
     card.appendChild(preview);
-    card.appendChild(info);
-    cards.appendChild(card);
+    card.appendChild(header);
+    card.appendChild(desc);
+    card.appendChild(actions);
+    container.appendChild(card);
   });
+}
 
-  setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+function updateLayoutStep(stepNum) {
+  document.querySelectorAll('.la-step').forEach(s => {
+    const n = parseInt(s.dataset.step);
+    s.classList.remove('la-step-active', 'la-step-done');
+    if (n < stepNum) s.classList.add('la-step-done');
+    else if (n === stepNum) s.classList.add('la-step-active');
+  });
 }
 
 function drawLayoutPreview(canvas, layout) {
@@ -204,12 +241,10 @@ function drawLayoutPreview(canvas, layout) {
 function previewLayout(idx) {
   selectedLayoutIdx = idx;
   const layout = layoutOptions[idx];
-  document.querySelectorAll('[id^="layout-card-"]').forEach((c, i) => {
-    c.style.borderColor     = i === idx ? 'var(--orange)' : 'var(--border)';
-    c.style.borderLeftColor = i === idx ? 'var(--orange)' : 'var(--border)';
-    c.style.background      = i === idx ? 'rgba(255,107,26,0.07)' : 'linear-gradient(160deg,#0d1e36,#0b1828)';
+  document.querySelectorAll('.la-card').forEach((c, i) => {
+    c.classList.toggle('selected', i === idx);
   });
-  showToast('Previewing: ' + layout.name + ' — click APPLY to use it');
+  showToast('Previewing: ' + layout.name + ' — click APPLY THIS LAYOUT to use it');
 }
 
 function applyLayout(idx) {

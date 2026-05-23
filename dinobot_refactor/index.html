@@ -703,7 +703,7 @@
      JAVASCRIPT — load order matters!
 ══════════════════════════════════════════════════════════ -->
 <script src="js/core.js"></script>
-<script src="js/authClient.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/kitchen.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/map.js"></script>
@@ -712,56 +712,113 @@
 <script src="js/staff.js"></script>
 <script src="js/heatmap.js"></script>
 <script src="js/chat.js"></script>
-<script src="js/layout-assistant.js"></script>
+
 
 <!-- ══════════════════════════════════════════════════════════
-     AI LAYOUT ASSISTANT PANEL
+     AI LAYOUT ASSISTANT — FULL SCREEN OVERLAY
 ══════════════════════════════════════════════════════════ -->
-<div id="layout-assistant-panel" style="
-  display:none;
-  position:fixed;
-  top:80px;
-  right:24px;
-  width:420px;
-  max-height:calc(100vh - 100px);
-  z-index:20000;
-  flex-direction:column;
-  background:linear-gradient(160deg,#071828,#061422);
-  border:1px solid var(--border-bright);
-  clip-path:polygon(16px 0%,100% 0%,calc(100% - 16px) 100%,0% 100%);
-  box-shadow:0 0 60px rgba(255,107,26,0.2);
-  overflow:hidden;
-">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(5,22,65,0.5);flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:20px;">🗺️</span>
+<div id="layout-assistant-panel" style="display:none;position:fixed;inset:0;z-index:20000;background:#020b1a;flex-direction:column;overflow:hidden;">
+
+  <!-- TOP BAR -->
+  <div style="flex-shrink:0;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(2,8,26,0.95);border-bottom:1px solid rgba(255,107,26,0.15);backdrop-filter:blur(12px);">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="width:36px;height:40px;background:var(--orange);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:16px;">🗺️</div>
       <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--orange);">AI LAYOUT ASSISTANT</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#4ADE80;">● POWERED BY GROQ</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--text);">AI <span style="color:var(--orange);">LAYOUT</span> STUDIO</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;color:#4ADE80;">● GROQ AI · DINOBOT DESIGN SYSTEM</div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button onclick="resetLayoutAssistant()" style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 10px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);">↺ RESET</button>
-      <button onclick="closeLayoutAssistant()" style="background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 10px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);">CLOSE</button>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button onclick="resetLayoutAssistant()" style="display:flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;">↺ NEW SESSION</button>
+      <button onclick="closeLayoutAssistant()" style="display:flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">✕ CLOSE</button>
     </div>
   </div>
-  <div id="layout-chat-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:200px;max-height:320px;"></div>
-  <div id="layout-options-container" style="display:none;padding:12px 16px;border-top:1px solid var(--border);overflow-y:auto;max-height:340px;"></div>
-  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;">
-    <input
-      id="layout-chat-input"
-      type="text"
-      placeholder="Answer the question above…"
-      style="flex:1;background:rgba(5,20,60,0.6);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);"
-      onkeydown="if(event.key==='Enter')sendLayoutMessage()"
-    >
-    <button
-      onclick="sendLayoutMessage()"
-      style="padding:10px 18px;background:var(--orange);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all 0.2s;"
-    >SEND</button>
-  </div>
-  <div style="padding:6px 16px 10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--text-dim);text-align:center;">
-    AI generates 3 layout options · You choose which one to apply
+
+  <!-- MAIN BODY: LEFT CHAT + RIGHT PREVIEW -->
+  <div style="flex:1;display:grid;grid-template-columns:420px 1fr;overflow:hidden;">
+
+    <!-- LEFT: AI CONVERSATION PANEL -->
+    <div style="display:flex;flex-direction:column;border-right:1px solid rgba(255,107,26,0.12);background:linear-gradient(180deg,rgba(5,12,35,0.9) 0%,rgba(2,8,26,0.95) 100%);">
+
+      <!-- Step indicators -->
+      <div style="flex-shrink:0;padding:20px 28px 16px;border-bottom:1px solid rgba(255,107,26,0.08);">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:5px;color:rgba(255,107,26,0.4);text-transform:uppercase;margin-bottom:12px;">Design Brief</div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="la-steps">
+          <div class="la-step la-step-active" data-step="1">
+            <div class="la-step-num">01</div>
+            <div class="la-step-label">Tables & Capacity</div>
+          </div>
+          <div class="la-step" data-step="2">
+            <div class="la-step-num">02</div>
+            <div class="la-step-label">Room Shape & Size</div>
+          </div>
+          <div class="la-step" data-step="3">
+            <div class="la-step-num">03</div>
+            <div class="la-step-label">Fixed Obstacles</div>
+          </div>
+          <div class="la-step" data-step="4">
+            <div class="la-step-num">04</div>
+            <div class="la-step-label">Dining Style</div>
+          </div>
+          <div class="la-step" data-step="5">
+            <div class="la-step-num">05</div>
+            <div class="la-step-label">Generate Layouts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="layout-chat-messages" style="flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:10px;"></div>
+
+      <!-- Input -->
+      <div style="flex-shrink:0;padding:16px 28px 20px;border-top:1px solid rgba(255,107,26,0.08);">
+        <div style="display:flex;gap:8px;">
+          <input
+            id="layout-chat-input"
+            type="text"
+            placeholder="Type your answer…"
+            style="flex:1;background:rgba(5,20,60,0.5);border:1px solid rgba(255,107,26,0.2);border-bottom:2px solid rgba(255,107,26,0.5);color:var(--text);padding:12px 16px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);"
+            onkeydown="if(event.key==='Enter')sendLayoutMessage()"
+            onfocus="this.style.borderColor='var(--orange)';this.style.background='rgba(5,22,65,0.6)'"
+            onblur="this.style.borderColor='rgba(255,107,26,0.2)';this.style.background='rgba(5,20,60,0.5)'"
+          >
+          <button
+            onclick="sendLayoutMessage()"
+            style="padding:12px 22px;background:var(--orange);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;box-shadow:0 0 20px rgba(255,107,26,0.3);"
+            onmouseover="this.style.boxShadow='0 0 40px rgba(255,107,26,0.6)'"
+            onmouseout="this.style.boxShadow='0 0 20px rgba(255,107,26,0.3)'"
+          >SEND</button>
+        </div>
+        <div style="margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(255,107,26,0.3);text-align:center;">PRESS ENTER OR CLICK SEND TO RESPOND</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: LAYOUT OPTIONS / PREVIEW -->
+    <div style="display:flex;flex-direction:column;overflow:hidden;">
+
+      <!-- Right header -->
+      <div style="flex-shrink:0;padding:20px 36px 16px;border-bottom:1px solid rgba(96,165,250,0.08);background:rgba(2,6,20,0.5);">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:5px;color:rgba(96,165,250,0.4);text-transform:uppercase;margin-bottom:4px;">Layout Options</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:rgba(255,255,255,0.15);" id="la-right-title">Waiting for design brief…</div>
+      </div>
+
+      <!-- Options grid or empty state -->
+      <div id="layout-options-container" style="flex:1;overflow-y:auto;padding:24px 36px;">
+        <!-- Empty state -->
+        <div id="la-empty-state" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+          <div style="width:80px;height:90px;background:rgba(255,107,26,0.05);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:32px;border:1px solid rgba(255,107,26,0.1);">🗺️</div>
+          <div style="text-align:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:rgba(255,255,255,0.15);margin-bottom:8px;">LAYOUTS WILL APPEAR HERE</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.08);">Answer the questions on the left to generate your floor plan options</div>
+          </div>
+          <div style="display:flex;gap:16px;opacity:0.3;">
+            <div style="width:120px;height:80px;background:rgba(96,165,250,0.05);border:1px dashed rgba(96,165,250,0.2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(96,165,250,0.4);letter-spacing:2px;">OPTION 1</div>
+            <div style="width:120px;height:80px;background:rgba(255,107,26,0.05);border:1px dashed rgba(255,107,26,0.2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,107,26,0.4);letter-spacing:2px;">OPTION 2</div>
+            <div style="width:120px;height:80px;background:rgba(74,222,128,0.05);border:1px dashed rgba(74,222,128,0.2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(74,222,128,0.4);letter-spacing:2px;">OPTION 3</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
