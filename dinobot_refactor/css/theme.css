@@ -354,3 +354,68 @@ body.light-mode #la-empty-state > div:first-child {
   background: rgba(255,106,0,0.05) !important;
   border-color: rgba(255,106,0,0.15) !important;
 }
+
+/* ── LIGHT MODE — MANAGER DASHBOARD BUTTON ICONS & TEXT ─── */
+body.light-mode #control-center > button > div > div[style*="width:48px"] {
+  background: rgba(30,100,200,0.1) !important;
+}
+/* LIVE FLOOR MAP button */
+body.light-mode #control-center > button:nth-child(2) > div > div[style*="width:48px"] {
+  border-color: rgba(255,107,26,0.5) !important;
+}
+/* STAFF MANAGEMENT button */
+body.light-mode #control-center > button:nth-child(3) > div > div[style*="width:48px"] {
+  border-color: rgba(192,132,252,0.5) !important;
+}
+/* HEATMAP button */
+body.light-mode #control-center > button:nth-child(4) > div > div[style*="width:48px"] {
+  border-color: rgba(74,222,128,0.5) !important;
+}
+/* ANALYTICS button */
+body.light-mode #control-center > button:nth-child(5) > div > div[style*="width:48px"] {
+  border-color: rgba(96,165,250,0.5) !important;
+}
+
+/* Arrow hex icons on the right */
+body.light-mode #control-center > button:nth-child(2) > div:last-child > div:last-child {
+  background: rgba(255,107,26,0.1) !important;
+  border-color: rgba(255,107,26,0.4) !important;
+  color: var(--orange) !important;
+}
+body.light-mode #control-center > button:nth-child(3) > div:last-child > div:last-child {
+  background: rgba(192,132,252,0.1) !important;
+  border-color: rgba(192,132,252,0.4) !important;
+  color: #7c3aed !important;
+}
+body.light-mode #control-center > button:nth-child(4) > div:last-child > div:last-child {
+  background: rgba(74,222,128,0.1) !important;
+  border-color: rgba(74,222,128,0.4) !important;
+  color: #16a34a !important;
+}
+body.light-mode #control-center > button:nth-child(5) > div:last-child > div:last-child {
+  background: rgba(96,165,250,0.1) !important;
+  border-color: rgba(96,165,250,0.4) !important;
+  color: #2563eb !important;
+}
+
+/* OPERATIONAL tag */
+body.light-mode .cc-layer-operational .cc-layer-tag {
+  background: #f4faff !important;
+  color: rgba(255,107,26,0.7) !important;
+  border-color: rgba(255,107,26,0.2) !important;
+}
+
+/* Eyebrow labels (// Operational Control, // Access Control etc) */
+body.light-mode #control-center > button > div > div[style*="letter-spacing:4px"] {
+  opacity: 0.8 !important;
+}
+
+/* Sub labels (Dispatch · Manual Control etc) */
+body.light-mode #control-center > button > div > div[style*="letter-spacing:1px"] {
+  color: rgba(20,8,0,0.45) !important;
+}
+
+/* OPEN text */
+body.light-mode #control-center > button > div:last-child > div[style*="letter-spacing:3px"] {
+  color: rgba(20,8,0,0.35) !important;
+}
