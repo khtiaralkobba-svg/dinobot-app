@@ -139,6 +139,7 @@ function updateAnalyticsUI() {
 }
 
 async function loadItemLeaderboard() {
+  if (currentRole !== 'manager') return;
   const container = document.getElementById('an-leaderboard');
   if (!container) return;
   container.innerHTML = '<div style="font-family:\'Share Tech Mono\',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);text-align:center;padding:16px;">⬡ LOADING...</div>';
