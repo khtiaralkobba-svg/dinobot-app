@@ -248,8 +248,10 @@ function updateObstacleCount() {
 async function syncObstaclesToRobot() {
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
-    // Include manager-placed obstacles + tables as physical obstacles
-    const tableObstacles = tables.map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.022 }));
+    const targetId = currentTarget?.id;
+    const tableObstacles = tables
+      .filter(t => t.id !== targetId)
+      .map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.022 }));
     const allObstacles = [
       ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
       ...tableObstacles
@@ -704,6 +706,7 @@ function initMap() {
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
       } else if (data.state === 'IDLE') {
         currentTarget = null;
+        syncObstaclesToRobot();
         if (robotBusy) {
           robotBusy = false; setAllDispatchButtons(true);
           const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['dispatched','delivering','delivered'].includes(o.status)).map(([ref])=>ref);
