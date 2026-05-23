@@ -97,7 +97,7 @@ async function getAllOrders() {
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
     .select('*')
-    .order('placed_at', { ascending: true })
+    .order('placed_at', { ascending: false })
     .limit(10000);
 
   if (ordersError) throw ordersError;
