@@ -249,7 +249,7 @@ async function syncObstaclesToRobot() {
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
     // Include manager-placed obstacles + tables as physical obstacles
-    const tableObstacles = tables.map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.028 }));
+    const tableObstacles = tables.map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.045 }));
     const allObstacles = [
       ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
       ...tableObstacles
