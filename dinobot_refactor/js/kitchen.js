@@ -567,6 +567,7 @@ async function resetStuckOrders() {
   }
 
   if (stuckRefs.length === 0) { showToast('⬡ No stuck orders to reset'); return; }
+  console.log('[resetStuck] Found stuck orders:', stuckRefs);
 
   for (const ref of stuckRefs) {
     try {
