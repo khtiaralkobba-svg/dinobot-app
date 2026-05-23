@@ -559,7 +559,8 @@ async function resetStuckOrders() {
 
   if (stuckRefs.length === 0) {
     try {
-      const res = await fetch(API_BASE + '/api/orders', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
+      const endpoint = currentRole === 'manager' ? '/api/orders/all' : '/api/orders';
+      const res = await fetch(API_BASE + endpoint, { headers: authHeaders({ 'Content-Type': 'application/json' }) });
       const data = await res.json();
       stuckRefs = (data.orders || []).filter(o => ['dispatched','delivering'].includes(o.status)).map(o => o.order_ref);
     } catch { showToast('✗ Could not fetch orders'); return; }
