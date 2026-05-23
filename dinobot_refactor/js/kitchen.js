@@ -548,7 +548,7 @@ function setAllDispatchButtons(enabled) {
 
 async function resetStuckOrders() {
   let stuckRefs = Object.entries(kitchenOrders)
-    .filter(([, o]) => ['dispatched','delivering'].includes(o.status))
+    .filter(([, o]) => o.status === 'delivering')
     .map(([ref]) => ref);
 
   if (stuckRefs.length === 0) {
@@ -558,7 +558,7 @@ async function resetStuckOrders() {
       const res = await fetch(API_BASE + endpoint, { headers: authHeaders({ 'Content-Type': 'application/json' }) });
       const data = await res.json();
       console.log('[resetStuck] orders fetched:', data.orders?.length, 'stuck:', data.orders?.filter(o => ['dispatched','delivering'].includes(o.status)).map(o => o.order_ref));
-      stuckRefs = (data.orders || []).filter(o => ['dispatched','delivering'].includes(o.status)).map(o => o.order_ref);
+      stuckRefs = (data.orders || []).filter(o => o.status === 'delivering').map(o => o.order_ref);
     } catch (e) { console.error('[resetStuck] fetch error:', e); showToast('✗ Could not fetch orders'); return; }
   }
 
