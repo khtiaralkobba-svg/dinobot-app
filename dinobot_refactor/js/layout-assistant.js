@@ -94,16 +94,13 @@ function extractLayouts(text) {
   return null;
 }
 
-/* ── Strip all JSON and code blocks from display text ───── */
+/* ── Strip all JSON from display text ───────────────────── */
 function cleanReplyText(text) {
-  // Remove markers
-  let clean = text.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '');
-  // Remove code blocks
+  let clean = text;
+  clean = clean.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '');
   clean = clean.replace(/```[\s\S]*?```/g, '');
-  // Remove the JSON array — find first [ and remove everything from there to end
-  // since Gemma outputs text then JSON at the end
-  const jsonStart = clean.indexOf('[{');
-  if (jsonStart !== -1) clean = clean.slice(0, jsonStart);
+  // Remove any JSON array (starts with [ ends with ])
+  clean = clean.replace(/\[[\s\S]*\]/g, '');
   return clean.trim();
 }
 
@@ -133,12 +130,13 @@ async function sendLayoutMessage() {
 
     if (extracted) {
       layoutOptions = extracted; selectedLayoutIdx = null;
-      // Show only the clean text, no JSON
+      // Show clean text only (strip all JSON)
       const cleanText = cleanReplyText(rawReply);
       if (cleanText) layoutAddMessage('bot', cleanText);
-      layoutAddMessage('bot', 'Here are your ' + extracted.length + ' layout options — click PREVIEW to see it highlighted, then APPLY to set it as your live map.');
+      layoutAddMessage('bot', 'Here are your ' + extracted.length + ' layout options — click PREVIEW to see it on the map, then APPLY to use it.');
       renderLayoutOptions();
     } else {
+      // No JSON found — just show the reply as a question/message
       layoutAddMessage('bot', rawReply);
     }
 
@@ -285,21 +283,19 @@ function buildLayoutSystemPrompt() {
     '3. Any fixed obstacles? (pillars, walls, counters, doors)\n' +
     '4. Dining style? (casual/formal, open/intimate)\n\n' +
     'IMPORTANT: Do NOT generate layouts until you have answers to at least questions 1 and 2.\n\n' +
-    'WHEN READY TO GENERATE:\n' +
-    'Output a brief message then a valid JSON array. The array must:\n' +
-    '- Contain exactly 3 layout objects\n' +
-    '- Each object has: name (string), description (string), tables (array), obstacles (array)\n' +
-    '- tables array: [{id:1, x:0.55, y:0.18}, ...] — generate ALL requested tables\n' +
-    '- obstacles array: [{x:0.3, y:0.3, type:"barrier"}, ...]\n' +
-    '- Each layout must feel distinctly different from the others\n\n' +
+    'WHEN READY TO GENERATE LAYOUTS:\n' +
+    'Output ONLY a raw JSON array. No text before it. No text after it. No explanation. No markdown. Just the JSON array starting with [ and ending with ].\n\n' +
+    'The array must contain exactly 3 objects. Each object:\n' +
+    '{"name":"Layout Name","description":"One sentence","tables":[{"id":1,"x":0.55,"y":0.18}],"obstacles":[{"x":0.3,"y":0.3,"type":"barrier"}]}\n\n' +
     'COORDINATE RULES:\n' +
-    '- x and y values are between 0 and 1\n' +
-    '- Robot dock is at x:0.08, y:0.5 — keep tables and obstacles away from this\n' +
-    '- Tables: x between 0.20 and 0.95, y between 0.10 and 0.90\n' +
-    '- Spread tables evenly across the room\n' +
+    '- x and y are 0 to 1\n' +
+    '- Dock at x:0.08, y:0.5 — keep tables and obstacles away\n' +
+    '- Tables: x between 0.20-0.95, y between 0.10-0.90\n' +
+    '- Spread tables evenly, make each layout feel different\n' +
+    '- Generate EXACTLY as many tables as requested\n' +
     '- Obstacle types: barrier, cone, chair, table, person, bag, pet, box, trash\n' +
-    '- Use 2 to 5 obstacles per layout\n\n' +
-    'OUTPUT: Just write your message and then the raw JSON array directly. No markdown. No code blocks. No extra explanation after the JSON.';
+    '- 2 to 5 obstacles per layout\n\n' +
+    'CRITICAL: When generating layouts, output ONLY the JSON array. Nothing else. The system will display it as visual cards automatically.';
 }
 
 function resetLayoutAssistant() {
