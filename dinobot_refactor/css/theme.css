@@ -578,3 +578,14 @@ body.light-mode button[onclick="generateStaffPassword()"] {
   border-color: rgba(192,132,252,0.35) !important;
   color: #7c3aed !important;
 }
+
+/* ── LIGHT MODE — STAFF PANEL TAGS STRONGER ─────────────── */
+body.light-mode #staff-create-panel > div[style*="position:absolute"],
+body.light-mode #staff-status-panel > div[style*="position:absolute"],
+body.light-mode #staff-list-panel > div[style*="position:absolute"] {
+  background: #c8dff5 !important;
+  color: #5b21b6 !important;
+  border-color: rgba(109,40,217,0.5) !important;
+  font-weight: 700 !important;
+  letter-spacing: 3px !important;
+}
