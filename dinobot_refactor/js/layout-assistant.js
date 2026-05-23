@@ -56,52 +56,42 @@ function layoutHideTyping() {
   document.getElementById('layout-typing')?.remove();
 }
 
-/* ── Try every possible way to extract layout JSON ──────── */
+/* ── Extract all JSON objects with "tables" key from text ── */
 function extractLayouts(text) {
-  // Method 1: LAYOUTS_JSON: [...] END_LAYOUTS markers
-  const m1 = text.match(/LAYOUTS_JSON:\s*([\s\S]*?)\s*END_LAYOUTS/);
-  if (m1) {
-    try {
-      const parsed = JSON.parse(m1[1].trim());
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
-    } catch(e) {}
-  }
-
-  // Method 2: ```json [...] ``` code block
-  const m2 = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (m2) {
-    try {
-      const parsed = JSON.parse(m2[1].trim());
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
-    } catch(e) {}
-  }
-
-  // Method 3: Find the outermost [...] array in the text
-  let depth = 0, start = -1;
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === '[') { if (depth === 0) start = i; depth++; }
-    else if (text[i] === ']') {
-      depth--;
-      if (depth === 0 && start !== -1) {
-        try {
-          const parsed = JSON.parse(text.slice(start, i + 1));
-          if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].tables) return parsed;
-        } catch(e) {}
-        start = -1;
+  const results = [];
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] === '{') {
+      // Try to parse a JSON object starting here
+      let depth = 0, j = i;
+      while (j < text.length) {
+        if (text[j] === '{') depth++;
+        else if (text[j] === '}') { depth--; if (depth === 0) break; }
+        j++;
       }
+      try {
+        const obj = JSON.parse(text.slice(i, j + 1));
+        if (obj && Array.isArray(obj.tables) && obj.tables.length > 0) {
+          results.push(obj);
+        }
+      } catch(e) {}
+      i = j + 1;
+    } else {
+      i++;
     }
   }
-  return null;
+  return results.length >= 2 ? results.slice(0, 3) : null;
 }
 
-/* ── Strip all JSON from display text ───────────────────── */
-function cleanReplyText(text) {
-  let clean = text;
-  clean = clean.replace(/LAYOUTS_JSON:[\s\S]*?END_LAYOUTS/g, '');
-  clean = clean.replace(/```[\s\S]*?```/g, '');
-  // Remove any JSON array (starts with [ ends with ])
-  clean = clean.replace(/\[[\s\S]*\]/g, '');
-  return clean.trim();
+/* ── Remove all JSON-like content from text for display ─── */
+function stripJSON(text) {
+  // Remove everything from the first { or [ that contains "tables" or "name"
+  // Strategy: find first { and cut there
+  const firstBrace = text.search(/\{[^}]*"name"/);
+  if (firstBrace > 0) return text.slice(0, firstBrace).trim();
+  const firstBracket = text.search(/\[\s*\{/);
+  if (firstBracket > 0) return text.slice(0, firstBracket).trim();
+  return text.trim();
 }
 
 async function sendLayoutMessage() {
@@ -125,18 +115,16 @@ async function sendLayoutMessage() {
     const rawReply = data?.reply || 'Sorry, try again!';
     layoutHideTyping();
 
-    // Try to extract layouts from the reply
     const extracted = extractLayouts(rawReply);
 
     if (extracted) {
-      layoutOptions = extracted; selectedLayoutIdx = null;
-      // Show clean text only (strip all JSON)
-      const cleanText = cleanReplyText(rawReply);
+      layoutOptions = extracted;
+      selectedLayoutIdx = null;
+      const cleanText = stripJSON(rawReply);
       if (cleanText) layoutAddMessage('bot', cleanText);
-      layoutAddMessage('bot', 'Here are your ' + extracted.length + ' layout options — click PREVIEW to see it on the map, then APPLY to use it.');
+      layoutAddMessage('bot', 'Here are your ' + extracted.length + ' layout options — click PREVIEW to see it, then APPLY to use it on your live map.');
       renderLayoutOptions();
     } else {
-      // No JSON found — just show the reply as a question/message
       layoutAddMessage('bot', rawReply);
     }
 
@@ -160,7 +148,7 @@ function renderLayoutOptions() {
   layoutOptions.forEach((layout, idx) => {
     const card = document.createElement('div');
     card.id = 'layout-card-' + idx;
-    card.style.cssText = 'padding:14px 16px;background:linear-gradient(160deg,#0d1e36,#0b1828);border:1px solid var(--border);border-left:3px solid var(--border);cursor:pointer;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
+    card.style.cssText = 'padding:14px 16px;background:linear-gradient(160deg,#0d1e36,#0b1828);border:1px solid var(--border);border-left:3px solid var(--border);transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);';
 
     const preview = document.createElement('canvas');
     preview.width = 260; preview.height = 140;
@@ -182,7 +170,6 @@ function renderLayoutOptions() {
     cards.appendChild(card);
   });
 
-  // Scroll to show the cards
   setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
@@ -190,31 +177,22 @@ function drawLayoutPreview(canvas, layout) {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   const isLight = document.body.classList.contains('light-mode');
-
   ctx.fillStyle = isLight ? '#e8f4fd' : '#020b1a';
   ctx.fillRect(0, 0, W, H);
-
-  // Grid
   ctx.strokeStyle = isLight ? 'rgba(30,100,200,0.1)' : 'rgba(5,22,65,0.9)';
   ctx.lineWidth = 0.5;
   for (let i = 0; i < W; i += 20) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
   for (let j = 0; j < H; j += 20) { ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.stroke(); }
-
-  // Route lines from dock to each table
-  const jx = 0.42 * W, jy = 0.5 * H;
+  const jx = 0.42*W, jy = 0.5*H;
   ctx.strokeStyle = 'rgba(255,107,26,0.15)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
   ctx.beginPath(); ctx.moveTo(dockX*W, dockY*H); ctx.lineTo(jx, jy); ctx.stroke();
   layout.tables.forEach(t => { ctx.beginPath(); ctx.moveTo(jx,jy); ctx.lineTo(t.x*W,t.y*H); ctx.stroke(); });
   ctx.setLineDash([]);
-
-  // Dock
   ctx.fillStyle = '#16a34a'; ctx.shadowColor = '#16a34a'; ctx.shadowBlur = 6;
   ctx.beginPath(); ctx.arc(dockX*W, dockY*H, 5, 0, Math.PI*2); ctx.fill();
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#4ADE80'; ctx.font = '7px monospace'; ctx.textAlign = 'center';
   ctx.fillText('DOCK', dockX*W, dockY*H + 13);
-
-  // Tables
   layout.tables.forEach(t => {
     ctx.fillStyle = '#60A5FA'; ctx.shadowColor = '#60A5FA'; ctx.shadowBlur = 4;
     ctx.beginPath(); ctx.arc(t.x*W, t.y*H, 5, 0, Math.PI*2); ctx.fill();
@@ -222,11 +200,9 @@ function drawLayoutPreview(canvas, layout) {
     ctx.fillStyle = 'rgba(220,232,248,0.9)'; ctx.font = '7px monospace'; ctx.textAlign = 'center';
     ctx.fillText('T'+t.id, t.x*W, t.y*H + 13);
   });
-
-  // Obstacles
   (layout.obstacles || []).forEach(o => {
-    ctx.fillStyle = 'rgba(239,68,68,0.35)'; ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1;
-    ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 3;
+    ctx.fillStyle = 'rgba(239,68,68,0.35)'; ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 1; ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 3;
     ctx.beginPath(); ctx.arc(o.x*W, o.y*H, 4, 0, Math.PI*2);
     ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
   });
@@ -246,13 +222,9 @@ function previewLayout(idx) {
 function applyLayout(idx) {
   const layout = layoutOptions[idx];
   if (!layout) return;
-
-  // Apply tables
   tables.length = 0;
   layout.tables.forEach(t => tables.push({ id: t.id, x: t.x, y: t.y }));
   saveTables(); rebuildDispatchButtons(); rebuildStudentTableGrid();
-
-  // Apply obstacles
   if (layout.obstacles && layout.obstacles.length > 0) {
     obstacles.length = 0;
     layout.obstacles.forEach(o => {
@@ -261,12 +233,9 @@ function applyLayout(idx) {
     });
     syncObstaclesToRobot(); updateObstacleCount();
   }
-
   closeLayoutAssistant();
   showToast('Layout "' + layout.name + '" applied — ' + layout.tables.length + ' tables set!');
   addActivity('dot-system', 'AI layout <strong>' + layout.name + '</strong> applied — ' + layout.tables.length + ' tables');
-
-  // Reset for next time
   layoutChatHistory = []; layoutOptions = []; selectedLayoutIdx = null;
   const messages = document.getElementById('layout-chat-messages');
   if (messages) messages.innerHTML = '';
@@ -275,27 +244,16 @@ function applyLayout(idx) {
 }
 
 function buildLayoutSystemPrompt() {
-  return 'You are an AI floor layout assistant for a campus dining robot system called Dinobot.\n' +
-    'Your job: chat with the manager, collect info, then generate 3 floor layout options.\n\n' +
-    'CONVERSATION - ask ONE question at a time, in this order:\n' +
-    '1. How many tables do they need?\n' +
-    '2. Room shape and size? (small/medium/large, square/rectangular/L-shaped)\n' +
-    '3. Any fixed obstacles? (pillars, walls, counters, doors)\n' +
-    '4. Dining style? (casual/formal, open/intimate)\n\n' +
-    'IMPORTANT: Do NOT generate layouts until you have answers to at least questions 1 and 2.\n\n' +
-    'WHEN READY TO GENERATE LAYOUTS:\n' +
-    'Output ONLY a raw JSON array. No text before it. No text after it. No explanation. No markdown. Just the JSON array starting with [ and ending with ].\n\n' +
-    'The array must contain exactly 3 objects. Each object:\n' +
-    '{"name":"Layout Name","description":"One sentence","tables":[{"id":1,"x":0.55,"y":0.18}],"obstacles":[{"x":0.3,"y":0.3,"type":"barrier"}]}\n\n' +
-    'COORDINATE RULES:\n' +
-    '- x and y are 0 to 1\n' +
-    '- Dock at x:0.08, y:0.5 — keep tables and obstacles away\n' +
-    '- Tables: x between 0.20-0.95, y between 0.10-0.90\n' +
-    '- Spread tables evenly, make each layout feel different\n' +
-    '- Generate EXACTLY as many tables as requested\n' +
-    '- Obstacle types: barrier, cone, chair, table, person, bag, pet, box, trash\n' +
-    '- 2 to 5 obstacles per layout\n\n' +
-    'CRITICAL: When generating layouts, output ONLY the JSON array. Nothing else. The system will display it as visual cards automatically.';
+  return 'You are an AI floor layout assistant for Dinobot, a campus dining robot system.\n' +
+    'Chat with the manager and collect info. Ask ONE question at a time:\n' +
+    '1. How many tables?\n' +
+    '2. Room shape and size?\n' +
+    '3. Any fixed obstacles?\n' +
+    '4. Dining style?\n\n' +
+    'After collecting info, generate 3 layouts. Output ONLY a JSON array like this:\n' +
+    '[{"name":"Name","description":"Desc","tables":[{"id":1,"x":0.55,"y":0.18}],"obstacles":[{"x":0.3,"y":0.3,"type":"barrier"}]},{"name":"Name2","description":"Desc2","tables":[{"id":1,"x":0.4,"y":0.3}],"obstacles":[]},{"name":"Name3","description":"Desc3","tables":[{"id":1,"x":0.6,"y":0.5}],"obstacles":[]}]\n\n' +
+    'Rules: x and y between 0-1. Dock at x:0.08,y:0.5 — avoid it. Tables: x 0.20-0.95, y 0.10-0.90. Generate exactly the number of tables requested. Make each layout different. 2-5 obstacles each.\n' +
+    'ONLY output the JSON array when generating. No explanation. No markdown.';
 }
 
 function resetLayoutAssistant() {
