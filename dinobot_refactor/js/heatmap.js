@@ -50,7 +50,7 @@ function hmCellColor(val, max) {
 async function openHeatmapOverlay() {
   hmCurrentView = 'week';
   const el = document.getElementById('heatmap-overlay');
-  background:${document.body.classList.contains('light-mode')?'#f4faff':'#020b1a'}
+  el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:${document.body.classList.contains('light-mode')?'#f4faff':'#020b1a'};z-index:9500;`;
   document.body.style.overflow = 'hidden';
 
   document.getElementById('heatmap-body').innerHTML = `
