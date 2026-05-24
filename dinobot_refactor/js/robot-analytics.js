@@ -199,7 +199,7 @@ try {
                     : 'linear-gradient(to top,#2563eb,#93c5fd)';
             const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
             return `
-            <div onclick="raShowBarDetail(${i}, ${t}, ${deliveryTimes.length - recentTimes.length + i}, ${avgDelivery||0}, ${minDelivery||0}, ${maxDelivery||0})" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;cursor:pointer;">
+            <div onclick="raShowBarDetail(${i}, ${t}, ${deliveryTimes.length - recentTimes.length + i}, ${avgDelivery||0}, ${minDelivery||0}, ${maxDelivery||0}, '${valColor}')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;cursor:pointer;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${t.toFixed(0)}s</div>
               <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">R${deliveryTimes.length - recentTimes.length + i + 1}</div>
@@ -253,7 +253,7 @@ window._raObstacleInterval = setInterval(async () => {
 
 }
 
-function raShowBarDetail(i, t, runNum, avg, min, max) {
+function raShowBarDetail(i, t, runNum, avg, min, max, barColor) {
   const isLight = document.body.classList.contains('light-mode');
   const existing = document.getElementById('ra-bar-detail');
   if (existing) existing.remove();
@@ -265,12 +265,13 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
 
   const statusLabel = isFastest ? 'FASTEST RUN' : isSlowest ? 'SLOWEST RUN' : isNearAvg ? 'NEAR AVERAGE' : isAboveAvg ? 'ABOVE AVERAGE' : 'BELOW AVERAGE';
   const statusColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : isNearAvg ? '#60A5FA' : isAboveAvg ? '#FBB924' : '#4ADE80';
-  const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#3b82f6';
+  const accentColor = barColor || (isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#3b82f6');
   function hexToRgba(hex, alpha) {
   const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
-const bgGradient = isLight ? '#e8f4fd' : `linear-gradient(135deg,${hexToRgba(accentColor,0.12)},${hexToRgba(accentColor,0.04)})`;
+const hex = barColor || accentColor;
+const bgGradient = isLight ? '#e8f4fd' : `linear-gradient(135deg,${hexToRgba(hex, 0.15)},${hexToRgba(hex, 0.05)})`;
 
   const perfPct = avg ? Math.round((1 - (t - min) / (max - min + 1)) * 100) : 50;
 
