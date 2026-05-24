@@ -904,8 +904,26 @@ function raApplyCalendarFilter() {
     container.style.opacity = '1';
   }, 300);
   if (window._raActiveCard) {
-  raShowCardChart(window._raActiveCard);
-}
+    raShowCardChart(window._raActiveCard);
+  }
+
+  // Update stat cards based on calendar filter
+  const calFiltered = allOrders.filter(o => {
+    if (!o.placed_at) return false;
+    const d = new Date(o.placed_at);
+    if (day) {
+      return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+    }
+    return d.getFullYear() === year && d.getMonth() === month;
+  });
+  const calDelivered = calFiltered.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  const calTimes = calDelivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+  const calAvg = calTimes.length ? Math.round(calTimes.reduce((a,b)=>a+b,0)/calTimes.length) : null;
+  const calDispatched = calFiltered.filter(o => o.status === 'delivered');
+
+  const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+  setCard('ra-card-dispatches', calDispatched.length);
+  setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
 }
 
 window.addEventListener('beforeunload', () => {
