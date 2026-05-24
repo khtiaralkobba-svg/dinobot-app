@@ -469,6 +469,7 @@ function animateMap() {
       if (dist < 0.015 && robotState === 'DISPATCHED' && currentTarget) {
         robotState = 'DELIVERING'; setRobotState('DELIVERING', 'Table ' + currentTarget.id, '#4ADE80');
         document.getElementById('speed-val').textContent = '0 cm/s'; document.getElementById('speed-bar').style.width = '0%';
+        raTrackDelivery();
         addActivity('dot-order', `UNIT-01 arrived at <strong>Table ${currentTarget.id}</strong>`);
         setTimeout(() => { if (robotState === 'DELIVERING') recallUnit(); }, 4000);
       }
@@ -682,6 +683,7 @@ function initMap() {
       window._robotRisk    = data.risk || 0;
 
       document.getElementById('bat-bar').style.width  = data.battery + '%';
+      raTrackBattery(data.battery);
       document.getElementById('bat-pct').textContent  = data.battery + '%';
       document.getElementById('speed-val').textContent = data.speed + ' cm/s';
       document.getElementById('speed-bar').style.width = Math.min(data.speed, 100) + '%';
@@ -725,7 +727,7 @@ function initMap() {
       if (['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
         if (!window._routeStartTime) window._routeStartTime = Date.now();
         const routeMins = (Date.now() - window._routeStartTime) / 60000;
-        if (routeMins >= 5 && !window._routeAlarmFired) {
+        if (routeMins >= 1.5 && !window._routeAlarmFired) {
           window._routeAlarmFired = true;
           showRobotAlarm(); playCritAlert();
           speak('Warning. The robot has been en route for over 5 minutes. Please check Unit 01.', { priority: true });
