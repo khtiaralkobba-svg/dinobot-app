@@ -536,7 +536,7 @@ function raShowCardChart(type) {
               <button onclick="raShowCardChart('${type}')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
             </div>
           </div>
-          <div style="display:flex;align-items:flex-end;gap:10px;height:220px;">
+          <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
             ${bars.map((b, i) => {
               const pct = (b.val / maxVal) * 100;
               const barH = Math.max(8, (pct / 100) * 200);
