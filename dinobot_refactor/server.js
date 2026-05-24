@@ -52,6 +52,8 @@ app.delete('/api/auth/staff/:id',        deleteStaff);
 // ── Orders routes ─────────────────────────────────────────────────────────────
 const ordersRouter = require('./routes/orderRoutes');
 app.use('/api/orders', ordersRouter);
+const robotRouter = require('./routes/robotRoutes');
+app.use('/api/robot-stats', robotRouter);
 
 // ── Groq AI chat ──────────────────────────────────────────────────────────────
 app.post('/api/groq', async (req, res) => {

@@ -20,7 +20,16 @@ function raTrackDelivery() {
     raData._dispatchStart = null;
   }
 }
-function raTrackEStop() { raData.estopEvents++; }
+async function raTrackEStop() {
+  raData.estopEvents++;
+  try {
+    await fetch(API_BASE + '/api/robot-stats/estop', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ triggered_by: currentUser?.employee_id || 'manager' })
+    });
+  } catch {}
+}
 function raTrackBattery(pct) {
   raData.batteryReadings.push(pct);
   if (raData.lastBattery !== null && pct < raData.lastBattery) {
@@ -69,7 +78,11 @@ async function openRobotAnalyticsOverlay() {
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
   const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
-  const estops = raData.estopEvents; // still session-only
+  let estops = raData.estopEvents;
+try {
+  const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
+  if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
+} catch {} // still session-only
   const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
   const minDelivery = deliveryTimes.length ? Math.round(Math.min(...deliveryTimes)) : null;
   const maxDelivery = deliveryTimes.length ? Math.round(Math.max(...deliveryTimes)) : null;
@@ -184,3 +197,14 @@ function closeRobotAnalyticsOverlay() {
   if (el) el.style.display = 'none';
   document.body.style.overflow = '';
 }
+
+window.addEventListener('beforeunload', () => {
+  if (raData.dispatches > 0 || raData.batteryUsed > 0) {
+    navigator.sendBeacon(API_BASE + '/api/robot-stats/session', JSON.stringify({
+      battery_start: raData.batteryReadings[0] || null,
+      battery_end:   raData.lastBattery,
+      battery_used:  raData.batteryUsed,
+      dispatches:    raData.dispatches
+    }));
+  }
+});
