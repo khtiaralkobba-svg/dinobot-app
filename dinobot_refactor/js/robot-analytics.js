@@ -233,8 +233,6 @@ window._raObstacleInterval = setInterval(async () => {
     const pollDeliveryTimes = deliveredOrders.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
     const dispatched = orders.filter(o => ['dispatched','delivering','delivered','ready'].includes(o.status));
     const avgDelivery = pollDeliveryTimes.length ? Math.round(pollDeliveryTimes.reduce((a,b)=>a+b,0) / pollDeliveryTimes.length) : null;
-    const dispatched = orders.filter(o => ['dispatched','delivering','delivered','ready'].includes(o.status));
-    const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard('ra-card-dispatches',  dispatched.length);
     setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
