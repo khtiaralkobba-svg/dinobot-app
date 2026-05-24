@@ -11,6 +11,7 @@ let raData = {
   avgSpeed: 0,
   lastBattery: null,
   batteryUsed: 0,
+  obstaclesAvoided: 0,
 };
 
 function raTrackDispatch() { raData.dispatches++; raData._dispatchStart = Date.now(); }
@@ -39,6 +40,8 @@ function raTrackBattery(pct) {
 }
 function raTrackSpeed(speed) { raData.avgSpeed = speed; }
 
+function raTrackObstacleAvoided() { raData.obstaclesAvoided++; }
+
 async function openRobotAnalyticsOverlay() {
   let el = document.getElementById('robot-analytics-overlay');
   if (!el) {
@@ -51,7 +54,7 @@ async function openRobotAnalyticsOverlay() {
  
 
   el.innerHTML = `
-    <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(251,185,36,0.2);background:${isLight?'linear-gradient(160deg,rgba(255,106,0,0.06) 0%,transparent 60%)':'linear-gradient(160deg,rgba(40,30,5,0.45) 0%,transparent 60%)'};flex-shrink:0;">
+    <div style="position:static;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(251,185,36,0.2);background:${isLight?'linear-gradient(160deg,rgba(255,106,0,0.06) 0%,transparent 60%)':'linear-gradient(160deg,rgba(40,30,5,0.45) 0%,transparent 60%)'};flex-shrink:0;">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(251,185,36,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Robot Intelligence</div>
@@ -95,12 +98,13 @@ try {
   const body = document.getElementById('ra-body');
   body.innerHTML = `
     <!-- Stat cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
       ${[
         ['Total Dispatches', dispatched.length, 'all time', '#FBB924'],
         ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80'],
         ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA'],
         ['E-Stop Events', estops, 'this session', '#ef4444'],
+        ['Obstacles Avoided', raData.obstaclesAvoided, 'this session', '#C084FC'],
       ].map(([lbl,val,sub,color]) => `
         <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>

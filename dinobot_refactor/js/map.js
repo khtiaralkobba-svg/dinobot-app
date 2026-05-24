@@ -680,6 +680,10 @@ function initMap() {
       robotX = data.x_norm; robotY = data.y_norm; robotAngle = data.theta;
       targetX = robotX; targetY = robotY;
       window._robotNavMode = data.nav_mode || 'NORMAL';
+      if (data.nav_mode === 'AVOIDANCE' && window._lastNavMode !== 'AVOIDANCE') {
+        raTrackObstacleAvoided();
+      }
+      window._lastNavMode = data.nav_mode || 'NORMAL';
       window._robotRisk    = data.risk || 0;
 
       document.getElementById('bat-bar').style.width  = data.battery + '%';
