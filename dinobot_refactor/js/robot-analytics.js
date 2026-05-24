@@ -125,7 +125,7 @@ try {
       ].map(([lbl,val,sub,color]) => `
         <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
-          <div class="${lbl==='Obstacles Avoided'?'obstacles-card':''}" style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
+          <div class="${lbl==='Total Dispatches'?'ra-card-dispatches':lbl==='Avg Delivery Time'?'ra-card-avgdelivery':lbl==='Battery Used'?'ra-card-battery':lbl==='E-Stop Events'?'ra-card-estops':'ra-card-obstacles'}" style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'var(--text-dim)'};letter-spacing:1px;margin-top:4px;">${sub}</div>
         </div>`).join('')}
     </div>
@@ -211,14 +211,33 @@ try {
 
     // Poll obstacle count every 5 seconds while overlay is open
 if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
-  window._raObstacleInterval = setInterval(async () => {
-    if (!document.getElementById('robot-analytics-overlay') ||
-        document.getElementById('robot-analytics-overlay').style.display === 'none') {
-      clearInterval(window._raObstacleInterval);
-      return;
-    }
-    openRobotAnalyticsOverlay();
-  }, 2000);
+window._raObstacleInterval = setInterval(async () => {
+  if (!document.getElementById('robot-analytics-overlay') ||
+      document.getElementById('robot-analytics-overlay').style.display === 'none') {
+    clearInterval(window._raObstacleInterval);
+    return;
+  }
+  try {
+    const [ordersRes, obsRes, estopRes] = await Promise.all([
+      fetch(API_BASE + '/api/orders/all', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
+    ]);
+    const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
+    const od = obsRes.ok ? await obsRes.json() : {};
+    const ed = estopRes.ok ? await estopRes.json() : {};
+    const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+    const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+    const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+    const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
+    const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+    setCard('ra-card-dispatches',  dispatched.length);
+    setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
+    setCard('ra-card-battery',     raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
+    setCard('ra-card-estops',      ed.estop_events?.length || 0);
+    setCard('ra-card-obstacles',   od.obstacles_avoided || 0);
+  } catch {}
+}, 2000);
 
 }
 
