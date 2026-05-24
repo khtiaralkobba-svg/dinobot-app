@@ -83,9 +83,14 @@ async function openRobotAnalyticsOverlay() {
   let orders = [];
   try {
     const res = await fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
+    if (res.status === 401) {
+      showToast('⚠ Session expired — please log in again');
+      closeRobotAnalyticsOverlay();
+      doLogout();
+      return;
+    }
     if (res.ok) { const data = await res.json(); orders = data.orders || []; }
   } catch { showToast('⬡ Using session data — backend unavailable'); }
-
   // Compute stats from real orders
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
@@ -223,6 +228,13 @@ window._raObstacleInterval = setInterval(async () => {
       fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
       fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
     ]);
+    if (ordersRes.status === 401) {
+      clearInterval(window._raObstacleInterval);
+      showToast('⚠ Session expired — please log in again');
+      closeRobotAnalyticsOverlay();
+      doLogout();
+      return;
+    }
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
     const od = obsRes.ok ? await obsRes.json() : {};
     const ed = estopRes.ok ? await estopRes.json() : {};
