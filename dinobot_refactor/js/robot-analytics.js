@@ -82,7 +82,7 @@ async function openRobotAnalyticsOverlay() {
   // Fetch real data
   let orders = [];
   try {
-    const res = await fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
+    const res = await fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }) });
     if (res.status === 401) {
       showToast('⚠ Session expired — please log in again');
       closeRobotAnalyticsOverlay();
@@ -224,7 +224,7 @@ window._raObstacleInterval = setInterval(async () => {
   }
   try {
     const [ordersRes, obsRes, estopRes] = await Promise.all([
-      fetch(API_BASE + '/api/orders/all', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Cache-Control': 'no-cache' }) }),
       fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
       fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
     ]);
