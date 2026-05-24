@@ -45,7 +45,6 @@ const STATUS_ETA = {
 (async function buildTables() {
   await loadMenuItems();
   rebuildStudentTableGrid();
-  connectSocket('student');
   fetch(API_BASE + '/api/tables/layout')
     .then(r => r.json())
     .then(d => {
@@ -55,6 +54,7 @@ const STATUS_ETA = {
         rebuildStudentTableGrid();
       }
     }).catch(() => {});
+  setTimeout(() => connectSocket('student'), 3000);
 })();
 
 /* ── TABLE SELECTION ─────────────────────────────────────── */
