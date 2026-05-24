@@ -216,6 +216,9 @@ async function addAiGeneratedItem(index) {
     }
     await loadMenuItems();
     showToast('✓ ' + item.name + ' added to menu!');
+    if (document.getElementById('menu-overlay').style.display === 'flex') {
+        await renderMenuOverlay();
+}
   } catch {
     if (btn) { btn.textContent = '+ ADD TO MENU'; btn.disabled = false; }
     showToast('✗ Failed to add item');
