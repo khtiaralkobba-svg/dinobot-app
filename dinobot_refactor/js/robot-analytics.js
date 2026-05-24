@@ -177,7 +177,66 @@ try {
 
     <!-- Bar chart -->
     <div id="ra-chart-section" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.2)'};padding:40px 48px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+      
+      <!-- Filter bar -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
+        ${['today','week','month','all'].map(f => `
+          <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+      </div>
+
+      <div id="ra-chart-inner" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ Performance History</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">DELIVERY TIMES — LAST ${recentTimes.length} RUNS</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <button onclick="window._raActiveCard=null;openRobotAnalyticsOverlay()" style="padding:8px 18px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">↺ DEFAULT VIEW</button>
+            <div style="text-align:right;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:#60A5FA;line-height:1;">${deliveryTimes.length}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.8)'};">TOTAL RUNS</div>
+            </div>
+          </div>
+        </div>
+        <div id="ra-bars-container">
+        ${recentTimes.length === 0 ? `
+          <div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.3)'};">
+            ⬡ NO DELIVERED ORDERS YET
+          </div>` : `
+          <div style="display:flex;align-items:flex-end;gap:10px;height:220px;position:relative;">
+            ${recentTimes.map((t, i) => {
+              const pct  = maxT > 0 ? (t / maxT) * 100 : 0;
+              const barH = Math.max(4, (pct/100)*200);
+              const delay = (i * 0.06).toFixed(2);
+              const isAvg = avgDelivery && Math.abs(t - avgDelivery) < avgDelivery * 0.1;
+              const barColor = isAvg
+                ? 'linear-gradient(to top,#1d4ed8,#60A5FA,#bae6fd)'
+                : t === minDelivery
+                  ? 'linear-gradient(to top,#15803d,#4ADE80)'
+                  : t === maxDelivery
+                    ? 'linear-gradient(to top,#991b1b,#ef4444)'
+                    : pct > 70
+                      ? 'linear-gradient(to top,#1e3a8a,#3b82f6)'
+                      : 'linear-gradient(to top,#2563eb,#93c5fd)';
+              const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
+              return `
+              <div onclick="raShowBarDetail(${i}, ${t}, ${deliveryTimes.length - recentTimes.length + i}, ${avgDelivery||0}, ${minDelivery||0}, ${maxDelivery||0}, '${valColor}')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;cursor:pointer;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${t.toFixed(0)}s</div>
+                <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">R${deliveryTimes.length - recentTimes.length + i + 1}</div>
+              </div>`;
+            }).join('')}
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;margin-top:20px;padding-top:16px;border-top:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.1)'};">
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:linear-gradient(to right,#1d4ed8,#bae6fd);border-radius:2px;box-shadow:0 0 8px rgba(96,165,250,0.5);"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">NEAR AVG</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#4ADE80;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">FASTEST</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#ef4444;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">SLOWEST</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#93c5fd;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">NORMAL</span></div>
+          </div>`}
+        </div>
+      </div>
+    </div>
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ Performance History</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">DELIVERY TIMES — LAST ${recentTimes.length} RUNS</div>
@@ -543,6 +602,91 @@ function raShowCardChart(type) {
     chartEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
 }
+
+function raFilterChart(filter) {
+  const isLight = document.body.classList.contains('light-mode');
+  
+  // Update button styles
+  ['today','week','month','all'].forEach(f => {
+    const btn = document.getElementById('ra-filter-' + f);
+    if (!btn) return;
+    btn.style.background = f === filter ? 'rgba(96,165,250,0.15)' : 'rgba(96,165,250,0.04)';
+    btn.style.borderColor = f === filter ? 'rgba(96,165,250,0.5)' : 'rgba(96,165,250,0.15)';
+    btn.style.color = f === filter ? '#60A5FA' : 'rgba(180,210,245,0.4)';
+  });
+
+  const allOrders = window._raAllOrders || [];
+  const now = new Date();
+  
+  let filtered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  
+  if (filter === 'today') {
+    filtered = filtered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+  } else if (filter === 'week') {
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    filtered = filtered.filter(o => new Date(o.placed_at) >= weekAgo);
+  } else if (filter === 'month') {
+    const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+    filtered = filtered.filter(o => new Date(o.placed_at) >= monthAgo);
+  }
+
+  const times = filtered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+  const recentTimes = times.slice(-20);
+  const maxT = times.length ? Math.max(...times) : 1;
+  const avgDelivery = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
+  const minDelivery = times.length ? Math.round(Math.min(...times)) : null;
+  const maxDelivery = times.length ? Math.round(Math.max(...times)) : null;
+
+  const container = document.getElementById('ra-bars-container');
+  if (!container) return;
+
+  const filterLabel = filter === 'today' ? 'TODAY' : filter === 'week' ? 'THIS WEEK' : filter === 'month' ? 'THIS MONTH' : 'ALL TIME';
+
+  container.style.opacity = '0';
+  container.style.transition = 'opacity 0.3s ease';
+
+  setTimeout(() => {
+    if (recentTimes.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(180,210,245,0.3);">⬡ NO DELIVERIES ${filterLabel}</div>`;
+    } else {
+      container.innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:10px;height:220px;position:relative;">
+          ${recentTimes.map((t, i) => {
+            const pct = maxT > 0 ? (t / maxT) * 100 : 0;
+            const barH = Math.max(4, (pct/100)*200);
+            const delay = (i * 0.06).toFixed(2);
+            const isAvg = avgDelivery && Math.abs(t - avgDelivery) < avgDelivery * 0.1;
+            const barColor = isAvg
+              ? 'linear-gradient(to top,#1d4ed8,#60A5FA,#bae6fd)'
+              : t === minDelivery
+                ? 'linear-gradient(to top,#15803d,#4ADE80)'
+                : t === maxDelivery
+                  ? 'linear-gradient(to top,#991b1b,#ef4444)'
+                  : pct > 70
+                    ? 'linear-gradient(to top,#1e3a8a,#3b82f6)'
+                    : 'linear-gradient(to top,#2563eb,#93c5fd)';
+            const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
+            return `
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${t.toFixed(0)}s</div>
+                <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.6);letter-spacing:1px;">R${times.length - recentTimes.length + i + 1}</div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(96,165,250,0.1);">
+          <div style="display:flex;gap:16px;">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.5);">AVG: ${avgDelivery}s</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#4ADE80;">FASTEST: ${minDelivery}s</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#ef4444;">SLOWEST: ${maxDelivery}s</span>
+          </div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.4);">${times.length} TOTAL RUNS ${filterLabel}</span>
+        </div>`;
+    }
+    container.style.opacity = '1';
+  }, 300);
+}
+
 window.addEventListener('beforeunload', () => {
   if (raData.dispatches > 0 || raData.batteryUsed > 0) {
     navigator.sendBeacon(API_BASE + '/api/robot-stats/session', JSON.stringify({
