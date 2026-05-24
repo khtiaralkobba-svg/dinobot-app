@@ -125,7 +125,7 @@ try {
       ].map(([lbl,val,sub,color]) => `
         <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
+          <div class="${lbl==='Obstacles Avoided'?'obstacles-card':''}" style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'var(--text-dim)'};letter-spacing:1px;margin-top:4px;">${sub}</div>
         </div>`).join('')}
     </div>
@@ -209,6 +209,24 @@ try {
         </div>`}
     </div>`;
 
+    // Poll obstacle count every 5 seconds while overlay is open
+if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
+window._raObstacleInterval = setInterval(async () => {
+  if (!document.getElementById('robot-analytics-overlay') || 
+      document.getElementById('robot-analytics-overlay').style.display === 'none') {
+    clearInterval(window._raObstacleInterval);
+    return;
+  }
+  try {
+    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
+    if (obsRes.ok) {
+      const od = await obsRes.json();
+      const card = document.querySelector('#ra-body .obstacles-card');
+      if (card) card.textContent = od.obstacles_avoided || 0;
+    }
+  } catch {}
+}, 5000);
+
 }
 
 function raShowBarDetail(i, t, runNum, avg, min, max) {
@@ -247,6 +265,7 @@ function closeRobotAnalyticsOverlay() {
   const el = document.getElementById('robot-analytics-overlay');
   if (el) el.style.display = 'none';
   document.body.style.overflow = '';
+  if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
 }
 
 window.addEventListener('beforeunload', () => {
