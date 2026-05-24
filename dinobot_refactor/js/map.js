@@ -20,7 +20,7 @@ const DEFAULT_TABLES = [
 
 function loadTables() {
   try {
-    const saved = localStorage.getItem('dinobotTableLayout');
+    const saved = sessionStorage.getItem('dinobotTableLayout');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -32,7 +32,7 @@ function loadTables() {
 const tables = loadTables();
 
 function saveTables() {
-  localStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
+  sessionStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
   fetch(API_BASE + '/api/tables/layout', {
     method: 'POST',
     headers: authHeaders({ 'Content-Type': 'application/json' }),
@@ -246,7 +246,7 @@ function updateObstacleCount() {
 }
 
 async function syncObstaclesToRobot() {
-  try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
+  try { sessionStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
     const targetId = currentTarget?.id;
     const tableObstacles = tables
@@ -655,7 +655,7 @@ function syncOverlayState() {
 /* ── INIT MAP (called after login) ───────────────────────── */
 function initMap() {
   try {
-    const saved = localStorage.getItem('dinobotObstacles');
+    const saved = sessionStorage.getItem('dinobotObstacles');
     if (saved) { obstacles = JSON.parse(saved); updateObstacleCount(); }
   } catch {}
 

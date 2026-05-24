@@ -8,7 +8,7 @@
 
 <!-- Apply theme before paint to avoid flash -->
 <script>
-  if (localStorage.getItem('dinobotTheme') === 'light') {
+  if (sessionStorage.getItem('dinobotTheme') === 'light') {
     document.documentElement.classList.add('light-mode-early');
   }
 </script>

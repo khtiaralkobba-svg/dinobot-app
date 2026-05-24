@@ -49,7 +49,7 @@ async function doLogin(role) {
     }
 
     const serverRole = data?.user?.role || role;
-    if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
+    if (data.accessToken) sessionStorage.setItem('accessToken', data.accessToken);
 
     // Hide auth gate
     document.getElementById('auth-gate').classList.add('hidden');
@@ -71,7 +71,7 @@ async function doLogin(role) {
       document.getElementById('kitchen-center').classList.add('unlocked');
       await loadKitchenOrders();
       connectSocket('kitchen');
-      localStorage.setItem('lastEmployeeId', empInput.value.trim());
+      sessionStorage.setItem('lastEmployeeId', empInput.value.trim());
       if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
       window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
       startAlertEngine();
@@ -111,7 +111,7 @@ async function doLogin(role) {
 
 async function doLogout() {
   try { await fetch(API_BASE + '/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch {}
-  localStorage.removeItem('accessToken');
+  sessionStorage.removeItem('accessToken');
 
   if (window._kitchenPollInterval)  { clearInterval(window._kitchenPollInterval);  window._kitchenPollInterval = null; }
   if (window._kitchenRobotPoll)     { clearInterval(window._kitchenRobotPoll);      window._kitchenRobotPoll = null; }
@@ -160,7 +160,7 @@ function connectSocket(room) {
       console.log('[socket] connected, joining:', room);
       _socket.emit('join', room);
       if (room === 'kitchen') {
-        const empId = localStorage.getItem('lastEmployeeId');
+        const empId = sessionStorage.getItem('lastEmployeeId');
         if (empId) _socket.emit('staff:login', empId);
       }
     });

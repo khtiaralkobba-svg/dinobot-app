@@ -486,7 +486,7 @@ async function setOrderStatus(ref, newStatus) {
   }
 
   try {
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStorage.getItem('accessToken');
     const res = await fetch(API_BASE + '/api/orders/' + ref + '/status', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },

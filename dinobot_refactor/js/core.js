@@ -7,7 +7,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:3001'
   : 'https://dinobot-app.onrender.com';
 
-function getAccessToken() { return localStorage.getItem('accessToken'); }
+function getAccessToken() { return sessionStorage.getItem('accessToken'); }
 function authHeaders(extra = {}) {
   const token = getAccessToken();
   return { ...extra, ...(token ? { 'Authorization': 'Bearer ' + token } : {}) };
@@ -17,13 +17,13 @@ function authHeaders(extra = {}) {
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light-mode');
   document.documentElement.classList.remove('light-mode-early');
-  localStorage.setItem('dinobotTheme', isLight ? 'light' : 'dark');
+  sessionStorage.setItem('dinobotTheme', isLight ? 'light' : 'dark');
   const btn = document.getElementById('theme-toggle');
   if (btn) btn.textContent = isLight ? '🌙 DARK' : '☀ LIGHT';
 }
 
 (function applyStoredTheme() {
-  if (localStorage.getItem('dinobotTheme') === 'light') {
+  if (sessionStorage.getItem('dinobotTheme') === 'light') {
     document.body.classList.add('light-mode');
     const btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = '🌙 DARK';
@@ -104,7 +104,7 @@ function animateCounter(id, target, duration) {
 setTimeout(async () => {
   try {
     const res = await fetch(API_BASE + '/api/orders/all', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}` }
     });
     if (!res.ok) {
       animateCounter('counter-1', 0, 800);
