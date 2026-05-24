@@ -668,3 +668,25 @@ body.light-mode #heatmap-body th {
 body.light-mode #heatmap-body > div > span[style*="CLICK"] {
   color: rgba(20,8,0,0.3) !important;
 }
+/* ── COLOR LEGEND PANEL (top right) ── */
+body.light-mode #heatmap-body > div:nth-child(2),
+body.light-mode .heatmap-legend,
+body.light-mode [id*="color-legend"],
+body.light-mode [class*="color-legend"] {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: #1C0F00 !important;
+}
+
+body.light-mode #heatmap-body > div:nth-child(2) * {
+  color: rgba(20,8,0,0.7) !important;
+}
+
+/* ── SELECT A CELL bar (bottom) ── */
+body.light-mode #heatmap-body > div[style*="SELECT A CELL"],
+body.light-mode #heatmap-body > div[style*="SELECT"],
+body.light-mode .heatmap-select-bar {
+  background: #dceef8 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+  color: rgba(20,8,0,0.5) !important;
+}
