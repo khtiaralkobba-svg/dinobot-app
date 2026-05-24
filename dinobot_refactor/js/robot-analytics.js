@@ -93,14 +93,14 @@ async function openRobotAnalyticsOverlay() {
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
-    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
+    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
     if (obsRes.ok) {
         const od = await obsRes.json();
         totalObstaclesAvoided = od.obstacles_avoided || raData.obstaclesAvoided;
       }
     } catch {}
 try {
-  const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
+  const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
 } catch {} // still session-only
   const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
@@ -220,9 +220,9 @@ window._raObstacleInterval = setInterval(async () => {
   if (!getAccessToken()) return;
   try {
     const [ordersRes, obsRes, estopRes] = await Promise.all([
-      fetch(API_BASE + '/api/orders/all', { headers: authHeaders() }),
-      fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
-      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
+        fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Content-Type': 'application/json' }) }),
+        fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders({ 'Content-Type': 'application/json' }) }),
+        fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders({ 'Content-Type': 'application/json' }) })
     ]);
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
     const od = obsRes.ok ? await obsRes.json() : {};
