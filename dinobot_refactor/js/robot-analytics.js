@@ -66,7 +66,7 @@ async function openRobotAnalyticsOverlay() {
         </div>
       </div>
     </div>
-    <div id="ra-body" style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;flex:1;overflow-y:auto;">
+    <div id="ra-body" style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;">
       <div style="text-align:center;padding:80px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(251,185,36,0.6);">⬡ LOADING LIVE DATA...</div>
     </div>`;
 
@@ -82,6 +82,14 @@ async function openRobotAnalyticsOverlay() {
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
   const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
   let estops = raData.estopEvents;
+  let totalObstaclesAvoided = raData.obstaclesAvoided;
+  try {
+    const sessRes = await fetch(API_BASE + '/api/robot-stats/session', { headers: authHeaders() });
+    if (sessRes.ok) {
+        const sd = await sessRes.json();
+        totalObstaclesAvoided = (sd.totalObstaclesAvoided || 0) + raData.obstaclesAvoided;
+    }
+    } catch {}
 try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
@@ -104,7 +112,7 @@ try {
         ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80'],
         ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA'],
         ['E-Stop Events', estops, 'this session', '#ef4444'],
-        ['Obstacles Avoided', raData.obstaclesAvoided, 'this session', '#C084FC'],
+        ['Obstacles Avoided', totalObstaclesAvoided, 'all time + session', '#C084FC'],
       ].map(([lbl,val,sub,color]) => `
         <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
@@ -238,7 +246,8 @@ window.addEventListener('beforeunload', () => {
       battery_start: raData.batteryReadings[0] || null,
       battery_end:   raData.lastBattery,
       battery_used:  raData.batteryUsed,
-      dispatches:    raData.dispatches
+      dispatches:    raData.dispatches,
+      obstacles_avoided: raData.obstaclesAvoided
     }));
   }
 });

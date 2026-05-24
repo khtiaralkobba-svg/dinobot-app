@@ -44,6 +44,7 @@ router.post('/session', authenticateToken, authorizeRoles('manager'), async (req
         battery_end,
         battery_used: battery_used || 0,
         dispatches:   dispatches   || 0,
+        obstacles_avoided: obstacles_avoided || 0,
         session_end:  new Date().toISOString()
       });
     if (error) throw error;
@@ -63,10 +64,11 @@ router.get('/session', authenticateToken, authorizeRoles('manager'), async (req,
       .order('created_at', { ascending: false });
     if (error) throw error;
 
-    const totalBatteryUsed = data.reduce((s, r) => s + (r.battery_used || 0), 0);
-    const totalDispatches  = data.reduce((s, r) => s + (r.dispatches  || 0), 0);
+    const totalBatteryUsed     = data.reduce((s, r) => s + (r.battery_used      || 0), 0);
+    const totalDispatches      = data.reduce((s, r) => s + (r.dispatches        || 0), 0);
+    const totalObstaclesAvoided = data.reduce((s, r) => s + (r.obstacles_avoided || 0), 0);
 
-    res.json({ sessions: data, totalBatteryUsed, totalDispatches });
+    res.json({ sessions: data, totalBatteryUsed, totalDispatches, totalObstaclesAvoided });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
