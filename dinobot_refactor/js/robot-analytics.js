@@ -146,8 +146,8 @@ try {
 
     <!-- Breakdown -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div onclick="raShowCardChart('delivery')" id="ra-card-delivery-breakdown" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#FBB924'" onmouseout="this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'}'">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Delivery Time Breakdown — click to explore</div>
+      <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Delivery Time Breakdown</div>
         ${[
           ['Average', avgDelivery ? avgDelivery+'s' : '—'],
           ['Fastest', minDelivery ? minDelivery+'s' : '—'],
@@ -160,8 +160,8 @@ try {
           </div>`).join('')}
       </div>
 
-      <div onclick="raShowCardChart('obstacles')" id="ra-card-robot-status" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#C084FC'" onmouseout="this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'}'">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Robot Status — click to explore</div>
+      <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Robot Status</div>
         ${[
           ['Avg Obstacles / Session', totalObstaclesAvoided && dispatched.length ? (totalObstaclesAvoided / dispatched.length).toFixed(1) : '—'],
           ['Avg E-Stops / Session', estops && dispatched.length ? (estops / dispatched.length).toFixed(1) : '—'],
