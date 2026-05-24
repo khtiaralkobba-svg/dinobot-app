@@ -556,7 +556,7 @@ async function confirmPickup() {
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ status: 'delivered' })
       });
       updateSessionOrderStatus(_pickupOrderRef, 'delivered');
