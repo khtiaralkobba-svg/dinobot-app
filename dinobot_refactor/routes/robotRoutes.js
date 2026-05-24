@@ -36,7 +36,7 @@ router.get('/estop', authenticateToken, authorizeRoles('manager'), async (req, r
 // ── Save/update robot session ────────────────────────────────────────────────
 router.post('/session', authenticateToken, authorizeRoles('manager'), async (req, res) => {
   try {
-    const { battery_start, battery_end, battery_used, dispatches, obstacles_avoided } = req.body;
+    const { battery_start, battery_end, battery_used, dispatches } = req.body;
     const { error } = await supabase
       .from('robot_sessions')
       .insert({

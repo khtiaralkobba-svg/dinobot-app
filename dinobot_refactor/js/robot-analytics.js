@@ -89,18 +89,18 @@ async function openRobotAnalyticsOverlay() {
   // Compute stats from real orders
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-  const dispatched = orders.filter(o => (o.dispatch_count || 0) > 0 || ['dispatched','delivering','delivered'].includes(o.status));
+  const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
-    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
+    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
     if (obsRes.ok) {
         const od = await obsRes.json();
         totalObstaclesAvoided = od.obstacles_avoided || raData.obstaclesAvoided;
       }
     } catch {}
 try {
-  const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
+  const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
 } catch {} // still session-only
   const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
@@ -209,7 +209,7 @@ try {
         </div>`}
     </div>`;
 
-// Poll obstacle count every 2 seconds while overlay is open
+    // Poll obstacle count every 5 seconds while overlay is open
 if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
 window._raObstacleInterval = setInterval(async () => {
   if (!document.getElementById('robot-analytics-overlay') ||
@@ -217,25 +217,19 @@ window._raObstacleInterval = setInterval(async () => {
     clearInterval(window._raObstacleInterval);
     return;
   }
-  if (!getAccessToken()) return;
   try {
     const [ordersRes, obsRes, estopRes] = await Promise.all([
-      fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Content-Type': 'application/json' }) }),
-      fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders({ 'Content-Type': 'application/json' }) }),
-      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders({ 'Content-Type': 'application/json' }) })
+      fetch(API_BASE + '/api/orders/all', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
     ]);
-    if (!ordersRes.ok) return;
-    const orders = (await ordersRes.json()).orders || [];
+    const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
     const od = obsRes.ok ? await obsRes.json() : {};
     const ed = estopRes.ok ? await estopRes.json() : {};
-
-    const deliveredOrders = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-    const dispatched = orders.filter(o => (o.dispatch_count || 0) > 0 || ['dispatched','delivering','delivered'].includes(o.status));
-    const pollDeliveryTimes = deliveredOrders.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-    const avgDelivery = pollDeliveryTimes.length ? Math.round(pollDeliveryTimes.reduce((a,b)=>a+b,0) / pollDeliveryTimes.length) : null;
-    const minD = pollDeliveryTimes.length ? Math.round(Math.min(...pollDeliveryTimes)) : null;
-    const maxD = pollDeliveryTimes.length ? Math.round(Math.max(...pollDeliveryTimes)) : null;
-
+    const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+    const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+    const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+    const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard('ra-card-dispatches',  dispatched.length);
     setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');

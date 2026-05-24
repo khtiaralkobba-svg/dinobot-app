@@ -479,8 +479,7 @@ function animateMap() {
         document.getElementById('speed-val').textContent = '0 cm/s'; document.getElementById('speed-bar').style.width = '0%';
         document.getElementById('load-val').textContent = 'Empty'; document.getElementById('load-bar').style.width = '0%';
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-        addActivity('dot-robot', 'UNIT-01 <strong>docked</strong>');
-        currentTarget = null;
+        addActivity('dot-robot', 'UNIT-01 <strong>docked</strong>'); currentTarget = null;
       }
     }
   }
@@ -683,7 +682,6 @@ function initMap() {
       window._robotNavMode = data.nav_mode || 'NORMAL';
       if (data.nav_mode === 'AVOIDANCE' && window._lastNavMode !== 'AVOIDANCE') {
         raTrackObstacleAvoided();
-        console.log('[obstacle] avoided! total:', raData.obstaclesAvoided);
       }
       window._lastNavMode = data.nav_mode || 'NORMAL';
       window._robotRisk    = data.risk || 0;
@@ -702,40 +700,17 @@ function initMap() {
 
       if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
         if (!currentTarget || currentTarget.id !== data.target_table) {
-          const prevOrderRef = currentTarget?._orderRef;
           currentTarget = tables.find(t => t.id === data.target_table) || null;
-          if (currentTarget) { 
-            targetX = currentTarget.x; 
-            targetY = currentTarget.y;
-            if (prevOrderRef) currentTarget._orderRef = prevOrderRef;
-          }
+          if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
-          if (data.state === 'DELIVERING' && window._lastDispatchedOrderRef && !window._deliveryNotified) {
-  window._deliveryNotified = true;
-  fetch(API_BASE + '/api/orders/' + window._lastDispatchedOrderRef + '/status', {
-    method: 'PATCH',
-    headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ status: 'delivering' })
-  }).catch(() => {});
-  showPickupScreen(window._lastDispatchedOrderRef);
-}
           syncObstaclesToRobot(); // Re-sync excluding new target table
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
         }
       } else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
-  robotState = 'RETURNING'; targetX = dockX; targetY = dockY;
-  window._pendingDeliveryRef = currentTarget?._orderRef || null;
-  document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-}else if (data.state === 'IDLE') {
-  if (window._pendingDeliveryRef) {
-    fetch(API_BASE + '/api/orders/' + window._pendingDeliveryRef + '/status', {
-      method: 'PATCH',
-      headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ status: 'delivered' })
-    }).catch(() => {});
-    window._pendingDeliveryRef = null;
-  }
+        robotState = 'RETURNING'; targetX = dockX; targetY = dockY; currentTarget = null;
+        document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+      } else if (data.state === 'IDLE') {
         currentTarget = null;
         syncObstaclesToRobot();
         if (robotBusy) {

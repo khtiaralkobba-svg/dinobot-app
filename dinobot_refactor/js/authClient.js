@@ -75,8 +75,7 @@ async function doLogin(role) {
       if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
       window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
       startAlertEngine();
-      startKitchenRobotPolling();
-setTimeout(initMap, 300);
+      startKitchenRobotPolling();imeout(initMap, 300);
     }
 
     // Show user badge

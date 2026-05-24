@@ -63,16 +63,11 @@ async function dispatch(tableId) {
   document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
   currentTarget = tables.find(t => t.id === tableId) || null;
-  if (currentTarget) currentTarget._orderRef = orderRef;
-  window._lastDispatchedOrderRef = orderRef;
-  window._deliveryNotified = false;
-  window._pendingDeliveryRef = null;
   if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
   robotState = 'DISPATCHED'; robotBusy = true; setAllDispatchButtons(false);
   addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
   showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
   recordDispatch();
-  raTrackDispatch();
 }
 
 /* ── RECALL ──────────────────────────────────────────────── */
