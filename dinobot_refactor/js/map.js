@@ -710,6 +710,15 @@ function initMap() {
             if (prevOrderRef) currentTarget._orderRef = prevOrderRef;
           }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
+          if (data.state === 'DELIVERING' && window._lastDispatchedOrderRef && !window._deliveryNotified) {
+  window._deliveryNotified = true;
+  fetch(API_BASE + '/api/orders/' + window._lastDispatchedOrderRef + '/status', {
+    method: 'PATCH',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ status: 'delivering' })
+  }).catch(() => {});
+  showPickupScreen(window._lastDispatchedOrderRef);
+}
           syncObstaclesToRobot(); // Re-sync excluding new target table
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');

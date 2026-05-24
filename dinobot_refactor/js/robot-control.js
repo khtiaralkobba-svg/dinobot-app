@@ -65,6 +65,7 @@ async function dispatch(tableId) {
   currentTarget = tables.find(t => t.id === tableId) || null;
   if (currentTarget) currentTarget._orderRef = orderRef;
   window._lastDispatchedOrderRef = orderRef;
+  window._deliveryNotified = false;
   window._pendingDeliveryRef = null;
   if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
   robotState = 'DISPATCHED'; robotBusy = true; setAllDispatchButtons(false);
