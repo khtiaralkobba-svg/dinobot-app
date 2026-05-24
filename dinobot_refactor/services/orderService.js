@@ -157,8 +157,8 @@ async function updateOrderStatus(orderRef, status) {
     }
   }
 
-  if (status === 'ready') {
-    updateData.ready_at = new Date().toISOString();
+  if (status === 'dispatched') {
+    updateData.dispatch_count = 1;
   }
 
   const { data, error } = await supabase

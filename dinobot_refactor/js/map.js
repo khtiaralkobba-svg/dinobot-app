@@ -682,6 +682,7 @@ function initMap() {
       window._robotNavMode = data.nav_mode || 'NORMAL';
       if (data.nav_mode === 'AVOIDANCE' && window._lastNavMode !== 'AVOIDANCE') {
         raTrackObstacleAvoided();
+        console.log('[obstacle] avoided! total:', raData.obstaclesAvoided);
       }
       window._lastNavMode = data.nav_mode || 'NORMAL';
       window._robotRisk    = data.risk || 0;
