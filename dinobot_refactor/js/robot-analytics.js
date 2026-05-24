@@ -103,7 +103,8 @@ async function openRobotAnalyticsOverlay() {
     if (obsRes.ok) {
         const od = await obsRes.json();
         totalObstaclesAvoided = od.obstacles_avoided || raData.obstaclesAvoided;
-      }
+        window._raTotalObstacles = totalObstaclesAvoided;
+    }
     } catch {}
 try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
@@ -429,9 +430,10 @@ function raShowCardChart(type) {
       bars = [{ val: raData.estopEvents || 0, label: 'session' }];
       label = '';
     } else if (type === 'obstacles') {
-      bars = [{ val: raData.obstaclesAvoided || 0, label: 'session' }];
-      label = '';
-    }
+        const obsVal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
+        bars = [{ val: obsVal, label: 'all time' }];
+        label = '';
+   }
 
     if (bars.length === 0) {
       chartEl.innerHTML = `
