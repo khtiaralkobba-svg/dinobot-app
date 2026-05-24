@@ -455,7 +455,10 @@ function raShowCardChart(type) {
               <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]}</div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">${bars.length} DATA POINTS</div>
             </div>
-            <button onclick="raShowCardChart('${type}')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
+            <div style="display:flex;gap:8px;">
+              <button onclick="window._raActiveCard=null;openRobotAnalyticsOverlay()" style="padding:8px 18px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">↺ DEFAULT VIEW</button>
+              <button onclick="raShowCardChart('${type}')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
+            </div>
           </div>
           <div style="display:flex;align-items:flex-end;gap:10px;height:220px;">
             ${bars.map((b, i) => {
