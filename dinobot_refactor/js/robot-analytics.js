@@ -90,6 +90,7 @@ async function openRobotAnalyticsOverlay() {
       return;
     }
     if (res.ok) { const data = await res.json(); orders = data.orders || []; }
+    window._raAllOrders = orders;
   } catch { showToast('⬡ Using session data — backend unavailable'); }
   // Compute stats from real orders
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
@@ -128,13 +129,13 @@ try {
     <!-- Stat cards -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
       ${[
-        ['Total Dispatches', dispatched.length, 'all time', '#FBB924'],
-        ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80'],
-        ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA'],
-        ['E-Stop Events', estops, 'this session', '#ef4444'],
-        ['Obstacles Avoided', totalObstaclesAvoided, 'all time + session', '#C084FC'],
-      ].map(([lbl,val,sub,color]) => `
-        <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
+        ['Total Dispatches', dispatched.length, 'all time', '#FBB924', 'dispatches'],
+        ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80', 'delivery'],
+        ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA', 'battery'],
+        ['E-Stop Events', estops, 'this session', '#ef4444', 'estops'],
+        ['Obstacles Avoided', totalObstaclesAvoided, 'all time + session', '#C084FC', 'obstacles'],
+      ].map(([lbl,val,sub,color,type]) => `
+        <div onclick="raShowCardChart('${type}')" id="ra-card-${type}" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='${color}';this.style.transform='translateY(-2px)'" onmouseout="if(window._raActiveCard!=='${type}'){this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'}';this.style.transform='translateY(0)'}">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
           <div class="${lbl==='Total Dispatches'?'ra-card-dispatches':lbl==='Avg Delivery Time'?'ra-card-avgdelivery':lbl==='Battery Used'?'ra-card-battery':lbl==='E-Stop Events'?'ra-card-estops':'ra-card-obstacles'}" style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'var(--text-dim)'};letter-spacing:1px;margin-top:4px;">${sub}</div>
@@ -160,9 +161,9 @@ try {
       <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Robot Status</div>
         ${[
-          ['Obstacles Avoided', totalObstaclesAvoided, ],
-          ['E-Stop Events', estops],
-          ['Manual Overrides', totalManualOverrides],
+          ['Avg Obstacles / Session', totalObstaclesAvoided && dispatched.length ? (totalObstaclesAvoided / dispatched.length).toFixed(1) : '—'],
+          ['Avg E-Stops / Session', estops && dispatched.length ? (estops / dispatched.length).toFixed(1) : '—'],
+          ['Avg Manual Overrides / Session', totalManualOverrides && dispatched.length ? (totalManualOverrides / dispatched.length).toFixed(1) : '—'],
         ].map(([l,v]) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
             <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
@@ -352,6 +353,121 @@ function closeRobotAnalyticsOverlay() {
   if (el) el.style.display = 'none';
   document.body.style.overflow = '';
   if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
+}
+
+function raShowCardChart(type) {
+  const isLight = document.body.classList.contains('light-mode');
+  const chartEl = document.querySelector('#ra-body > div:last-child');
+  if (!chartEl) return;
+
+  // Toggle off if same card clicked
+  if (window._raActiveCard === type) {
+    window._raActiveCard = null;
+    document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
+      c.style.transform = 'translateY(0)';
+      c.style.borderColor = isLight ? 'rgba(30,100,200,0.2)' : 'rgba(251,185,36,0.15)';
+    });
+    openRobotAnalyticsOverlay();
+    return;
+  }
+
+  window._raActiveCard = type;
+
+  // Highlight selected card
+  document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
+    c.style.transform = 'translateY(0)';
+    c.style.borderColor = isLight ? 'rgba(30,100,200,0.2)' : 'rgba(251,185,36,0.15)';
+  });
+  const activeCard = document.getElementById('ra-card-' + type);
+  if (activeCard) {
+    const colors = { dispatches:'#FBB924', delivery:'#4ADE80', battery:'#60A5FA', estops:'#ef4444', obstacles:'#C084FC' };
+    activeCard.style.borderColor = colors[type];
+    activeCard.style.transform = 'translateY(-4px)';
+  }
+
+  // Animate chart transition
+  chartEl.style.transition = 'opacity 0.3s ease';
+  chartEl.style.opacity = '0';
+
+  setTimeout(() => {
+    const colors = { dispatches:'#FBB924', delivery:'#4ADE80', battery:'#60A5FA', estops:'#ef4444', obstacles:'#C084FC' };
+    const color = colors[type];
+    const titles = {
+      dispatches: 'DISPATCHES PER DAY — LAST 20 DAYS',
+      delivery: 'DELIVERY TIMES — LAST 20 RUNS',
+      battery: 'BATTERY READINGS — THIS SESSION',
+      estops: 'E-STOP EVENTS — ALL TIME',
+      obstacles: 'OBSTACLES AVOIDED — ALL TIME'
+    };
+
+    let bars = [];
+    let label = '';
+
+    if (type === 'delivery') {
+      // Use delivery times grouped by day
+      const allOrders = window._raAllOrders || [];
+      const delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      bars = delivered.slice(-20).map(o => ({
+        val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
+        label: 's'
+      }));
+      label = 's';
+    } else if (type === 'dispatches') {
+      // Group by day
+      const allOrders = window._raAllOrders || [];
+      const byDay = {};
+      allOrders.filter(o => o.status === 'delivered').forEach(o => {
+        const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+        byDay[day] = (byDay[day] || 0) + 1;
+      });
+      bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
+      label = '';
+    } else if (type === 'battery') {
+      bars = raData.batteryReadings.slice(-20).map((b, i) => ({ val: b, label: '%' }));
+      label = '%';
+    } else if (type === 'estops') {
+      bars = [{ val: raData.estopEvents || 0, label: 'session' }];
+      label = '';
+    } else if (type === 'obstacles') {
+      bars = [{ val: raData.obstaclesAvoided || 0, label: 'session' }];
+      label = '';
+    }
+
+    if (bars.length === 0) {
+      chartEl.innerHTML = `
+        <div style="padding:40px 48px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]}</div>
+          <div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.3)'};">⬡ NO DATA YET</div>
+        </div>`;
+    } else {
+      const maxVal = Math.max(...bars.map(b => b.val)) || 1;
+      chartEl.innerHTML = `
+        <div style="padding:40px 48px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]}</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">${bars.length} DATA POINTS</div>
+            </div>
+            <button onclick="raShowCardChart('${type}')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:10px;height:220px;">
+            ${bars.map((b, i) => {
+              const pct = (b.val / maxVal) * 100;
+              const barH = Math.max(4, (pct / 100) * 200);
+              const delay = (i * 0.06).toFixed(2);
+              return `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${color};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${b.val}${label}</div>
+                  <div style="width:100%;height:${barH}px;background:linear-gradient(to top,${color}80,${color});transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px ${color}40;"></div>
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">${b.label || (i+1)}</div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    chartEl.style.opacity = '1';
+  }, 300);
 }
 
 window.addEventListener('beforeunload', () => {
