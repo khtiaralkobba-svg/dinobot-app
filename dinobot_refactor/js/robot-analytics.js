@@ -89,7 +89,7 @@ async function openRobotAnalyticsOverlay() {
   // Compute stats from real orders
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-  const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+  const dispatched = orders.filter(o => o.status === 'delivered');
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
@@ -228,7 +228,7 @@ window._raObstacleInterval = setInterval(async () => {
     const ed = estopRes.ok ? await estopRes.json() : {};
     const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
     const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-    const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+    const dispatched = orders.filter(o => o.status === 'delivered');
     const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard('ra-card-dispatches',  dispatched.length);
