@@ -7,7 +7,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:3001'
   : 'https://dinobot-app.onrender.com';
 
-function getAccessToken() { return localStorage.getItem('accessToken'); }
+function getAccessToken() { return sessionStorage.getItem('accessToken'); }
 function authHeaders(extra = {}) {
   const token = getAccessToken();
   return { ...extra, ...(token ? { 'Authorization': 'Bearer ' + token } : {}) };
