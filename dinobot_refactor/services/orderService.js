@@ -121,7 +121,7 @@ async function getAllOrders() {
   if (itemsError) throw itemsError;
 
   const itemsByOrder = {};
-  for (const item of allItems) {
+  for (const item of (allItems || [])) {
     if (!itemsByOrder[item.order_id]) {
       itemsByOrder[item.order_id] = [];
     }
