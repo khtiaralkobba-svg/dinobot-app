@@ -129,7 +129,7 @@ function hmRenderAll() {
         ['Avg Per Slot', avgPerHour||'—', 'orders / hour', '#ffffff']
       ].map(([lbl,val,sub,color]) => `
         <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.7);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim));text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.5);letter-spacing:1px;margin-top:4px;">${sub}</div>
         </div>`).join('')}
@@ -170,13 +170,13 @@ function hmRenderAll() {
       </div>
 
       <!-- Legend -->
-      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.3);padding:20px 24px;min-width:200px;flex-shrink:0;">
+      <div style="background:var(--panel);border:1px solid var(--border);padding:20px 24px;min-width:200px;flex-shrink:0;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#FF6B1A;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,107,26,0.2);padding-bottom:8px;">⬡ Color Legend</div>
         ${[['rgba(128,128,128,0.08)','0 orders','No activity'],['rgba(255,107,26,0.12)','1–20%','Very low'],['rgba(255,107,26,0.28)','20–40%','Low'],['rgba(255,107,26,0.50)','40–60%','Moderate'],['rgba(255,107,26,0.70)','60–80%','High'],['rgba(255,107,26,0.92)','80–100%','Peak']].map(([c,range,label]) => `
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
             <div style="width:44px;height:28px;background:${c};border:1px solid rgba(255,107,26,0.15);flex-shrink:0;border-radius:2px;"></div>
             <div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffffff;line-height:1;">${label}</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--text);line-height:1;">${label}</div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,107,26,0.6);">${range} of peak</div>
             </div>
           </div>`).join('')}
@@ -185,11 +185,11 @@ function hmRenderAll() {
 
     <!-- Detail panel -->
     <div id="hm-detail" style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
-      <div style="font-size:10px;letter-spacing:2px;color:rgba(180,210,245,0.7);">SELECT A CELL TO VIEW DETAIL</div>
+      <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim));">SELECT A CELL TO VIEW DETAIL</div>
     </div>
 
     <!-- Bar chart -->
-    <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.35);padding:40px 48px;">
+    <div style="background:var(--panel);border:1px solid var(--border);padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FF6B1A;text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
@@ -259,7 +259,7 @@ function hmShowDetail(day, hour, val, max) {
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
       ${[['Orders',val,'#FF6B1A'],['% of Day',pctOfDay+'%','#ffffff'],['Day Total',dayTotal,'#ffffff'],['Status',intensity,'#ffffff']].map(([l,v,c]) => `
         <div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);padding:14px 16px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.7);text-transform:uppercase;margin-bottom:8px;">${l}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim));text-transform:uppercase;margin-bottom:8px;">${l}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:${c};line-height:1;">${v}</div>
         </div>`).join('')}
     </div>`;
