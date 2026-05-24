@@ -273,7 +273,7 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
   detail.id = 'ra-bar-detail';
   detail.style.cssText = `margin-top:24px;`;
   detail.innerHTML = `
-    <div style="background:${isLight?'#e8f4fd':'linear-gradient(135deg,rgba(6,18,52,0.98),rgba(3,10,32,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'};overflow:hidden;">
+    <div style="background:${isLight?'#e8f4fd':`linear-gradient(135deg,${accentColor}18,${accentColor}08)`};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'};overflow:hidden;">
       
       <!-- Top accent bar -->
       <div style="height:3px;background:linear-gradient(to right,${accentColor},${accentColor}80,transparent);"></div>
