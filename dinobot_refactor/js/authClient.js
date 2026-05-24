@@ -49,7 +49,7 @@ async function doLogin(role) {
     }
 
     const serverRole = data?.user?.role || role;
-    if (data.accessToken) sessionStorage.setItem('accessToken', data.accessToken);
+    if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
 
     // Hide auth gate
     document.getElementById('auth-gate').classList.add('hidden');
@@ -112,7 +112,7 @@ setTimeout(initMap, 300);
 
 async function doLogout() {
   try { await fetch(API_BASE + '/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch {}
-  sessionStorage.removeItem('accessToken');
+  localStorage.removeItem('accessToken');
 
   if (window._kitchenPollInterval)  { clearInterval(window._kitchenPollInterval);  window._kitchenPollInterval = null; }
   if (window._kitchenRobotPoll)     { clearInterval(window._kitchenRobotPoll);      window._kitchenRobotPoll = null; }
