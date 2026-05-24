@@ -173,7 +173,7 @@ try {
                     : 'linear-gradient(to top,#2563eb,#93c5fd)';
             const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
             return `
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
+            <div onclick="raShowBarDetail(${i}, ${t}, ${deliveryTimes.length - recentTimes.length + i}, ${avgDelivery||0}, ${minDelivery||0}, ${maxDelivery||0})" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;cursor:pointer;">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${t.toFixed(0)}s</div>
               <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">R${deliveryTimes.length - recentTimes.length + i + 1}</div>
@@ -188,6 +188,39 @@ try {
         </div>`}
     </div>`;
 
+}
+
+function raShowBarDetail(i, t, runNum, avg, min, max) {
+  const isLight = document.body.classList.contains('light-mode');
+  const existing = document.getElementById('ra-bar-detail');
+  if (existing) existing.remove();
+
+  const status = t === min ? '🟢 FASTEST RUN' : t === max ? '🔴 SLOWEST RUN' : Math.abs(t - avg) < avg * 0.1 ? '🔵 NEAR AVERAGE' : t > avg ? '🟡 ABOVE AVERAGE' : '🟢 BELOW AVERAGE';
+
+  const detail = document.createElement('div');
+  detail.id = 'ra-bar-detail';
+  detail.style.cssText = `position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:99999;background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid rgba(96,165,250,0.5);padding:20px 32px;display:flex;align-items:center;gap:32px;box-shadow:0 0 40px rgba(96,165,250,0.3);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);min-width:500px;`;
+  detail.innerHTML = `
+    <div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#60A5FA;text-transform:uppercase;margin-bottom:4px;">Run #${runNum + 1}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:#60A5FA;line-height:1;">${t.toFixed(0)}s</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};margin-top:4px;">${status}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
+      ${[
+        ['vs Average', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80'],
+        ['vs Fastest',  min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA'],
+        ['vs Slowest',  max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80'],
+      ].map(([l,v,c]) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.1)'};">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.6)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">${l}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${c};">${v}</span>
+        </div>`).join('')}
+    </div>
+    <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:none;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};font-size:20px;cursor:pointer;padding:4px 8px;align-self:flex-start;">✕</button>`;
+
+  document.getElementById('robot-analytics-overlay').appendChild(detail);
+  setTimeout(() => { if(document.getElementById('ra-bar-detail')) document.getElementById('ra-bar-detail').remove(); }, 5000);
 }
 
 function closeRobotAnalyticsOverlay() {
