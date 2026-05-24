@@ -189,7 +189,7 @@ function hmRenderAll() {
     </div>
 
     <!-- Bar chart -->
-    background:${isLight?'#e8f4fd':'var(--panel)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'var(--border)'};padding:40px 48px;
+    <div style="background:${isLight?'#e8f4fd':'var(--panel)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'var(--border)'};padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FF6B1A;text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
