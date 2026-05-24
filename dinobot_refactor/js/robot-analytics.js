@@ -442,11 +442,64 @@ function raShowCardChart(type) {
     } else if (type === 'history') {
       const allOrders = window._raAllOrders || [];
       const delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-      bars = delivered.slice(-20).map(o => ({
+      const points = delivered.slice(-20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
-        label: 's'
+        label: 'R' + (delivered.length - 20 + i + 1)
       }));
-      label = 's';
+      const maxVal = Math.max(...points.map(p => p.val), 1);
+      const minVal = Math.min(...points.map(p => p.val));
+      const avgVal = Math.round(points.reduce((a, b) => a + b.val, 0) / points.length);
+      chartEl.innerHTML = `
+        <div style="padding:40px 48px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ PERFORMANCE HISTORY — LAST 20 RUNS</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:#ffffff;">${points.length} DATA POINTS</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="window._raActiveCard=null;openRobotAnalyticsOverlay()" style="padding:8px 18px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">↺ DEFAULT VIEW</button>
+              <button onclick="raShowCardChart('history')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
+            ${[
+              ['FASTEST', minVal + 's', '#4ADE80'],
+              ['AVERAGE', avgVal + 's', '#60A5FA'],
+              ['SLOWEST', maxVal + 's', '#ef4444'],
+            ].map(([l,v,c]) => `
+              <div style="padding:14px 20px;background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.08);border-top:2px solid ${c};">
+                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-bottom:6px;">${l}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:2px;">${v}</div>
+              </div>`).join('')}
+          </div>
+          <div style="position:relative;height:180px;margin-bottom:24px;">
+            <svg width="100%" height="100%" viewBox="0 0 1000 180" preserveAspectRatio="none" style="overflow:visible;">
+              <defs>
+                <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#60A5FA" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="${((maxVal-avgVal)/(maxVal-minVal+1))*160+10}" x2="1000" y2="${((maxVal-avgVal)/(maxVal-minVal+1))*160+10}" stroke="#FBB924" stroke-width="1" stroke-dasharray="6,4" opacity="0.4"/>
+              <path d="M${points.map((p,i) => `${(i/(points.length-1))*1000},${((maxVal-p.val)/(maxVal-minVal+1))*160+10}`).join(' L')} L1000,170 L0,170 Z" fill="url(#lineGrad)"/>
+              <polyline points="${points.map((p,i) => `${(i/(points.length-1))*1000},${((maxVal-p.val)/(maxVal-minVal+1))*160+10}`).join(' ')}" fill="none" stroke="#60A5FA" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+              ${points.map((p,i) => {
+                const x = (i/(points.length-1))*1000;
+                const y = ((maxVal-p.val)/(maxVal-minVal+1))*160+10;
+                const c = p.val === minVal ? '#4ADE80' : p.val === maxVal ? '#ef4444' : '#60A5FA';
+                return `<circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="#020b1a" stroke-width="2"/>
+                        <text x="${x}" y="${y-12}" text-anchor="middle" font-family="Bebas Neue" font-size="11" fill="${c}">${p.val}s</text>`;
+              }).join('')}
+            </svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            ${points.filter((_,i) => i%4===0 || i===points.length-1).map(p => `
+              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(180,210,245,0.4);letter-spacing:1px;">${p.label}</div>`).join('')}
+          </div>
+        </div>`;
+      chartEl.style.opacity = '1';
+      chartEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
     }
 
     if (bars.length === 0) {
