@@ -54,7 +54,16 @@ const STATUS_ETA = {
         rebuildStudentTableGrid();
       }
     }).catch(() => {});
-  setTimeout(() => connectSocket('student'), 3000);
+  setTimeout(() => {
+  if (typeof io !== 'undefined') {
+    connectSocket('student');
+  } else {
+    const script = document.createElement('script');
+    script.src = API_BASE + '/socket.io/socket.io.js';
+    script.onload = () => connectSocket('student');
+    document.head.appendChild(script);
+  }
+}, 1000);
 })();
 
 /* ── TABLE SELECTION ─────────────────────────────────────── */
