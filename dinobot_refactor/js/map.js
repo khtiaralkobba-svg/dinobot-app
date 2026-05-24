@@ -709,17 +709,30 @@ function initMap() {
 
       if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
         if (!currentTarget || currentTarget.id !== data.target_table) {
+          const prevOrderRef = currentTarget?._orderRef;
           currentTarget = tables.find(t => t.id === data.target_table) || null;
-          if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
+          if (currentTarget) { 
+            targetX = currentTarget.x; 
+            targetY = currentTarget.y;
+            if (prevOrderRef) currentTarget._orderRef = prevOrderRef;
+          }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
           syncObstaclesToRobot(); // Re-sync excluding new target table
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
         }
       } else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
-        robotState = 'RETURNING'; targetX = dockX; targetY = dockY; currentTarget = null;
-        document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-      } else if (data.state === 'IDLE') {
+  robotState = 'RETURNING'; targetX = dockX; targetY = dockY;
+  document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+}else if (data.state === 'IDLE') {
+  console.log('[idle] currentTarget:', currentTarget, 'orderRef:', currentTarget?._orderRef);
+        if (currentTarget?._orderRef) {
+  fetch(API_BASE + '/api/orders/' + currentTarget._orderRef + '/status', {
+    method: 'PATCH',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ status: 'delivered' })
+  }).catch(() => {});
+}
         currentTarget = null;
         syncObstaclesToRobot();
         if (robotBusy) {
