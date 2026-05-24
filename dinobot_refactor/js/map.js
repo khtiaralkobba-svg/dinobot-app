@@ -479,7 +479,15 @@ function animateMap() {
         document.getElementById('speed-val').textContent = '0 cm/s'; document.getElementById('speed-bar').style.width = '0%';
         document.getElementById('load-val').textContent = 'Empty'; document.getElementById('load-bar').style.width = '0%';
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-        addActivity('dot-robot', 'UNIT-01 <strong>docked</strong>'); currentTarget = null;
+        addActivity('dot-robot', 'UNIT-01 <strong>docked</strong>');
+        if (currentTarget?._orderRef) {
+          fetch(API_BASE + '/api/orders/' + currentTarget._orderRef + '/status', {
+            method: 'PATCH',
+            headers: authHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ status: 'delivered' })
+          }).catch(() => {});
+        }
+        currentTarget = null;
       }
     }
   }
