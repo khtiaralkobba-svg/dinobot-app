@@ -258,29 +258,55 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
   const existing = document.getElementById('ra-bar-detail');
   if (existing) existing.remove();
 
-  const status = t === min ? '🟢 FASTEST RUN' : t === max ? '🔴 SLOWEST RUN' : Math.abs(t - avg) < avg * 0.1 ? '🔵 NEAR AVERAGE' : t > avg ? '🟡 ABOVE AVERAGE' : '🟢 BELOW AVERAGE';
+  const isFastest = t === min;
+  const isSlowest = t === max;
+  const isNearAvg = avg && Math.abs(t - avg) < avg * 0.1;
+  const isAboveAvg = t > avg;
+
+  const statusLabel = isFastest ? 'FASTEST RUN' : isSlowest ? 'SLOWEST RUN' : isNearAvg ? 'NEAR AVERAGE' : isAboveAvg ? 'ABOVE AVERAGE' : 'BELOW AVERAGE';
+  const statusColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : isNearAvg ? '#60A5FA' : isAboveAvg ? '#FBB924' : '#4ADE80';
+  const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#60A5FA';
 
   const detail = document.createElement('div');
   detail.id = 'ra-bar-detail';
-  detail.style.cssText = `margin-top:20px;background:${isLight?'linear-gradient(160deg,rgba(30,100,200,0.08),rgba(30,100,200,0.04))':'linear-gradient(160deg,rgba(96,165,250,0.08),rgba(30,60,120,0.3))'};border:1px solid ${isLight?'rgba(30,100,200,0.25)':'rgba(96,165,250,0.35)'};border-left:4px solid #60A5FA;padding:24px 32px;display:grid;grid-template-columns:auto 1fr auto;gap:32px;align-items:center;`;
+  detail.style.cssText = `margin-top:24px;position:relative;overflow:hidden;`;
   detail.innerHTML = `
-    <div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">RUN #${runNum + 1}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:56px;color:#60A5FA;line-height:1;">${t.toFixed(0)}<span style="font-size:24px;">s</span></div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};margin-top:6px;letter-spacing:2px;">${status}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-      ${[
-        ['vs Average', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80'],
-        ['vs Fastest', min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA'],
-        ['vs Slowest', max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80'],
-      ].map(([l,v,c]) => `
-        <div style="background:${isLight?'rgba(30,100,200,0.06)':'rgba(96,165,250,0.06)'};border:1px solid ${isLight?'rgba(30,100,200,0.15)':'rgba(96,165,250,0.15)'};padding:14px 18px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.5)'};text-transform:uppercase;margin-bottom:6px;">${l}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:1px;">${v}</div>
-        </div>`).join('')}
-    </div>
-    <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.2)'};color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};font-size:16px;cursor:pointer;padding:8px 12px;align-self:flex-start;">✕</button>`;
+    <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${accentColor};box-shadow:0 0 16px ${accentColor};"></div>
+    <div style="background:${isLight?'rgba(240,248,255,0.9)':'rgba(5,15,40,0.95)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.12)'};padding:28px 36px 28px 40px;">
+      
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.08)'};">
+        <div style="display:flex;align-items:center;gap:20px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};text-transform:uppercase;margin-bottom:4px;">DELIVERY RUN</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:${accentColor};">#${runNum + 1}</div>
+          </div>
+          <div style="width:1px;height:40px;background:${isLight?'rgba(30,100,200,0.15)':'rgba(96,165,250,0.15)'}"></div>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:${accentColor};line-height:1;letter-spacing:2px;">${t.toFixed(0)}<span style="font-size:20px;letter-spacing:1px;opacity:0.7;">s</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:${statusColor}18;border:1px solid ${statusColor}40;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">
+            <div style="width:6px;height:6px;border-radius:50%;background:${statusColor};box-shadow:0 0 6px ${statusColor};"></div>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${statusColor};text-transform:uppercase;">${statusLabel}</span>
+          </div>
+        </div>
+        <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'};color:${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.35)'};font-size:14px;cursor:pointer;padding:6px 12px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;transition:all 0.2s;" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'}';this.style.color='${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.35)'}'">✕ CLOSE</button>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+        ${[
+          ['VS AVERAGE', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80', t > avg ? 'slower than avg' : 'faster than avg'],
+          ['VS FASTEST', min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA', 'gap from best run'],
+          ['VS SLOWEST', max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80', 'gap from worst run'],
+        ].map(([l, v, c, sub]) => `
+          <div style="padding:16px 20px;background:${isLight?'rgba(30,100,200,0.04)':'rgba(96,165,250,0.04)'};border:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.08)'};">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};text-transform:uppercase;margin-bottom:8px;">${l}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${c};letter-spacing:1px;line-height:1;">${v}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${isLight?'rgba(20,8,0,0.3)':'rgba(180,210,245,0.3)'};letter-spacing:1px;margin-top:6px;">${sub}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
 
   const chart = document.querySelector('#ra-body > div:last-child');
   if (chart) chart.appendChild(detail);
