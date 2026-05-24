@@ -109,6 +109,7 @@ async function openRobotAnalyticsOverlay() {
 try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
+  window._raTotalEstops = estops;
 } catch {} // still session-only
 
 let totalManualOverrides = 0;
@@ -427,8 +428,9 @@ function raShowCardChart(type) {
       bars = raData.batteryReadings.slice(-20).map((b, i) => ({ val: b, label: '%' }));
       label = '%';
     } else if (type === 'estops') {
-      bars = [{ val: raData.estopEvents || 0, label: 'session' }];
-      label = '';
+        const estopVal = window._raTotalEstops || raData.estopEvents || 0;
+        bars = [{ val: estopVal, label: 'all time' }];
+        label = '';
     } else if (type === 'obstacles') {
         const obsVal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
         bars = [{ val: obsVal, label: 'all time' }];
