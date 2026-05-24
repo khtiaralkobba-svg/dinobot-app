@@ -76,9 +76,9 @@ function openRobotAnalyticsOverlay() {
           ['E-Stop Events', raData.estopEvents, 'emergency stops', '#ef4444'],
         ].map(([lbl,val,sub,color]) => `
           <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">${sub}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'var(--text-dim)'};letter-spacing:1px;margin-top:4px;">${sub}</div>
           </div>`).join('')}
       </div>
 
@@ -93,8 +93,8 @@ function openRobotAnalyticsOverlay() {
             ['Total Deliveries', raData.deliveryTimes.length],
           ].map(([l,v]) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'} ">
-              <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;">${l}</span>
-              <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:1px;">${v}</span>
+              <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${isLight?'#1C0F00':'var(--text)'};letter-spacing:1px;">${v}</span>
             </div>`).join('')}
         </div>
 
@@ -107,15 +107,15 @@ function openRobotAnalyticsOverlay() {
             ['Readings Taken', raData.batteryReadings.length],
           ].map(([l,v]) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
-              <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;">${l}</span>
-              <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);letter-spacing:1px;">${v}</span>
+              <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${isLight?'#1C0F00':'var(--text)'};letter-spacing:1px;">${v}</span>
             </div>`).join('')}
         </div>
       </div>
 
       <!-- No data state -->
       ${raData.dispatches === 0 ? `
-        <div style="text-align:center;padding:48px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--text-dim);">
+        <div style="text-align:center;padding:48px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.5)':'var(--text-dim)'};">
           ⬡ NO DATA YET — DISPATCH THE ROBOT TO START TRACKING
         </div>` : ''}
     </div>`;
