@@ -48,7 +48,6 @@ async function openRobotAnalyticsOverlay() {
   }
   const isLight = document.body.classList.contains('light-mode');
   el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;min-height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
-  document.body.style.overflow = 'hidden';
 
   el.innerHTML = `
     <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(251,185,36,0.2);background:${isLight?'linear-gradient(160deg,rgba(255,106,0,0.06) 0%,transparent 60%)':'linear-gradient(160deg,rgba(40,30,5,0.45) 0%,transparent 60%)'};flex-shrink:0;">
