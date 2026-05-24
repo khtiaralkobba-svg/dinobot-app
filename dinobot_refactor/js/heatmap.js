@@ -50,7 +50,7 @@ function hmCellColor(val, max) {
 async function openHeatmapOverlay() {
   hmCurrentView = 'week';
   const el = document.getElementById('heatmap-overlay');
-  el.style.cssText = 'display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:#020b1a;z-index:9500;';
+  background:${document.body.classList.contains('light-mode')?'#f4faff':'#020b1a'}
   document.body.style.overflow = 'hidden';
 
   document.getElementById('heatmap-body').innerHTML = `
@@ -128,7 +128,7 @@ function hmRenderAll() {
         ['Busiest Hour', peakHour[0]+':00', peakHour[1]+' total orders', '#FF6B1A'],
         ['Avg Per Slot', avgPerHour||'—', 'orders / hour', '#ffffff']
       ].map(([lbl,val,sub,color]) => `
-        <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);padding:20px 22px;">
+        <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'var(--border)'};padding:20px 22px;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim));text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:${color};line-height:1;">${val}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.5);letter-spacing:1px;margin-top:4px;">${sub}</div>
@@ -170,7 +170,7 @@ function hmRenderAll() {
       </div>
 
       <!-- Legend -->
-      <div style="background:var(--panel);border:1px solid var(--border);padding:20px 24px;min-width:200px;flex-shrink:0;">
+      <div style="background:${isLight?'#e8f4fd':'var(--panel)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'var(--border)'};padding:20px 24px;min-width:200px;flex-shrink:0;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#FF6B1A;text-transform:uppercase;margin-bottom:16px;border-bottom:1px solid rgba(255,107,26,0.2);padding-bottom:8px;">⬡ Color Legend</div>
         ${[['rgba(128,128,128,0.08)','0 orders','No activity'],['rgba(255,107,26,0.12)','1–20%','Very low'],['rgba(255,107,26,0.28)','20–40%','Low'],['rgba(255,107,26,0.50)','40–60%','Moderate'],['rgba(255,107,26,0.70)','60–80%','High'],['rgba(255,107,26,0.92)','80–100%','Peak']].map(([c,range,label]) => `
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
@@ -184,12 +184,12 @@ function hmRenderAll() {
     </div>
 
     <!-- Detail panel -->
-    <div id="hm-detail" style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(255,107,26,0.4);padding:24px 28px;font-family:'Share Tech Mono',monospace;">
+    <div id="hm-detail" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(255,107,26,0.4)'};padding:24px 28px;font-family:'Share Tech Mono',monospace;">
       <div style="font-size:10px;letter-spacing:2px;color:var(--text-dim));">SELECT A CELL TO VIEW DETAIL</div>
     </div>
 
     <!-- Bar chart -->
-    <div style="background:var(--panel);border:1px solid var(--border);padding:40px 48px;">
+    background:${isLight?'#e8f4fd':'var(--panel)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'var(--border)'};padding:40px 48px;
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FF6B1A;text-transform:uppercase;margin-bottom:6px;">⬡ Volume Analysis</div>
