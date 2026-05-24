@@ -40,6 +40,7 @@ const STATUS_ETA = {
 /* ── INIT TABLE GRID ─────────────────────────────────────── */
 (function buildTables() {
   rebuildStudentTableGrid();
+  connectSocket('student');
   fetch(API_BASE + '/api/tables/layout')
     .then(r => r.json())
     .then(d => {
