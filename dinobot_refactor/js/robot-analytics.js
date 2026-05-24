@@ -183,8 +183,8 @@ try {
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
         ${['today','week','month','all'].map(f => `
           <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
-          <button onclick="raFilterChart('all')" id="ra-filter-all" ...>ALL TIME</button>
-          </div>
+          <button id="ra-calendar-btn" onclick="raOpenCalendar()" style="padding:6px 16px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.2);color:#FBB924;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);margin-left:8px;">📅 CALENDAR</button>
+      </div>
 
       <div id="ra-chart-inner" style="display:flex;flex-direction:column;gap:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -237,54 +237,7 @@ try {
           </div>`}
         </div>
       </div>
-    </div>
-        <div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ Performance History</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">DELIVERY TIMES — LAST ${recentTimes.length} RUNS</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:16px;">
-          <button onclick="window._raActiveCard=null;openRobotAnalyticsOverlay()" style="padding:8px 18px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">↺ DEFAULT VIEW</button>
-          <div style="text-align:right;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:#60A5FA;line-height:1;">${deliveryTimes.length}</div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.8)'};">TOTAL RUNS</div>
-          </div>
-        </div>
-      </div>
-      ${recentTimes.length === 0 ? `
-        <div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.3)'};">
-          ⬡ NO DELIVERED ORDERS YET
-        </div>` : `
-        <div style="display:flex;align-items:flex-end;gap:10px;height:220px;position:relative;">
-          ${recentTimes.map((t, i) => {
-            const pct  = maxT > 0 ? (t / maxT) * 100 : 0;
-            const barH = Math.max(4, (pct/100)*200);
-            const delay = (i * 0.06).toFixed(2);
-            const isAvg = avgDelivery && Math.abs(t - avgDelivery) < avgDelivery * 0.1;
-            const barColor = isAvg
-              ? 'linear-gradient(to top,#1d4ed8,#60A5FA,#bae6fd)'
-              : t === minDelivery
-                ? 'linear-gradient(to top,#15803d,#4ADE80)'
-                : t === maxDelivery
-                  ? 'linear-gradient(to top,#991b1b,#ef4444)'
-                  : pct > 70
-                    ? 'linear-gradient(to top,#1e3a8a,#3b82f6)'
-                    : 'linear-gradient(to top,#2563eb,#93c5fd)';
-            const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
-            return `
-            <div onclick="raShowBarDetail(${i}, ${t}, ${deliveryTimes.length - recentTimes.length + i}, ${avgDelivery||0}, ${minDelivery||0}, ${maxDelivery||0}, '${valColor}')" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;cursor:pointer;">
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${t.toFixed(0)}s</div>
-              <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">R${deliveryTimes.length - recentTimes.length + i + 1}</div>
-            </div>`;
-          }).join('')}
-        </div>
-        <div style="display:flex;align-items:center;gap:20px;margin-top:20px;padding-top:16px;border-top:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.1)'};">
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:linear-gradient(to right,#1d4ed8,#bae6fd);border-radius:2px;box-shadow:0 0 8px rgba(96,165,250,0.5);"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">NEAR AVG</span></div>
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#4ADE80;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">FASTEST</span></div>
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#ef4444;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">SLOWEST</span></div>
-          <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#93c5fd;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">NORMAL</span></div>
-        </div>`}
-    </div>`;
+    </div>\``;
 
     // Poll obstacle count every 5 seconds while overlay is open
 if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
