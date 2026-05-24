@@ -766,7 +766,8 @@ function raRenderCalendar() {
     filterBar.style.position = 'relative';
     filterBar.appendChild(popup);
     popup.style.top = '40px';
-    popup.style.left = '0';
+    popup.style.right = '0';
+    popup.style.left = 'auto';
   }
 }
 
@@ -827,7 +828,7 @@ function raApplyCalendarFilter() {
         count: times.length
       }));
     } else {
-      bars = filtered.map((o, i) => ({
+      bars = filtered.slice(-20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 'R' + (i+1),
         count: 1
@@ -843,7 +844,7 @@ function raApplyCalendarFilter() {
 
       container.innerHTML = `
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#60A5FA;margin-bottom:16px;">⬡ ${chartTitle.toUpperCase()} · ${bars.length} ${groupByDay?'DAYS':'DELIVERIES'} · AVG ${avgVal}s</div>
-        <div style="display:flex;align-items:flex-end;gap:10px;height:220px;">
+        <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
           ${bars.map((b, i) => {
             const pct = (b.val / maxVal) * 100;
             const barH = Math.max(4, (pct/100)*200);
