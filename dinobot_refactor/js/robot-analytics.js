@@ -40,7 +40,16 @@ function raTrackBattery(pct) {
 }
 function raTrackSpeed(speed) { raData.avgSpeed = speed; }
 
-function raTrackObstacleAvoided() { raData.obstaclesAvoided++; }
+async function raTrackObstacleAvoided() {
+  raData.obstaclesAvoided++;
+  try {
+    await fetch(API_BASE + '/api/robot-stats/obstacle', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ obstacles_avoided: raData.obstaclesAvoided })
+    });
+  } catch {}
+}
 
 async function openRobotAnalyticsOverlay() {
   let el = document.getElementById('robot-analytics-overlay');
@@ -84,11 +93,11 @@ async function openRobotAnalyticsOverlay() {
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
-    const sessRes = await fetch(API_BASE + '/api/robot-stats/session', { headers: authHeaders() });
-    if (sessRes.ok) {
-        const sd = await sessRes.json();
-        totalObstaclesAvoided = (sd.totalObstaclesAvoided || 0) + raData.obstaclesAvoided;
-    }
+    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
+    if (obsRes.ok) {
+        const od = await obsRes.json();
+        totalObstaclesAvoided = od.obstacles_avoided || raData.obstaclesAvoided;
+      }
     } catch {}
 try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });

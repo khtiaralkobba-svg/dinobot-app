@@ -74,4 +74,33 @@ router.get('/session', authenticateToken, authorizeRoles('manager'), async (req,
   }
 });
 
+// ── Update obstacle count real time ──────────────────────────────────────────
+router.post('/obstacle', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { obstacles_avoided } = req.body;
+    const { error } = await supabase
+      .from('robot_live_stats')
+      .update({ obstacles_avoided, updated_at: new Date().toISOString() })
+      .eq('id', 1);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/obstacle', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('robot_live_stats')
+      .select('obstacles_avoided')
+      .eq('id', 1)
+      .single();
+    if (error) throw error;
+    res.json({ obstacles_avoided: data.obstacles_avoided });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
