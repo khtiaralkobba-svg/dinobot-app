@@ -487,8 +487,9 @@ function raShowCardChart(type) {
                 const x = (i/(points.length-1))*1000;
                 const y = ((maxVal-p.val)/(maxVal-minVal+1))*160+10;
                 const c = p.val === minVal ? '#4ADE80' : p.val === maxVal ? '#ef4444' : '#60A5FA';
-                return `<circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="#020b1a" stroke-width="2"/>
-                        <text x="${x}" y="${y-12}" text-anchor="middle" font-family="Bebas Neue" font-size="11" fill="${c}">${p.val}s</text>`;
+               return `<circle cx="${x}" cy="${y}" r="5" fill="${c}" stroke="#020b1a" stroke-width="2"/>
+        <rect x="${x-18}" y="${y-28}" width="36" height="16" fill="rgba(2,11,26,0.8)" rx="2"/>
+        <text x="${x}" y="${y-17}" text-anchor="middle" font-family="Bebas Neue" font-size="12" fill="${c}">${p.val}s</text>`;
               }).join('')}
             </svg>
           </div>
