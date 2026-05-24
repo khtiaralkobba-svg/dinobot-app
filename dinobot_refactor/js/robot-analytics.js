@@ -265,7 +265,7 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
 
   const statusLabel = isFastest ? 'FASTEST RUN' : isSlowest ? 'SLOWEST RUN' : isNearAvg ? 'NEAR AVERAGE' : isAboveAvg ? 'ABOVE AVERAGE' : 'BELOW AVERAGE';
   const statusColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : isNearAvg ? '#60A5FA' : isAboveAvg ? '#FBB924' : '#4ADE80';
-  const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#60A5FA';
+  const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#3b82f6';
 
   const perfPct = avg ? Math.round((1 - (t - min) / (max - min + 1)) * 100) : 50;
 
