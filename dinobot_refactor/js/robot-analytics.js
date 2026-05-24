@@ -175,7 +175,7 @@ try {
     </div>
 
     <!-- Bar chart -->
-    <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.2)'};padding:40px 48px;">
+    <div id="ra-chart-section" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.2)'};padding:40px 48px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ Performance History</div>
@@ -359,7 +359,7 @@ function closeRobotAnalyticsOverlay() {
 
 function raShowCardChart(type) {
   const isLight = document.body.classList.contains('light-mode');
-  const chartEl = document.querySelector('#ra-body > div:last-child');
+  const chartEl = document.getElementById('ra-chart-section');
   if (!chartEl) return;
 
   // Toggle off if same card clicked
