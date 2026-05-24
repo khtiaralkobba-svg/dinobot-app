@@ -267,44 +267,69 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
   const statusColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : isNearAvg ? '#60A5FA' : isAboveAvg ? '#FBB924' : '#4ADE80';
   const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#60A5FA';
 
+  const perfPct = avg ? Math.round((1 - (t - min) / (max - min + 1)) * 100) : 50;
+
   const detail = document.createElement('div');
   detail.id = 'ra-bar-detail';
-  detail.style.cssText = `margin-top:24px;position:relative;overflow:hidden;`;
+  detail.style.cssText = `margin-top:24px;`;
   detail.innerHTML = `
-    <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${accentColor};box-shadow:0 0 16px ${accentColor};"></div>
-    <div style="background:${isLight?'rgba(240,248,255,0.9)':'rgba(5,15,40,0.95)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.12)'};padding:28px 36px 28px 40px;">
+    <div style="background:${isLight?'#e8f4fd':'linear-gradient(135deg,rgba(6,18,52,0.98),rgba(3,10,32,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'};overflow:hidden;">
       
-      <!-- Header row -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.08)'};">
-        <div style="display:flex;align-items:center;gap:20px;">
-          <div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};text-transform:uppercase;margin-bottom:4px;">DELIVERY RUN</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:4px;color:${accentColor};">#${runNum + 1}</div>
+      <!-- Top accent bar -->
+      <div style="height:3px;background:linear-gradient(to right,${accentColor},${accentColor}80,transparent);"></div>
+
+      <div style="padding:32px 40px;display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:start;">
+        
+        <!-- LEFT: Main metric -->
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.35)'};text-transform:uppercase;margin-bottom:16px;">⬡ RUN #${runNum + 1} ANALYSIS</div>
+          
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:88px;color:${accentColor};line-height:0.85;letter-spacing:2px;margin-bottom:4px;">${t.toFixed(0)}<span style="font-size:32px;opacity:0.6;">s</span></div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.35)'};margin-bottom:20px;">DELIVERY DURATION</div>
+
+          <!-- Status badge -->
+          <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 16px;background:${statusColor}15;border:1px solid ${statusColor}35;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);margin-bottom:24px;">
+            <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};box-shadow:0 0 8px ${statusColor};animation:blink 2s ease-in-out infinite;"></div>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:${statusColor};text-transform:uppercase;">${statusLabel}</span>
           </div>
-          <div style="width:1px;height:40px;background:${isLight?'rgba(30,100,200,0.15)':'rgba(96,165,250,0.15)'}"></div>
+
+          <!-- Performance bar -->
           <div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:${accentColor};line-height:1;letter-spacing:2px;">${t.toFixed(0)}<span style="font-size:20px;letter-spacing:1px;opacity:0.7;">s</span></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:${statusColor}18;border:1px solid ${statusColor}40;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">
-            <div style="width:6px;height:6px;border-radius:50%;background:${statusColor};box-shadow:0 0 6px ${statusColor};"></div>
-            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${statusColor};text-transform:uppercase;">${statusLabel}</span>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.35)'};">PERFORMANCE SCORE</span>
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:${statusColor};">${perfPct}%</span>
+            </div>
+            <div style="height:4px;background:${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.1)'};border-radius:2px;overflow:hidden;">
+              <div style="height:100%;width:${perfPct}%;background:linear-gradient(to right,${accentColor}80,${accentColor});border-radius:2px;transition:width 0.8s ease;"></div>
+            </div>
           </div>
         </div>
-        <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'};color:${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.35)'};font-size:14px;cursor:pointer;padding:6px 12px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;transition:all 0.2s;" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.15)'}';this.style.color='${isLight?'rgba(20,8,0,0.35)':'rgba(180,210,245,0.35)'}'">✕ CLOSE</button>
-      </div>
 
-      <!-- Stats row -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-        ${[
-          ['VS AVERAGE', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80', t > avg ? 'slower than avg' : 'faster than avg'],
-          ['VS FASTEST', min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA', 'gap from best run'],
-          ['VS SLOWEST', max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80', 'gap from worst run'],
-        ].map(([l, v, c, sub]) => `
-          <div style="padding:16px 20px;background:${isLight?'rgba(30,100,200,0.04)':'rgba(96,165,250,0.04)'};border:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.08)'};">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};text-transform:uppercase;margin-bottom:8px;">${l}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${c};letter-spacing:1px;line-height:1;">${v}</div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${isLight?'rgba(20,8,0,0.3)':'rgba(180,210,245,0.3)'};letter-spacing:1px;margin-top:6px;">${sub}</div>
-          </div>`).join('')}
+        <!-- RIGHT: Comparison stats -->
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.35)'};text-transform:uppercase;margin-bottom:16px;">⬡ COMPARATIVE METRICS</div>
+          
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+            ${[
+              ['VS SESSION AVERAGE', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80', t > avg ? '▲ slower' : '▼ faster', avg ? avg.toFixed(0) + 's avg' : ''],
+              ['VS FASTEST RUN', min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA', 'gap from best', min ? min.toFixed(0) + 's best' : ''],
+              ['VS SLOWEST RUN', max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80', 'gap from worst', max ? max.toFixed(0) + 's worst' : ''],
+            ].map(([l, v, c, hint, ref]) => `
+              <div style="display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:14px 18px;background:${isLight?'rgba(30,100,200,0.04)':'rgba(96,165,250,0.03)'};border:1px solid ${isLight?'rgba(30,100,200,0.08)':'rgba(96,165,250,0.07)'};">
+                <div>
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.35)'};text-transform:uppercase;margin-bottom:2px;">${l}</div>
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.3)':'rgba(180,210,245,0.25)'};">${hint}</div>
+                </div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.3)':'rgba(180,210,245,0.25)'};">${ref}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:1px;text-align:right;">${v}</div>
+              </div>`).join('')}
+          </div>
+
+          <!-- Close button -->
+          <div style="display:flex;justify-content:flex-end;">
+            <button onclick="document.getElementById('ra-bar-detail').remove()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">✕ DISMISS</button>
+          </div>
+        </div>
       </div>
     </div>`;
 
