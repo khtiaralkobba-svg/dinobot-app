@@ -199,30 +199,29 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
 
   const detail = document.createElement('div');
   detail.id = 'ra-bar-detail';
-  detail.style.cssText = `position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:99999;background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid rgba(96,165,250,0.5);padding:20px 32px;display:flex;align-items:center;gap:32px;box-shadow:0 0 40px rgba(96,165,250,0.3);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);min-width:500px;`;
+  detail.style.cssText = `margin-top:20px;background:${isLight?'linear-gradient(160deg,rgba(30,100,200,0.08),rgba(30,100,200,0.04))':'linear-gradient(160deg,rgba(96,165,250,0.08),rgba(30,60,120,0.3))'};border:1px solid ${isLight?'rgba(30,100,200,0.25)':'rgba(96,165,250,0.35)'};border-left:4px solid #60A5FA;padding:24px 32px;display:grid;grid-template-columns:auto 1fr auto;gap:32px;align-items:center;`;
   detail.innerHTML = `
     <div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#60A5FA;text-transform:uppercase;margin-bottom:4px;">Run #${runNum + 1}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:#60A5FA;line-height:1;">${t.toFixed(0)}s</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};margin-top:4px;">${status}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">RUN #${runNum + 1}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:56px;color:#60A5FA;line-height:1;">${t.toFixed(0)}<span style="font-size:24px;">s</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};margin-top:6px;letter-spacing:2px;">${status}</div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
       ${[
         ['vs Average', avg ? (t - avg > 0 ? '+' : '') + (t - avg).toFixed(0) + 's' : '—', t > avg ? '#ef4444' : '#4ADE80'],
-        ['vs Fastest',  min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA'],
-        ['vs Slowest',  max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80'],
+        ['vs Fastest', min ? '+' + (t - min).toFixed(0) + 's' : '—', '#60A5FA'],
+        ['vs Slowest', max ? (t - max).toFixed(0) + 's' : '—', '#4ADE80'],
       ].map(([l,v,c]) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(96,165,250,0.1)'};">
-          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${isLight?'rgba(20,8,0,0.6)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">${l}</span>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${c};">${v}</span>
+        <div style="background:${isLight?'rgba(30,100,200,0.06)':'rgba(96,165,250,0.06)'};border:1px solid ${isLight?'rgba(30,100,200,0.15)':'rgba(96,165,250,0.15)'};padding:14px 18px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.5)'};text-transform:uppercase;margin-bottom:6px;">${l}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:1px;">${v}</div>
         </div>`).join('')}
     </div>
-    <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:none;color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};font-size:20px;cursor:pointer;padding:4px 8px;align-self:flex-start;">✕</button>`;
+    <button onclick="document.getElementById('ra-bar-detail').remove()" style="background:none;border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(96,165,250,0.2)'};color:${isLight?'rgba(20,8,0,0.4)':'rgba(180,210,245,0.4)'};font-size:16px;cursor:pointer;padding:8px 12px;align-self:flex-start;">✕</button>`;
 
-  document.getElementById('robot-analytics-overlay').appendChild(detail);
-  setTimeout(() => { if(document.getElementById('ra-bar-detail')) document.getElementById('ra-bar-detail').remove(); }, 5000);
+  const chart = document.querySelector('#ra-body > div:last-child');
+  if (chart) chart.appendChild(detail);
 }
-
 function closeRobotAnalyticsOverlay() {
   const el = document.getElementById('robot-analytics-overlay');
   if (el) el.style.display = 'none';
