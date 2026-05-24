@@ -367,7 +367,14 @@ function raShowCardChart(type) {
       c.style.transform = 'translateY(0)';
       c.style.borderColor = isLight ? 'rgba(30,100,200,0.2)' : 'rgba(251,185,36,0.15)';
     });
-    openRobotAnalyticsOverlay();
+    const chartEl2 = document.getElementById('ra-chart-section');
+    if (chartEl2) {
+      chartEl2.style.opacity = '0';
+      setTimeout(() => {
+        chartEl2.style.opacity = '1';
+        chartEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
     return;
   }
 
