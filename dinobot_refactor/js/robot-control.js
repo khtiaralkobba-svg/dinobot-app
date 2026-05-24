@@ -134,6 +134,7 @@ function toggleManual() {
     setRobotState('MANUAL OVERRIDE', 'Operator', '#FBB924');
     // ✅ FIX
     fetch(API_BASE + '/api/robot/manual/start', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    fetch(API_BASE + '/api/robot-stats/manual', { method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ triggered_by: 'manager' }) }).catch(() => {});
   } else {
     toggle.classList.remove('active'); toggle.textContent = '⬡ ENABLE MANUAL CONTROL';
     dpad.style.opacity = '0.35'; dpad.style.pointerEvents = 'none';

@@ -103,4 +103,32 @@ router.get('/obstacle', authenticateToken, authorizeRoles('manager'), async (req
   }
 });
 
+// ── Log manual override ──────────────────────────────────────────────────────
+router.post('/manual', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { triggered_by } = req.body;
+    const { error } = await supabase
+      .from('manual_overrides')
+      .insert({ triggered_by: triggered_by || 'manager' });
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Get manual override count ────────────────────────────────────────────────
+router.get('/manual', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('manual_overrides')
+      .select('*')
+      .order('triggered_at', { ascending: false });
+    if (error) throw error;
+    res.json({ manual_overrides: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

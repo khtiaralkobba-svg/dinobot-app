@@ -108,6 +108,12 @@ try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
 } catch {} // still session-only
+
+let totalManualOverrides = 0;
+try {
+  const manualRes = await fetch(API_BASE + '/api/robot-stats/manual', { headers: authHeaders() });
+  if (manualRes.ok) { const md = await manualRes.json(); totalManualOverrides = md.manual_overrides?.length || 0; }
+} catch {}
   const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
   const minDelivery = deliveryTimes.length ? Math.round(Math.min(...deliveryTimes)) : null;
   const maxDelivery = deliveryTimes.length ? Math.round(Math.max(...deliveryTimes)) : null;
@@ -152,12 +158,11 @@ try {
       </div>
 
       <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Battery & Power</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Robot Status</div>
         ${[
-          ['Current Battery', raData.lastBattery !== null ? raData.lastBattery+'%' : '—'],
-          ['Avg Battery', avgBat !== null ? avgBat+'%' : '—'],
-          ['Total Drain', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—'],
-          ['Readings Taken', raData.batteryReadings.length],
+          ['Obstacles Avoided', totalObstaclesAvoided, ],
+          ['E-Stop Events', estops],
+          ['Manual Overrides', totalManualOverrides],
         ].map(([l,v]) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
             <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
