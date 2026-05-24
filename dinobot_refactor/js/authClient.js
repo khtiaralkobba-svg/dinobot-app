@@ -186,7 +186,7 @@ function connectSocket(room) {
       showToast('⬡ New order ' + order.order_ref + ' — Table ' + order.table_number);
     });
 
-    _socket.on('order:updated', (payload) => {
+   _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
 
       // Always update student tracking
@@ -237,6 +237,13 @@ function connectSocket(room) {
           if (status === 'prep' && prep_started_at) existing.prep_started_at = prep_started_at;
           updateKitchenOrderStatus(order_ref, status, table_number || existing.table);
         }
+      }
+    });
+
+    _socket.on('tables:updated', (data) => {
+      if (data.tables) {
+        tables = data.tables;
+        rebuildStudentTableGrid();
       }
     });
 

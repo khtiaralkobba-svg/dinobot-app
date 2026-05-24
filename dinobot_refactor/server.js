@@ -123,6 +123,8 @@ app.post('/api/tables/layout', async (req, res) => {
       .from('table_layout')
       .upsert({ id: 1, tables: req.body.tables, updated_at: new Date().toISOString() });
     if (error) throw error;
+    const io = req.app.get('io');
+    if (io) io.emit('tables:updated', { tables: req.body.tables });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
