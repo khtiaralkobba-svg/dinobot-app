@@ -302,7 +302,7 @@ async function addAiGeneratedCombo(index) {
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
         id,
-        cat: 'Mains',
+        cat: 'Combos',
         emoji: combo.emoji,
         name: combo.name,
         description: itemNames,

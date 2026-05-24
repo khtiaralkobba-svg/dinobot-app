@@ -68,9 +68,10 @@ async function renderMenuOverlay() {
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">CATEGORY</div>
           <select id="new-item-cat" class="form-input" style="background:rgba(5,20,60,0.6);color:var(--text);">
             <option value="Mains">Mains</option>
-            <option value="Sides">Sides</option>
-            <option value="Drinks">Drinks</option>
-            <option value="Desserts">Desserts</option>
+<option value="Sides">Sides</option>
+<option value="Drinks">Drinks</option>
+<option value="Desserts">Desserts</option>
+<option value="Combos">Combos</option>
           </select>
         </div>
         <div>
