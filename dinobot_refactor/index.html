@@ -325,6 +325,23 @@
           <div style="width:36px;height:36px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.4);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:#60A5FA;font-size:14px;">→</div>
         </div>
       </button>
+
+    <!-- Menu Management button -->
+<button onclick="openMenuOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)'" onmouseout="this.style.borderColor='var(--border)'">
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div style="width:48px;height:54px;background:rgba(5,22,65,0.6);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(74,222,128,0.4);flex-shrink:0;">🍽️</div>
+    <div style="text-align:left;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(74,222,128,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:6px;">⬡ Menu Control</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);line-height:1;">MENU MANAGEMENT</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:4px;">Add Items · Remove Items · Edit Prices</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;">Open</div>
+    <div style="width:36px;height:36px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.4);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;color:#4ADE80;font-size:14px;">→</div>
+  </div>
+</button>
+
       <!-- Robot Analytics button -->
 <button onclick="openRobotAnalyticsOverlay()" style="width:100%;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,#071828,#061422);border:1px solid var(--border);cursor:pointer;transition:all 0.25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);position:relative;overflow:hidden;" onmouseover="this.style.borderColor='var(--border-bright)'" onmouseout="this.style.borderColor='var(--border)'">
   <div style="display:flex;align-items:center;gap:20px;">
@@ -729,7 +746,7 @@
 <script src="js/chat.js"></script>
 <script src="js/layout-assistant.js"></script>
 <script src="js/robot-analytics.js"></script>
-
+<script src="js/menu-management.js"></script>
 <!-- ══════════════════════════════════════════════════════════
      AI LAYOUT ASSISTANT — FULL SCREEN OVERLAY
 ══════════════════════════════════════════════════════════ -->
@@ -837,6 +854,25 @@
     </div>
   </div>
 </div>
-
+<!-- ══════════════════════════════════════════════════════════
+     MENU MANAGEMENT OVERLAY
+══════════════════════════════════════════════════════════ -->
+<div id="menu-overlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9500;flex-direction:column;overflow-y:auto;background:#020b1a;">
+  <div style="padding:80px 48px 40px;border-bottom:1px solid rgba(74,222,128,0.2);background:linear-gradient(160deg,rgba(5,40,20,0.45) 0%,transparent 60%);flex-shrink:0;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(74,222,128,0.8);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">// Menu Control</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;letter-spacing:2px;color:var(--text);">MENU <span style="color:#4ADE80;">MANAGEMENT</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> LIVE MENU</div>
+        <button onclick="closeMenuOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
+      </div>
+    </div>
+  </div>
+  <div id="menu-overlay-body" style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:24px;">
+    <div style="text-align:center;padding:80px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(74,222,128,0.6);">⬡ LOADING MENU...</div>
+  </div>
+</div>
 </body>
 </html>

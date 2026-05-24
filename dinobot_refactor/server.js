@@ -163,6 +163,73 @@ robotProxyRoutes.forEach(({ path: robotPath, method }) => {
     }
   });
 });
+
+// ── Menu routes ───────────────────────────────────────────────────────────────
+app.get('/api/menu', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('is_available', true)
+      .order('cat')
+      .order('name');
+    if (error) throw error;
+    res.json({ items: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/menu', async (req, res) => {
+  try {
+    const { id, cat, emoji, name, description, price } = req.body;
+    const { data, error } = await supabase
+      .from('menu_items')
+      .insert({ id, cat, emoji, name, description, price, is_available: true })
+      .select()
+      .single();
+    if (error) throw error;
+    const io = req.app.get('io');
+    if (io) io.emit('menu:updated');
+    res.json({ success: true, item: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/menu/:id', async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('menu_items')
+      .update({ is_available: false })
+      .eq('id', req.params.id);
+    if (error) throw error;
+    const io = req.app.get('io');
+    if (io) io.emit('menu:updated');
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/menu/:id', async (req, res) => {
+  try {
+    const { cat, emoji, name, description, price } = req.body;
+    const { data, error } = await supabase
+      .from('menu_items')
+      .update({ cat, emoji, name, description, price })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+    if (error) throw error;
+    const io = req.app.get('io');
+    if (io) io.emit('menu:updated');
+    res.json({ success: true, item: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);

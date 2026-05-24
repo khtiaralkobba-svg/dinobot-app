@@ -3,20 +3,24 @@
 ══════════════════════════════════════════════════════════ */
 
 /* ── MENU DATA ───────────────────────────────────────────── */
-const MENU_ITEMS = [
-  {id:'m1',  cat:'Mains',    emoji:'🍔', name:'Beef Burger',       desc:'Juicy beef patty, cheddar, lettuce, pickles', price:8.50},
-  {id:'m2',  cat:'Mains',    emoji:'🌯', name:'Chicken Wrap',      desc:'Grilled chicken, Caesar dressing, romaine',   price:7.00},
-  {id:'m3',  cat:'Mains',    emoji:'🍕', name:'Margherita Pizza',  desc:'Tomato, fresh mozzarella, basil',             price:9.00},
-  {id:'m4',  cat:'Mains',    emoji:'🐟', name:'Grilled Salmon',    desc:'Atlantic salmon, lemon butter, herbs',        price:11.50},
-  {id:'m5',  cat:'Sides',    emoji:'🍟', name:'Fries (Large)',     desc:'Crispy golden, seasoned with sea salt',       price:3.50},
-  {id:'m6',  cat:'Sides',    emoji:'🥗', name:'Caesar Salad',      desc:'Romaine, parmesan, croutons',                 price:5.00},
-  {id:'m7',  cat:'Sides',    emoji:'🧅', name:'Onion Rings',       desc:'Beer-battered, crispy',                       price:4.00},
-  {id:'m8',  cat:'Drinks',   emoji:'🥤', name:'Cola',              desc:'Ice cold, 500ml',                             price:2.50},
-  {id:'m9',  cat:'Drinks',   emoji:'🍊', name:'Orange Juice',      desc:'Freshly squeezed, 350ml',                     price:3.00},
-  {id:'m10', cat:'Drinks',   emoji:'💧', name:'Sparkling Water',   desc:'330ml',                                       price:2.00},
-  {id:'m11', cat:'Desserts', emoji:'🎂', name:'Cheesecake',        desc:'New York style, berry compote',               price:5.50},
-  {id:'m12', cat:'Desserts', emoji:'🍫', name:'Chocolate Brownie', desc:'Warm, with vanilla ice cream',                price:4.50},
-];
+let MENU_ITEMS = [];
+
+async function loadMenuItems() {
+  try {
+    const res = await fetch(API_BASE + '/api/menu');
+    const data = await res.json();
+    MENU_ITEMS = (data.items || []).map(item => ({
+      id: item.id,
+      cat: item.cat,
+      emoji: item.emoji,
+      name: item.name,
+      desc: item.description,
+      price: Number(item.price)
+    }));
+  } catch {
+    // fallback to empty
+  }
+}
 
 /* ── STATE ───────────────────────────────────────────────── */
 let studentStep     = 1;
@@ -38,7 +42,8 @@ const STATUS_ETA = {
 };
 
 /* ── INIT TABLE GRID ─────────────────────────────────────── */
-(function buildTables() {
+(async function buildTables() {
+  await loadMenuItems();
   rebuildStudentTableGrid();
   connectSocket('student');
   fetch(API_BASE + '/api/tables/layout')

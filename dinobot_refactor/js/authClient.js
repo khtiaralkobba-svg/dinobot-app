@@ -240,15 +240,17 @@ function connectSocket(room) {
       }
     });
 
-    _socket.on('tables:updated', (data) => {
+    _socket.on('menu:updated', async () => {
+  await loadMenuItems();
+  if (studentStep === 2) renderMenu();
+});
       if (data.tables) {
         tables.length = 0;
         data.tables.forEach(t => tables.push(t));
         rebuildStudentTableGrid();
       }
-    });
+    }
 
     _socket.on('disconnect', (reason) => { console.log('[socket] disconnected:', reason); });
   };
   document.head.appendChild(script);
-}
