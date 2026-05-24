@@ -428,14 +428,30 @@ function raShowCardChart(type) {
       bars = raData.batteryReadings.slice(-20).map((b, i) => ({ val: b, label: '%' }));
       label = '%';
     } else if (type === 'estops') {
-        const estopVal = window._raTotalEstops || raData.estopEvents || 0;
-        bars = [{ val: estopVal, label: 'all time' }];
-        label = '';
-    } else if (type === 'obstacles') {
-        const obsVal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
-        bars = [{ val: obsVal, label: 'all time' }];
-        label = '';
-   }
+  const allOrders = window._raAllOrders || [];
+  const byDay = {};
+  allOrders.filter(o => o.status === 'delivered').forEach(o => {
+    const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    byDay[day] = (byDay[day] || 0);
+  });
+  const estopVal = window._raTotalEstops || 0;
+  bars = estopVal > 0 ? [{ val: estopVal, label: 'total' }] : [];
+  label = '';
+} else if (type === 'obstacles') {
+  const obsVal = window._raTotalObstacles || 0;
+  const allOrders = window._raAllOrders || [];
+  const byDay = {};
+  allOrders.filter(o => o.status === 'delivered').forEach(o => {
+    const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    byDay[day] = (byDay[day] || 0) + 1;
+  });
+  bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({
+    val: Math.round((obsVal / Math.max(Object.keys(byDay).length, 1))),
+    label: day
+  }));
+  if (bars.length === 0) bars = [{ val: obsVal, label: 'total' }];
+  label = '';
+}
 
     if (bars.length === 0) {
       chartEl.innerHTML = `
