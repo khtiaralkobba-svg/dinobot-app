@@ -831,7 +831,7 @@ function raApplyCalendarFilter() {
         count: times.length
       }));
     } else {
-      bars = filtered.slice(-20).map((o, i) => ({
+      bars = filtered.slice(0, 20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 'R' + (i+1),
         count: 1
