@@ -38,7 +38,18 @@ const STATUS_ETA = {
 };
 
 /* ── INIT TABLE GRID ─────────────────────────────────────── */
-(function buildTables() { rebuildStudentTableGrid(); })();
+(function buildTables() {
+  rebuildStudentTableGrid();
+  fetch(API_BASE + '/api/tables/layout')
+    .then(r => r.json())
+    .then(d => {
+      if (d.tables && d.tables.length > 0) {
+        tables.length = 0;
+        d.tables.forEach(t => tables.push(t));
+        rebuildStudentTableGrid();
+      }
+    }).catch(() => {});
+})();
 
 /* ── TABLE SELECTION ─────────────────────────────────────── */
 function selectStudentTable(n) {

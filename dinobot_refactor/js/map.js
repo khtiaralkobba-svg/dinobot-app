@@ -654,6 +654,18 @@ function syncOverlayState() {
 
 /* ── INIT MAP (called after login) ───────────────────────── */
 function initMap() {
+  // Load tables from API on init
+  fetch(API_BASE + '/api/tables/layout')
+    .then(r => r.json())
+    .then(d => {
+      if (d.tables && d.tables.length > 0) {
+        tables.length = 0;
+        d.tables.forEach(t => tables.push(t));
+        rebuildStudentTableGrid();
+        rebuildDispatchButtons();
+        sessionStorage.setItem('dinobotTableLayout', JSON.stringify(tables));
+      }
+    }).catch(() => {});
   try {
     const saved = sessionStorage.getItem('dinobotObstacles');
     if (saved) { obstacles = JSON.parse(saved); updateObstacleCount(); }
