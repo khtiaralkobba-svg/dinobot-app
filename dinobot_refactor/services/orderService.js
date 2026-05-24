@@ -94,13 +94,21 @@ async function getOrderByRef(orderRef) {
 // GET ALL ORDERS
 // ==========================
 async function getAllOrders() {
-  const { data: orders, error: ordersError } = await supabase
-    .from('orders')
-    .select('*')
-    .order('placed_at', { ascending: false })
-    .limit(10000);
-
-  if (ordersError) throw ordersError;
+  let orders = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('placed_at', { ascending: false })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    orders = orders.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
   if (!orders || orders.length === 0) return [];
 
   const orderIds = orders.map((o) => o.id);
