@@ -129,13 +129,14 @@ try {
   const body = document.getElementById('ra-body');
   body.innerHTML = `
     <!-- Stat cards -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;">
       ${[
         ['Total Dispatches', dispatched.length, 'all time', '#FBB924', 'dispatches'],
         ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80', 'delivery'],
         ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA', 'battery'],
         ['E-Stop Events', estops, 'this session', '#ef4444', 'estops'],
         ['Obstacles Avoided', totalObstaclesAvoided, 'all time + session', '#C084FC', 'obstacles'],
+        ['Performance History', recentTimes.length+'  runs', 'last 20 deliveries', '#60A5FA', 'history'],
       ].map(([lbl,val,sub,color,type]) => `
         <div onclick="raShowCardChart('${type}')" id="ra-card-${type}" style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,#071828,#061422)'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'};padding:20px 22px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='${color}';this.style.transform='translateY(-2px)'" onmouseout="if(window._raActiveCard!=='${type}'){this.style.borderColor='${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.15)'}';this.style.transform='translateY(0)'}">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};text-transform:uppercase;margin-bottom:8px;">${lbl}</div>
@@ -434,10 +435,18 @@ function raShowCardChart(type) {
     } else if (type === 'estops') {
       const val = window._raTotalEstops || 0;
       bars = [{ val, label: 'total' }];
-
+    
     } else if (type === 'obstacles') {
       const val = window._raTotalObstacles || 0;
       bars = [{ val, label: 'total' }];
+    } else if (type === 'history') {
+      const allOrders = window._raAllOrders || [];
+      const delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      bars = delivered.slice(-20).map(o => ({
+        val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
+        label: 's'
+      }));
+      label = 's';
     }
 
     if (bars.length === 0) {
