@@ -211,21 +211,14 @@ try {
 
     // Poll obstacle count every 5 seconds while overlay is open
 if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
-window._raObstacleInterval = setInterval(async () => {
-  if (!document.getElementById('robot-analytics-overlay') || 
-      document.getElementById('robot-analytics-overlay').style.display === 'none') {
-    clearInterval(window._raObstacleInterval);
-    return;
-  }
-  try {
-    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
-    if (obsRes.ok) {
-      const od = await obsRes.json();
-      const card = document.querySelector('#ra-body .obstacles-card');
-      if (card) card.textContent = od.obstacles_avoided || 0;
+  window._raObstacleInterval = setInterval(async () => {
+    if (!document.getElementById('robot-analytics-overlay') ||
+        document.getElementById('robot-analytics-overlay').style.display === 'none') {
+      clearInterval(window._raObstacleInterval);
+      return;
     }
-  } catch {}
-}, 5000);
+    openRobotAnalyticsOverlay();
+  }, 2000);
 
 }
 
