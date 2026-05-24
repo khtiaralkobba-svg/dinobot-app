@@ -101,7 +101,14 @@ async function sendAiMenuMessage() {
   } else {
     updateAiMenuSteps(5);
     addAiMenuMessage('bot', '⬡ Perfect! Let me generate your personalized menu recommendations now… 🍳');
-    await generateAiMenuItems();
+    const isCombo = Object.values(aiMenuAnswers).some(a => 
+      a.toLowerCase().includes('combo') || a.toLowerCase().includes('meal deal') || a.toLowerCase().includes('bundle')
+    );
+    if (isCombo) {
+      await generateAiMenuCombos();
+    } else {
+      await generateAiMenuItems();
+    }
   }
 }
 
@@ -162,6 +169,161 @@ Make items creative, appetizing and appropriate for campus dining. Prices should
   } catch {
     addAiMenuMessage('bot', '✗ Connection error. Please try again.');
     rightTitle.textContent = 'Error — try again';
+  }
+}
+
+async function generateAiMenuCombos() {
+  const rightTitle = document.getElementById('ai-menu-right-title');
+  rightTitle.textContent = 'Generating combos…';
+
+  const optionsEl = document.getElementById('ai-menu-options');
+  optionsEl.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;">
+      <div style="font-size:48px;animation:nomnom 0.6s ease-in-out infinite alternate;">🍔</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(74,222,128,0.6);">⬡ BUILDING YOUR COMBOS...</div>
+    </div>`;
+
+  const prompt = `You are a professional restaurant menu consultant AI for a campus dining robot delivery system called Dinobot.
+
+The manager wants COMBO MEALS — each combo groups multiple items together as one menu entry.
+
+Manager preferences:
+- Cuisine style: ${aiMenuAnswers.cuisine || 'not specified'}
+- Dietary focus: ${aiMenuAnswers.dietary || 'no restrictions'}
+- Price range: ${aiMenuAnswers.price || 'mid range'}
+- Request: ${aiMenuAnswers.quantity || 'combo meals'}
+
+Generate 3-4 combo meals. Return ONLY a valid JSON array, no markdown, no backticks.
+
+Each combo must have these exact fields:
+{
+  "name": "combo name (e.g. Classic Meal Deal)",
+  "emoji": "single emoji representing the combo",
+  "description": "appetizing combo description under 80 chars",
+  "items": [
+    { "emoji": "🍔", "name": "item name", "category": "Mains" },
+    { "emoji": "🥤", "name": "item name", "category": "Drinks" },
+    { "emoji": "🎂", "name": "item name", "category": "Desserts" }
+  ],
+  "originalPrice": number,
+  "comboPrice": number,
+  "saving": number
+}
+
+Make combo prices 10-20% cheaper than originalPrice. Items should complement each other well.`;
+
+  try {
+    const res = await fetch(API_BASE + '/api/groq', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        system: 'You are a professional restaurant menu consultant. Always respond with valid JSON only, no markdown, no backticks, no extra text.',
+        message: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    let combos = [];
+    try {
+      const clean = data.reply.replace(/```json|```/g, '').trim();
+      combos = JSON.parse(clean);
+    } catch {
+      addAiMenuMessage('bot', '✗ Sorry, I had trouble generating combos. Try again!');
+      return;
+    }
+
+    rightTitle.textContent = `${combos.length} COMBOS GENERATED`;
+    addAiMenuMessage('bot', `✓ Done! I created ${combos.length} combo meals for you. Each combo saves money vs ordering separately! 🎉`);
+    renderAiComboCards(combos);
+  } catch {
+    addAiMenuMessage('bot', '✗ Connection error. Please try again.');
+    rightTitle.textContent = 'Error — try again';
+  }
+}
+
+function renderAiComboCards(combos) {
+  const optionsEl = document.getElementById('ai-menu-options');
+  optionsEl.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      ${combos.map((combo, i) => `
+        <div style="background:linear-gradient(135deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(74,222,128,0.2);overflow:hidden;transition:all 0.2s;" onmouseover="this.style.borderColor='rgba(74,222,128,0.5)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(74,222,128,0.2)';this.style.transform='translateY(0)'">
+          <div style="height:3px;background:linear-gradient(to right,#4ADE80,#FBB924,#4ADE80);"></div>
+          <div style="padding:24px 28px;">
+            
+            <!-- Combo header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-size:36px;">${combo.emoji}</div>
+                <div>
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(251,185,36,0.6);text-transform:uppercase;margin-bottom:4px;">⬡ COMBO MEAL</div>
+                  <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ffffff;letter-spacing:2px;">${combo.name}</div>
+                  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(180,210,245,0.5);margin-top:2px;">${combo.description}</div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(239,68,68,0.6);text-decoration:line-through;letter-spacing:1px;">$${Number(combo.originalPrice).toFixed(2)}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:#4ADE80;letter-spacing:1px;line-height:1;">$${Number(combo.comboPrice).toFixed(2)}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:#FBB924;letter-spacing:1px;">SAVE $${Number(combo.saving).toFixed(2)}</div>
+              </div>
+            </div>
+
+            <!-- Combo items -->
+            <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+              ${(combo.items || []).map(item => `
+                <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.12);">
+                  <span style="font-size:18px;">${item.emoji}</span>
+                  <div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:#ffffff;letter-spacing:1px;">${item.name}</div>
+                    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(74,222,128,0.5);letter-spacing:2px;">${item.category}</div>
+                  </div>
+                </div>`).join('')}
+            </div>
+
+            <!-- Add button -->
+            <div style="display:flex;justify-content:flex-end;">
+              <button onclick="addAiGeneratedCombo(${i})" id="ai-combo-btn-${i}" style="padding:10px 24px;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.4);color:#4ADE80;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(74,222,128,0.25)'" onmouseout="this.style.background='rgba(74,222,128,0.12)'">+ ADD COMBO TO MENU</button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  window._aiGeneratedCombos = combos;
+}
+
+async function addAiGeneratedCombo(index) {
+  const combo = window._aiGeneratedCombos[index];
+  if (!combo) return;
+  const btn = document.getElementById('ai-combo-btn-' + index);
+  if (btn) { btn.textContent = 'ADDING...'; btn.disabled = true; }
+
+  const id = 'combo' + Date.now() + index;
+  const itemNames = (combo.items || []).map(i => i.emoji + ' ' + i.name).join(' + ');
+  try {
+    const res = await fetch(API_BASE + '/api/menu', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        id,
+        cat: 'Mains',
+        emoji: combo.emoji,
+        name: combo.name,
+        description: itemNames,
+        price: combo.comboPrice
+      })
+    });
+    if (!res.ok) throw new Error('Failed');
+    if (btn) {
+      btn.textContent = '✓ ADDED TO MENU';
+      btn.style.background = 'rgba(74,222,128,0.25)';
+      btn.style.borderColor = '#4ADE80';
+      btn.disabled = true;
+    }
+    await loadMenuItems();
+    showToast('✓ ' + combo.name + ' combo added to menu!');
+    if (document.getElementById('menu-overlay').style.display === 'flex') {
+      await renderMenuOverlay();
+    }
+  } catch {
+    if (btn) { btn.textContent = '+ ADD COMBO TO MENU'; btn.disabled = false; }
+    showToast('✗ Failed to add combo');
   }
 }
 
