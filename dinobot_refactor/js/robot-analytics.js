@@ -47,7 +47,8 @@ async function openRobotAnalyticsOverlay() {
     document.body.appendChild(el);
   }
   const isLight = document.body.classList.contains('light-mode');
-  el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;min-height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
+  el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
+ 
 
   el.innerHTML = `
     <div style="position:relative;z-index:2;padding:80px 48px 40px;border-bottom:1px solid rgba(251,185,36,0.2);background:${isLight?'linear-gradient(160deg,rgba(255,106,0,0.06) 0%,transparent 60%)':'linear-gradient(160deg,rgba(40,30,5,0.45) 0%,transparent 60%)'};flex-shrink:0;">
@@ -62,7 +63,7 @@ async function openRobotAnalyticsOverlay() {
         </div>
       </div>
     </div>
-    <div id="ra-body" style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;">
+    <div id="ra-body" style="padding:32px 48px 80px;display:flex;flex-direction:column;gap:20px;flex:1;overflow-y:auto;">
       <div style="text-align:center;padding:80px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:rgba(251,185,36,0.6);">⬡ LOADING LIVE DATA...</div>
     </div>`;
 
