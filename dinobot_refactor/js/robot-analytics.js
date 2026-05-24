@@ -186,6 +186,7 @@ try {
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
         ${['today','week','month','all'].map(f => `
           <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+          
       </div>
 
       <div id="ra-chart-inner" style="display:flex;flex-direction:column;gap:20px;">
@@ -424,12 +425,24 @@ function raShowCardChart(type) {
     };
 
     const allOrders = window._raAllOrders || [];
+    const cal = window._raCalendarFilter;
     let bars = [];
     let label = '';
 
     if (type === 'delivery') {
-      const delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-      bars = delivered.slice(-20).map(o => ({
+      let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      if (cal) {
+        delivered = delivered.filter(o => {
+          const d = new Date(o.placed_at);
+          if (cal.day) {
+            const start = new Date(cal.year, cal.month, cal.day);
+            const end = new Date(cal.year, cal.month, cal.day + 20);
+            return d >= start && d <= end;
+          }
+          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+        });
+      }
+      bars = delivered.slice(0, 20).map(o => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 's'
       }));
@@ -437,7 +450,19 @@ function raShowCardChart(type) {
 
     } else if (type === 'dispatches') {
       const byDay = {};
-      allOrders.filter(o => o.status === 'delivered').forEach(o => {
+      let dispatchOrders = allOrders.filter(o => o.status === 'delivered');
+      if (cal) {
+        dispatchOrders = dispatchOrders.filter(o => {
+          const d = new Date(o.placed_at);
+          if (cal.day) {
+            const start = new Date(cal.year, cal.month, cal.day);
+            const end = new Date(cal.year, cal.month, cal.day + 20);
+            return d >= start && d <= end;
+          }
+          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+        });
+      }
+      dispatchOrders.forEach(o => {
         const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
         byDay[day] = (byDay[day] || 0) + 1;
       });
@@ -776,6 +801,7 @@ function raRenderCalendar() {
 
 function raApplyCalendarFilter() {
   const { year, month, day } = _raCalendarDate;
+  window._raCalendarFilter = { year, month, day };
   const isLight = document.body.classList.contains('light-mode');
   const allOrders = window._raAllOrders || [];
   const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -831,7 +857,7 @@ function raApplyCalendarFilter() {
         count: times.length
       }));
     } else {
-      bars = filtered.slice(0, 20).map((o, i) => ({
+      bars = filtered.slice(-20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 'R' + (i+1),
         count: 1
@@ -877,6 +903,9 @@ function raApplyCalendarFilter() {
     }
     container.style.opacity = '1';
   }, 300);
+  if (window._raActiveCard) {
+  raShowCardChart(window._raActiveCard);
+}
 }
 
 window.addEventListener('beforeunload', () => {
