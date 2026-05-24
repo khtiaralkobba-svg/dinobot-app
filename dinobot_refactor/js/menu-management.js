@@ -32,6 +32,22 @@ async function renderMenuOverlay() {
   const cats = [...new Set(items.map(i => i.cat))];
 
   body.innerHTML = `
+    <!-- AI Advisor button -->
+    <button onclick="openAiMenuOverlay()" style="width:100%;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;padding:20px 28px;background:linear-gradient(160deg,rgba(5,40,20,0.6),rgba(2,15,10,0.8));border:1px solid rgba(74,222,128,0.3);cursor:pointer;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.borderColor='#4ADE80'" onmouseout="this.style.borderColor='rgba(74,222,128,0.3)'">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:40px;height:46px;background:#4ADE80;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <div style="font-size:20px;animation:nomnom 0.6s ease-in-out infinite alternate;">🍔</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(74,222,128,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;">⬡ AI Powered</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffffff;line-height:1;">AI MENU ADVISOR</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-top:2px;">Get AI recommendations · Add directly to menu</div>
+        </div>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#4ADE80;">OPEN →</div>
+    </button>
+
     <!-- Add new item form -->
     <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(74,222,128,0.2);padding:28px 32px;position:relative;">
       <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(74,222,128,0.6);border:1px solid rgba(74,222,128,0.15);">⬡ ADD NEW ITEM</div>
@@ -75,7 +91,7 @@ async function renderMenuOverlay() {
               <div style="font-size:24px;text-align:center;">${item.emoji}</div>
               <div>
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ffffff;letter-spacing:2px;">${item.name}</div>
-<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:2px;">${item.description || ''}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:2px;">${item.description || ''}</div>
               </div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;">${item.cat}</div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#4ADE80;letter-spacing:1px;">$${Number(item.price).toFixed(2)}</div>
