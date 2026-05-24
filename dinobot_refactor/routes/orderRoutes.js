@@ -249,7 +249,7 @@ router.patch('/:orderRef/status', async (req, res, next) => {
   }
 
   // Allow students to cancel via the /status route too (frontend uses this)
-  if (status === 'cancelled') {
+  if (status === 'cancelled' || status === 'delivered') {
     return next();
   }
 
