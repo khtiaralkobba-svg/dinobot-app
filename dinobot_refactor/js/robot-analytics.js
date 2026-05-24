@@ -183,7 +183,8 @@ try {
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
         ${['today','week','month','all'].map(f => `
           <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
-      </div>
+          <button onclick="raFilterChart('all')" id="ra-filter-all" ...>ALL TIME</button>
+          </div>
 
       <div id="ra-chart-inner" style="display:flex;flex-direction:column;gap:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -681,6 +682,240 @@ function raFilterChart(filter) {
             <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#ef4444;">SLOWEST: ${maxDelivery}s</span>
           </div>
           <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.4);">${times.length} TOTAL RUNS ${filterLabel}</span>
+        </div>`;
+    }
+    container.style.opacity = '1';
+  }, 300);
+}
+
+let _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
+
+function raOpenCalendar() {
+  const existing = document.getElementById('ra-calendar-popup');
+  if (existing) { existing.remove(); return; }
+  raRenderCalendar();
+}
+
+function raRenderCalendar() {
+  const existing = document.getElementById('ra-calendar-popup');
+  if (existing) existing.remove();
+
+  const isLight = document.body.classList.contains('light-mode');
+  const { year, month, mode } = _raCalendarDate;
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  const popup = document.createElement('div');
+  popup.id = 'ra-calendar-popup';
+  popup.style.cssText = `position:absolute;z-index:9999;background:#061422;border:1px solid rgba(96,165,250,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.5);min-width:320px;`;
+
+  if (mode === 'month') {
+    // Month picker
+    popup.innerHTML = `
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(96,165,250,0.1);display:flex;align-items:center;justify-content:space-between;">
+        <button onclick="_raCalendarDate.year--;raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">◀</button>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#60A5FA;cursor:pointer;" onclick="_raCalendarDate.mode='year';raRenderCalendar()">${year}</div>
+        <button onclick="_raCalendarDate.year++;raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">▶</button>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-bottom:12px;">SELECT MONTH</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${months.map((m, i) => `
+            <button onclick="_raCalendarDate.month=${i};_raCalendarDate.mode='day';_raCalendarDate.day=null;raRenderCalendar();raApplyCalendarFilter()" 
+              style="padding:10px;background:${i===month?'rgba(96,165,250,0.2)':'rgba(96,165,250,0.04)'};border:1px solid ${i===month?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.1)'};color:${i===month?'#60A5FA':'rgba(180,210,245,0.6)'};font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;">
+              ${m}
+            </button>`).join('')}
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid rgba(96,165,250,0.1);display:flex;justify-content:flex-end;">
+        <button onclick="document.getElementById('ra-calendar-popup').remove()" style="padding:6px 14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;">✕ CLOSE</button>
+      </div>`;
+
+  } else if (mode === 'year') {
+    // Year picker
+    const startYear = year - 4;
+    const years = Array.from({length: 9}, (_, i) => startYear + i);
+    popup.innerHTML = `
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(96,165,250,0.1);display:flex;align-items:center;justify-content:space-between;">
+        <button onclick="_raCalendarDate.year-=9;raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">◀</button>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#60A5FA;">${startYear} — ${startYear+8}</div>
+        <button onclick="_raCalendarDate.year+=9;raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">▶</button>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-bottom:12px;">SELECT YEAR</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${years.map(y => `
+            <button onclick="_raCalendarDate.year=${y};_raCalendarDate.mode='month';raRenderCalendar()" 
+              style="padding:10px;background:${y===year?'rgba(96,165,250,0.2)':'rgba(96,165,250,0.04)'};border:1px solid ${y===year?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.1)'};color:${y===year?'#60A5FA':'rgba(180,210,245,0.6)'};font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;">
+              ${y}
+            </button>`).join('')}
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid rgba(96,165,250,0.1);display:flex;justify-content:flex-end;">
+        <button onclick="document.getElementById('ra-calendar-popup').remove()" style="padding:6px 14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;">✕ CLOSE</button>
+      </div>`;
+
+  } else {
+    // Day picker
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(i);
+
+    // Get days that have orders
+    const allOrders = window._raAllOrders || [];
+    const orderDays = new Set(allOrders.filter(o => {
+      const d = new Date(o.placed_at);
+      return d.getFullYear() === year && d.getMonth() === month && o.status === 'delivered';
+    }).map(o => new Date(o.placed_at).getDate()));
+
+    popup.innerHTML = `
+      <div style="padding:16px 20px;border-bottom:1px solid rgba(96,165,250,0.1);display:flex;align-items:center;justify-content:space-between;">
+        <button onclick="if(_raCalendarDate.month===0){_raCalendarDate.month=11;_raCalendarDate.year--;}else{_raCalendarDate.month--;};raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">◀</button>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#ffffff;cursor:pointer;" onclick="_raCalendarDate.mode='month';raRenderCalendar()">${fullMonths[month]}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#60A5FA;cursor:pointer;" onclick="_raCalendarDate.mode='year';raRenderCalendar()">${year}</div>
+        </div>
+        <button onclick="if(_raCalendarDate.month===11){_raCalendarDate.month=0;_raCalendarDate.year++;}else{_raCalendarDate.month++;};raRenderCalendar()" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:16px;">▶</button>
+      </div>
+      <div style="padding:16px 20px;">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;">
+          ${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(180,210,245,0.3);text-align:center;padding:4px;">${d}</div>`).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+          ${days.map(d => d === null 
+            ? `<div></div>`
+            : `<button onclick="_raCalendarDate.day=${d};raRenderCalendar();raApplyCalendarFilter()" 
+                style="padding:8px 4px;background:${d===_raCalendarDate.day?'rgba(96,165,250,0.3)':orderDays.has(d)?'rgba(96,165,250,0.08)':'transparent'};border:1px solid ${d===_raCalendarDate.day?'rgba(96,165,250,0.6)':orderDays.has(d)?'rgba(96,165,250,0.2)':'transparent'};color:${d===_raCalendarDate.day?'#60A5FA':orderDays.has(d)?'rgba(180,210,245,0.9)':'rgba(180,210,245,0.3)'};font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;position:relative;">
+                ${d}
+                ${orderDays.has(d) ? `<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#60A5FA;border-radius:50%;"></div>` : ''}
+              </button>`).join('')}
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid rgba(96,165,250,0.1);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.4);">
+          ${_raCalendarDate.day ? `SELECTED: ${fullMonths[month]} ${_raCalendarDate.day}, ${year}` : 'CLICK DAY OR MONTH/YEAR ABOVE'}
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="_raCalendarDate.day=null;raApplyCalendarFilter()" style="padding:6px 14px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;">MONTH VIEW</button>
+          <button onclick="document.getElementById('ra-calendar-popup').remove()" style="padding:6px 14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;">✕ CLOSE</button>
+        </div>
+      </div>`;
+  }
+
+  // Position popup
+  const calBtn = document.getElementById('ra-calendar-btn');
+  const filterBar = calBtn?.parentElement;
+  if (filterBar) {
+    filterBar.style.position = 'relative';
+    filterBar.appendChild(popup);
+    popup.style.top = '40px';
+    popup.style.left = '0';
+  }
+}
+
+function raApplyCalendarFilter() {
+  const { year, month, day } = _raCalendarDate;
+  const isLight = document.body.classList.contains('light-mode');
+  const allOrders = window._raAllOrders || [];
+  const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  let filtered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  let chartTitle = '';
+  let groupByDay = false;
+
+  if (day) {
+    // Specific day
+    filtered = filtered.filter(o => {
+      const d = new Date(o.placed_at);
+      return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+    });
+    chartTitle = `${fullMonths[month]} ${day}, ${year}`;
+  } else {
+    // Whole month
+    filtered = filtered.filter(o => {
+      const d = new Date(o.placed_at);
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+    chartTitle = `${fullMonths[month]} ${year}`;
+    groupByDay = true;
+  }
+
+  const container = document.getElementById('ra-bars-container');
+  if (!container) return;
+
+  // Reset filter buttons
+  ['today','week','month','all'].forEach(f => {
+    const btn = document.getElementById('ra-filter-' + f);
+    if (!btn) return;
+    btn.style.background = 'rgba(96,165,250,0.04)';
+    btn.style.borderColor = 'rgba(96,165,250,0.15)';
+    btn.style.color = 'rgba(180,210,245,0.4)';
+  });
+
+  container.style.opacity = '0';
+  container.style.transition = 'opacity 0.3s ease';
+
+  setTimeout(() => {
+    let bars = [];
+    if (groupByDay) {
+      const byDay = {};
+      filtered.forEach(o => {
+        const d = new Date(o.placed_at).getDate();
+        if (!byDay[d]) byDay[d] = [];
+        byDay[d].push((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+      });
+      bars = Object.entries(byDay).sort((a,b) => a[0]-b[0]).map(([d, times]) => ({
+        val: Math.round(times.reduce((a,b)=>a+b,0)/times.length),
+        label: d,
+        count: times.length
+      }));
+    } else {
+      bars = filtered.map((o, i) => ({
+        val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
+        label: 'R' + (i+1),
+        count: 1
+      }));
+    }
+
+    if (bars.length === 0) {
+      container.innerHTML = `<div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(180,210,245,0.3);">⬡ NO DELIVERIES FOR ${chartTitle.toUpperCase()}</div>`;
+    } else {
+      const maxVal = Math.max(...bars.map(b => b.val), 1);
+      const minVal = Math.min(...bars.map(b => b.val));
+      const avgVal = Math.round(bars.reduce((a,b) => a+b.val, 0) / bars.length);
+
+      container.innerHTML = `
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#60A5FA;margin-bottom:16px;">⬡ ${chartTitle.toUpperCase()} · ${bars.length} ${groupByDay?'DAYS':'DELIVERIES'} · AVG ${avgVal}s</div>
+        <div style="display:flex;align-items:flex-end;gap:10px;height:220px;">
+          ${bars.map((b, i) => {
+            const pct = (b.val / maxVal) * 100;
+            const barH = Math.max(4, (pct/100)*200);
+            const delay = (i * 0.04).toFixed(2);
+            const barColor = b.val === minVal
+              ? 'linear-gradient(to top,#15803d,#4ADE80)'
+              : b.val === maxVal
+                ? 'linear-gradient(to top,#991b1b,#ef4444)'
+                : 'linear-gradient(to top,#2563eb,#93c5fd)';
+            const valColor = b.val === minVal ? '#4ADE80' : b.val === maxVal ? '#ef4444' : '#60A5FA';
+            return `
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${valColor};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${b.val}s</div>
+                <div style="width:100%;height:${barH}px;background:${barColor};transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px rgba(96,165,250,0.4);"></div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.6);letter-spacing:1px;">${b.label}</div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:16px;border-top:1px solid rgba(96,165,250,0.1);">
+          <div style="display:flex;gap:16px;">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#4ADE80;">FASTEST: ${minVal}s</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.5);">AVG: ${avgVal}s</span>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#ef4444;">SLOWEST: ${maxVal}s</span>
+          </div>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.4);">${filtered.length} TOTAL DELIVERIES</span>
         </div>`;
     }
     container.style.opacity = '1';
