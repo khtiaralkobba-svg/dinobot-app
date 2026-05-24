@@ -100,7 +100,7 @@ async function getAllOrders() {
   while (true) {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('id, order_ref, table_number, status, total, notes, placed_at, updated_at, delivered_at, prep_started_at, ready_at, handled_by, dispatch_count')
       .order('placed_at', { ascending: false })
       .range(from, from + pageSize - 1);
     if (error) throw error;
@@ -111,33 +111,7 @@ async function getAllOrders() {
   }
   if (!orders || orders.length === 0) return [];
 
-  const orderIds = orders.map((o) => o.id);
-
-  const { data: allItems, error: itemsError } = await supabase
-    .from('order_items')
-    .select('*')
-    .in('order_id', orderIds);
-
-  if (itemsError) throw itemsError;
-
-  const itemsByOrder = {};
-  for (const item of (allItems || [])) {
-    if (!itemsByOrder[item.order_id]) {
-      itemsByOrder[item.order_id] = [];
-    }
-    itemsByOrder[item.order_id].push({
-      id: item.item_id,
-      name: item.name,
-      emoji: item.emoji,
-      qty: item.qty,
-      unitPrice: item.unit_price
-    });
-  }
-
-  return orders.map((order) => ({
-    ...order,
-    items: itemsByOrder[order.id] || []
-  }));
+  return orders.map((order) => ({ ...order, items: [] }));
 }
 
 // ==========================
