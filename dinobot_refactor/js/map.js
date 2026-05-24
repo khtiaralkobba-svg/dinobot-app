@@ -480,13 +480,6 @@ function animateMap() {
         document.getElementById('load-val').textContent = 'Empty'; document.getElementById('load-bar').style.width = '0%';
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
         addActivity('dot-robot', 'UNIT-01 <strong>docked</strong>');
-        if (currentTarget?._orderRef) {
-          fetch(API_BASE + '/api/orders/' + currentTarget._orderRef + '/status', {
-            method: 'PATCH',
-            headers: authHeaders({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ status: 'delivered' })
-          }).catch(() => {});
-        }
         currentTarget = null;
       }
     }
@@ -723,16 +716,17 @@ function initMap() {
         }
       } else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
   robotState = 'RETURNING'; targetX = dockX; targetY = dockY;
+  window._pendingDeliveryRef = currentTarget?._orderRef || null;
   document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
 }else if (data.state === 'IDLE') {
-  console.log('[idle] currentTarget:', currentTarget, 'orderRef:', currentTarget?._orderRef);
-        if (currentTarget?._orderRef) {
-  fetch(API_BASE + '/api/orders/' + currentTarget._orderRef + '/status', {
-    method: 'PATCH',
-    headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ status: 'delivered' })
-  }).catch(() => {});
-}
+  if (window._pendingDeliveryRef) {
+    fetch(API_BASE + '/api/orders/' + window._pendingDeliveryRef + '/status', {
+      method: 'PATCH',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ status: 'delivered' })
+    }).catch(() => {});
+    window._pendingDeliveryRef = null;
+  }
         currentTarget = null;
         syncObstaclesToRobot();
         if (robotBusy) {
