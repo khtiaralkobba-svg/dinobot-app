@@ -266,7 +266,11 @@ function raShowBarDetail(i, t, runNum, avg, min, max) {
   const statusLabel = isFastest ? 'FASTEST RUN' : isSlowest ? 'SLOWEST RUN' : isNearAvg ? 'NEAR AVERAGE' : isAboveAvg ? 'ABOVE AVERAGE' : 'BELOW AVERAGE';
   const statusColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : isNearAvg ? '#60A5FA' : isAboveAvg ? '#FBB924' : '#4ADE80';
   const accentColor = isFastest ? '#4ADE80' : isSlowest ? '#ef4444' : '#3b82f6';
-  const bgGradient = isLight ? '#e8f4fd' : `linear-gradient(135deg,${accentColor}18,${accentColor}08)`;
+  function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+const bgGradient = isLight ? '#e8f4fd' : `linear-gradient(135deg,${hexToRgba(accentColor,0.12)},${hexToRgba(accentColor,0.04)})`;
 
   const perfPct = avg ? Math.round((1 - (t - min) / (max - min + 1)) * 100) : 50;
 
