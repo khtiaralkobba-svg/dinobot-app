@@ -74,10 +74,10 @@ async function renderMenuOverlay() {
             <div id="menu-item-row-${item.id}" style="display:grid;grid-template-columns:50px 1fr 2fr 100px auto;gap:16px;align-items:center;padding:14px 18px;background:rgba(5,15,40,0.5);border:1px solid rgba(74,222,128,0.08);">
               <div style="font-size:24px;text-align:center;">${item.emoji}</div>
               <div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--text);letter-spacing:1px;">${item.name}</div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;">${item.description || ''}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ffffff;letter-spacing:2px;">${item.name}</div>
+<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:2px;">${item.description || ''}</div>
               </div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">${item.description || '—'}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;">${item.cat}</div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#4ADE80;letter-spacing:1px;">$${Number(item.price).toFixed(2)}</div>
               <div style="display:flex;gap:8px;">
                 <button onclick="editMenuItem('${item.id}', '${item.name}', '${item.emoji}', '${item.cat}', '${(item.description||'').replace(/'/g,"\\'")}', ${item.price})" style="padding:8px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(96,165,250,0.18)'" onmouseout="this.style.background='rgba(96,165,250,0.08)'">EDIT</button>
