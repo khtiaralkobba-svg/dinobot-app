@@ -89,7 +89,7 @@ async function openRobotAnalyticsOverlay() {
   // Compute stats from real orders
   const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
   const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-  const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+  const dispatched = orders.filter(o => ['dispatched','delivering','delivered','ready'].includes(o.status));
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
@@ -225,11 +225,15 @@ window._raObstacleInterval = setInterval(async () => {
         fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders({ 'Content-Type': 'application/json' }) })
     ]);
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
+    if (!ordersRes.ok) return;
     const od = obsRes.ok ? await obsRes.json() : {};
     const ed = estopRes.ok ? await estopRes.json() : {};
-    const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-    const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-    const dispatched = orders.filter(o => ['dispatched','delivering','delivered'].includes(o.status));
+    const deliveredOrders = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+    if (deliveredOrders.length === 0) return;
+    const pollDeliveryTimes = deliveredOrders.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+    const dispatched = orders.filter(o => ['dispatched','delivering','delivered','ready'].includes(o.status));
+    const avgDelivery = pollDeliveryTimes.length ? Math.round(pollDeliveryTimes.reduce((a,b)=>a+b,0) / pollDeliveryTimes.length) : null;
+    const dispatched = orders.filter(o => ['dispatched','delivering','delivered','ready'].includes(o.status));
     const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard('ra-card-dispatches',  dispatched.length);
