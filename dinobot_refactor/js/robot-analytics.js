@@ -187,7 +187,6 @@ try {
         </div>`}
     </div>`;
 
-  document.body.style.overflow = 'hidden';
 }
 
 function closeRobotAnalyticsOverlay() {
