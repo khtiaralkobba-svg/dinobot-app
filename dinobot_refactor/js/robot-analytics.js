@@ -47,7 +47,7 @@ async function openRobotAnalyticsOverlay() {
     document.body.appendChild(el);
   }
   const isLight = document.body.classList.contains('light-mode');
-  el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
+  el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;min-height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
   document.body.style.overflow = 'hidden';
 
   el.innerHTML = `
@@ -187,10 +187,9 @@ try {
           <div style="display:flex;align-items:center;gap:8px;"><div style="width:24px;height:3px;background:#93c5fd;border-radius:2px;"></div><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:2px;">NORMAL</span></div>
         </div>`}
     </div>`;
-}
 
   document.body.style.overflow = 'hidden';
-
+}
 
 function closeRobotAnalyticsOverlay() {
   const el = document.getElementById('robot-analytics-overlay');
