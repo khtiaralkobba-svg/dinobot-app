@@ -60,14 +60,8 @@ async function dispatch(tableId) {
     if (!res.ok) { showToast('⬡ ' + (errData.error || 'Robot unavailable')); return; }
   } catch { showToast('✗ Cannot reach robot server'); return; }
 
-  document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
-  currentTarget = tables.find(t => t.id === tableId) || null;
-  if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
-  robotState = 'DISPATCHED'; robotBusy = true; setAllDispatchButtons(false);
-  addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
-  showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
   recordDispatch();
+  raTrackDispatch();
 }
 
 /* ── RECALL ──────────────────────────────────────────────── */
