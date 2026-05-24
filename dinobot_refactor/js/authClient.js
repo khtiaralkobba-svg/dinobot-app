@@ -242,7 +242,8 @@ function connectSocket(room) {
 
     _socket.on('tables:updated', (data) => {
       if (data.tables) {
-        tables = data.tables;
+        tables.length = 0;
+        data.tables.forEach(t => tables.push(t));
         rebuildStudentTableGrid();
       }
     });
