@@ -295,7 +295,9 @@ if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiv
   setCard('ra-card-dispatches', dispatched.length);
   setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
   setCard('ra-card-estops', ed.estop_events?.length || 0);
-  setCard('ra-card-obstacles', fetchedObstacles);
+  if (window._raActiveCard !== 'obstacles') {
+    setCard('ra-card-obstacles', fetchedObstacles);
+  }
   setCard('ra-card-history', deliveryTimes.length + '  runs');
 }
 setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
