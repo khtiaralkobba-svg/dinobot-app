@@ -289,6 +289,16 @@ window._raObstacleInterval = setInterval(async () => {
     setCard('ra-card-dispatches', calDispatched.length);
 setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
 setCard('ra-card-history', calDelivered.length + '  runs');
+setCard('ra-card-obstacles', '—');
+setCard('ra-card-estops', '—');
+
+const calBtn = document.getElementById('ra-calendar-btn');
+if (calBtn) {
+  calBtn.textContent = day
+    ? `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${day}`
+    : `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${year}`;
+}
+setCard('ra-card-history', calDelivered.length + '  runs');
 
 // Filter obstacles and estops by selected date
 const obstacleEvents = window._raObstacleEvents || [];
@@ -1003,6 +1013,8 @@ function raApplyCalendarFilter() {
     const setCard2 = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard2('ra-card-dispatches', calFiltered2.filter(o => o.status === 'delivered').length);
     setCard2('ra-card-avgdelivery', calAvg2 ? calAvg2 + 's' : '—');
+    setCard2('ra-card-obstacles', '—');
+setCard2('ra-card-estops', '—');
     return;
   }
 
