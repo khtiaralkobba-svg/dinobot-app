@@ -761,7 +761,10 @@ function raFilterChart(filter) {
   const maxDelivery = times.length ? Math.round(Math.max(...times)) : null;
 
   const container = document.getElementById('ra-bars-container');
-  if (!container) return;
+  if (!container) {
+  raResetToDefault();
+  return;
+}
 
   const filterLabel = filter === 'today' ? 'TODAY' : filter === 'week' ? 'THIS WEEK' : filter === 'month' ? 'THIS MONTH' : 'ALL TIME';
 
@@ -1003,7 +1006,10 @@ function raApplyCalendarFilter() {
     return;
   }
 
-  if (!container) return;
+  if (!container) {
+  raResetToDefault();
+  return;
+}
 
   // Reset filter buttons
   ['today','week','month','all'].forEach(f => {
@@ -1051,7 +1057,7 @@ function raApplyCalendarFilter() {
         <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
           ${bars.map((b, i) => {
             const pct = (b.val / maxVal) * 100;
-            const barH = allZero ? 200 : Math.max(4, (pct / 100) * 200);
+            const barH = Math.max(4, (pct / 100) * 200);
             const delay = (i * 0.04).toFixed(2);
             const barColor = b.val === minVal
               ? 'linear-gradient(to top,#15803d,#4ADE80)'
