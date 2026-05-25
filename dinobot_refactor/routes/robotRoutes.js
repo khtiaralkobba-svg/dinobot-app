@@ -131,4 +131,31 @@ router.get('/manual', authenticateToken, authorizeRoles('manager'), async (req, 
   }
 });
 
+// ── Log obstacle event ────────────────────────────────────────────────────────
+router.post('/obstacle-event', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('robot_obstacle_events')
+      .insert({ triggered_at: req.body.triggered_at || new Date().toISOString() });
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Get obstacle events ───────────────────────────────────────────────────────
+router.get('/obstacle-event', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('robot_obstacle_events')
+      .select('*')
+      .order('triggered_at', { ascending: false });
+    if (error) throw error;
+    res.json({ obstacle_events: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

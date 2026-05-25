@@ -43,11 +43,18 @@ function raTrackSpeed(speed) { raData.avgSpeed = speed; }
 async function raTrackObstacleAvoided() {
   raData.obstaclesAvoided++;
   try {
-    await fetch(API_BASE + '/api/robot-stats/obstacle', {
-      method: 'POST',
-      headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ obstacles_avoided: raData.obstaclesAvoided })
-    });
+    await Promise.all([
+      fetch(API_BASE + '/api/robot-stats/obstacle', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ obstacles_avoided: raData.obstaclesAvoided })
+      }),
+      fetch(API_BASE + '/api/robot-stats/obstacle-event', {
+        method: 'POST',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ triggered_at: new Date().toISOString() })
+      })
+    ]);
   } catch {}
 }
 
@@ -111,9 +118,14 @@ async function openRobotAnalyticsOverlay() {
     } catch {}
 try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
-  if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; }
+  if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; window._raEstopEvents = ed.estop_events || []; }
   window._raTotalEstops = estops;
-} catch {} // still session-only
+} catch {}
+
+try {
+  const obsEvRes = await fetch(API_BASE + '/api/robot-stats/obstacle-event', { headers: authHeaders() });
+  if (obsEvRes.ok) { const od2 = await obsEvRes.json(); window._raObstacleEvents = od2.obstacle_events || []; }
+} catch {}
 
 let totalManualOverrides = 0;
 try {
@@ -132,11 +144,10 @@ try {
   const body = document.getElementById('ra-body');
   body.innerHTML = `
     <!-- Stat cards -->
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
       ${[
         ['Total Dispatches', dispatched.length, 'all time', '#FBB924', 'dispatches'],
         ['Avg Delivery Time', avgDelivery ? avgDelivery+'s' : '—', 'placed → delivered', '#4ADE80', 'delivery'],
-        ['Battery Used', raData.batteryUsed ? raData.batteryUsed.toFixed(1)+'%' : '—', 'this session', '#60A5FA', 'battery'],
         ['E-Stop Events', estops, 'this session', '#ef4444', 'estops'],
         ['Obstacles Avoided', totalObstaclesAvoided, 'all time + session', '#C084FC', 'obstacles'],
         ['Performance History', recentTimes.length+'  runs', 'last 20 deliveries', '#60A5FA', 'history'],
@@ -543,15 +554,44 @@ function raShowCardChart(type) {
       label = '%';
 
     } else if (type === 'estops') {
-      const val = window._raTotalEstops || 0;
-      bars = [{ val, label: 'total' }];
-    
+      const estopEvents = window._raEstopEvents || [];
+      if (cal && estopEvents.length > 0) {
+        const filtered = estopEvents.filter(e => {
+          const d = new Date(e.triggered_at);
+          if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
+          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+        });
+        bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [{ val: 0, label: 'none' }];
+      } else {
+        bars = [{ val: window._raTotalEstops || 0, label: 'total' }];
+      }
+
     } else if (type === 'obstacles') {
-      const val = window._raTotalObstacles || 0;
-      bars = [{ val, label: 'total' }];
+      const obstacleEvents = window._raObstacleEvents || [];
+      if (cal && obstacleEvents.length > 0) {
+        const filtered = obstacleEvents.filter(e => {
+          const d = new Date(e.triggered_at);
+          if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
+          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+        });
+        bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [{ val: 0, label: 'none' }];
+      } else {
+        bars = [{ val: window._raTotalObstacles || 0, label: 'total' }];
+      }
     } else if (type === 'history') {
       const allOrders = window._raAllOrders || [];
-      const delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      if (cal) {
+        delivered = delivered.filter(o => {
+          const d = new Date(o.placed_at);
+          if (cal.day) {
+            const start = new Date(cal.year, cal.month, cal.day);
+            const end = new Date(cal.year, cal.month, cal.day + 20);
+            return d >= start && d <= end;
+          }
+          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+        });
+      }
       const points = delivered.slice(-20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 'R' + (delivered.length - 20 + i + 1)
