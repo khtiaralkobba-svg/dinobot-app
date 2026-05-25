@@ -795,6 +795,7 @@ function raFilterChart(filter) {
     const activeType = window._raActiveCard;
     window._raActiveCard = null;
     if (activeType === 'history') {
+      window._raActiveCard = 'history';
       raShowCardChart('history');
     } else {
       raShowCardChartFiltered(activeType, filter, filtered, allOrders);
