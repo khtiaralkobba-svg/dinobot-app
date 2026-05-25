@@ -578,7 +578,8 @@ function raShowCardChart(type) {
     const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
     byDay[day] = (byDay[day] || 0) + 1;
   });
-  
+  bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
+
     } else if (type === 'estops') {
       const estopEvents = window._raEstopEvents || [];
       if (cal && estopEvents.length > 0) {
