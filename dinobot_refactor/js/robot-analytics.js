@@ -1276,8 +1276,20 @@ function raApplyCalendarFilter() {
   setCard('ra-card-dispatches', calDispatched.length);
   setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
   setCard('ra-card-history', calDelivered.length + '  runs');
-setCard('ra-card-obstacles', '—');
-setCard('ra-card-estops', '—');
+const obsEvents = window._raObstacleEvents || [];
+const estopEvents = window._raEstopEvents || [];
+const filteredObs = obsEvents.filter(e => {
+  const d = new Date(e.triggered_at);
+  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+  return d.getFullYear() === year && d.getMonth() === month;
+});
+const filteredEstops = estopEvents.filter(e => {
+  const d = new Date(e.triggered_at);
+  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+  return d.getFullYear() === year && d.getMonth() === month;
+});
+setCard('ra-card-obstacles', obsEvents.length > 0 ? filteredObs.length : '—');
+setCard('ra-card-estops', estopEvents.length > 0 ? filteredEstops.length : '—');
 const calBtn = document.getElementById('ra-calendar-btn');
 const fullMonths2 = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 if (calBtn) calBtn.textContent = day ? `📅 ${fullMonths2[month].slice(0,3).toUpperCase()} ${day}` : `📅 ${fullMonths2[month].slice(0,3).toUpperCase()} ${year}`;
