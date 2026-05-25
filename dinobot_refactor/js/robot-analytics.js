@@ -1521,9 +1521,10 @@ Write a comprehensive professional report based on this data.`;
       })
     });
     const saveData = await saveRes.json();
+    console.log('Report save response:', saveRes.status, saveData);
     reportUrl = saveData.url;
     reportId  = saveData.report_id;
-  } catch {}
+  } catch (e) { console.error('Report save error:', e); }
 
   btn.textContent = '⬡ GENERATE WITH AI';
   btn.disabled = false;
