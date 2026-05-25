@@ -405,6 +405,23 @@ function closeRobotAnalyticsOverlay() {
 function raResetToDefault() {
   window._raActiveCard = null;
   window._raCalendarFilter = null;
+  window._raCalendarFilter = null;
+_raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
+
+// Reset calendar button label
+const calBtn = document.getElementById('ra-calendar-btn');
+if (calBtn) calBtn.textContent = '📅 CALENDAR';
+
+// Restore original stat cards
+const allOrders = window._raAllOrders || [];
+const _delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+const _times = _delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+const _dispatched = allOrders.filter(o => o.status === 'delivered');
+const _avg = _times.length ? Math.round(_times.reduce((a,b)=>a+b,0)/_times.length) : null;
+const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+setCard('ra-card-dispatches', _dispatched.length);
+setCard('ra-card-avgdelivery', _avg ? _avg + 's' : '—');
+setCard('ra-card-history', _times.length + '  runs');
   document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
     c.style.transform = 'translateY(0)';
     c.style.borderColor = 'rgba(251,185,36,0.15)';
