@@ -104,7 +104,10 @@ router.get(
     try {
       const { supabase } = require('../db');
       const now = new Date();
-      const weekAgo  = new Date(now - 7  * 24*60*60*1000);
+      const startOfWeek = new Date(now);
+startOfWeek.setUTCHours(0, 0, 0, 0);
+startOfWeek.setUTCDate(startOfWeek.getUTCDate() - ((startOfWeek.getUTCDay() + 6) % 7));
+const weekAgo = startOfWeek;
       const monthAgo = new Date(now - 30 * 24*60*60*1000);
 
       const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];

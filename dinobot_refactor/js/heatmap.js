@@ -49,6 +49,7 @@ function hmCellColor(val, max) {
 /* ── OVERLAY OPEN / CLOSE ────────────────────────────────── */
 async function openHeatmapOverlay() {
   hmCurrentView = 'week';
+  hmDatasets = {};
   const el = document.getElementById('heatmap-overlay');
   el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:${document.body.classList.contains('light-mode')?'#f4faff':'#020b1a'};z-index:9500;`;
   document.body.style.overflow = 'hidden';
@@ -77,7 +78,7 @@ async function openHeatmapOverlay() {
       const res = await fetch(API_BASE + '/api/orders/heatmap', { headers: authHeaders({ 'Content-Type': 'application/json' }) });
       if (res.ok) { const data = await res.json(); hmDatasets = data.heatmap; hmRenderAllNoAnim(); }
     } catch {}
-  }, 30000);
+  }, 10000 );
 }
 
 function closeHeatmapOverlay() {
