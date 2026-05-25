@@ -791,8 +791,25 @@ function raFilterChart(filter) {
   setCard('ra-card-dispatches', filtered.length);
   setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
   setCard('ra-card-history', times.length + '  runs');
-  setCard('ra-card-obstacles', filter === 'all' ? (window._raTotalObstacles || 0) : '—');
-  setCard('ra-card-estops', filter === 'all' ? (window._raTotalEstops || 0) : '—');
+  const obsEvents = window._raObstacleEvents || [];
+  const estopEvents = window._raEstopEvents || [];
+  const now = new Date();
+  const filteredObs = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
+    const d = new Date(e.triggered_at);
+    if (filter === 'today') return d.toDateString() === now.toDateString();
+    if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
+    if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
+    return true;
+  }).length;
+  const filteredEstops = filter === 'all' ? (window._raTotalEstops || 0) : estopEvents.filter(e => {
+    const d = new Date(e.triggered_at);
+    if (filter === 'today') return d.toDateString() === now.toDateString();
+    if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
+    if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
+    return true;
+  }).length;
+  setCard('ra-card-obstacles', filteredObs);
+  setCard('ra-card-estops', filteredEstops);
 
   // If a card chart is active, re-render it with the new time filter applied
   if (window._raActiveCard) {
