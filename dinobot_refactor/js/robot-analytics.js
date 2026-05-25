@@ -693,6 +693,7 @@ function raShowCardChart(type) {
         </div>`;
     } else {
       const maxVal = Math.max(...bars.map(b => b.val), 1);
+const allZero = bars.every(b => b.val === 0);
       chartEl.innerHTML = `
         <div style="padding:40px 48px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -708,7 +709,7 @@ function raShowCardChart(type) {
           <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
             ${bars.map((b, i) => {
               const pct = (b.val / maxVal) * 100;
-              const barH = Math.max(8, (pct / 100) * 200);
+              const barH = allZero ? 200 : Math.max(8, (pct / 100) * 200);
               const delay = (i * 0.06).toFixed(2);
               return `
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
@@ -1043,6 +1044,7 @@ function raApplyCalendarFilter() {
       container.innerHTML = `<div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(180,210,245,0.3);">⬡ NO DELIVERIES FOR ${chartTitle.toUpperCase()}</div>`;
     } else {
       const maxVal = Math.max(...bars.map(b => b.val), 1);
+const allZero = bars.every(b => b.val === 0);
       const minVal = Math.min(...bars.map(b => b.val));
       const avgVal = Math.round(bars.reduce((a,b) => a+b.val, 0) / bars.length);
 
@@ -1051,7 +1053,7 @@ function raApplyCalendarFilter() {
         <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
           ${bars.map((b, i) => {
             const pct = (b.val / maxVal) * 100;
-            const barH = Math.max(4, (pct/100)*200);
+            const barH = allZero ? 200 : Math.max(4, (pct / 100) * 200);
             const delay = (i * 0.04).toFixed(2);
             const barColor = b.val === minVal
               ? 'linear-gradient(to top,#15803d,#4ADE80)'
