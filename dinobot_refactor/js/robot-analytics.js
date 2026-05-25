@@ -303,8 +303,8 @@ const calEstops = estopEvents.filter(e => {
   if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
   return d.getFullYear() === year && d.getMonth() === month;
 });
-setCard('ra-card-obstacles', calObstacles.length);
-setCard('ra-card-estops', calEstops.length);
+setCard('ra-card-obstacles', '—');
+setCard('ra-card-estops', '—');
 
 // Update the calendar button label to show selected date
 const calBtn = document.getElementById('ra-calendar-btn');
@@ -315,8 +315,10 @@ if (calBtn) {
     : `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${year}`;
 }
     setCard('ra-card-battery',     raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
-    setCard('ra-card-estops',      ed.estop_events?.length || 0);
-    setCard('ra-card-obstacles',   od.obstacles_avoided || 0);
+    if (!window._raCalendarFilter) {
+  setCard('ra-card-estops',    ed.estop_events?.length || 0);
+  setCard('ra-card-obstacles', od.obstacles_avoided || 0);
+}
   } catch {}
 }, 2000);
 
