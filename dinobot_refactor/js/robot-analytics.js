@@ -250,6 +250,10 @@ window._raObstacleInterval = setInterval(async () => {
     clearInterval(window._raObstacleInterval);
     return;
   }
+  if (!getAccessToken()) {
+    clearInterval(window._raObstacleInterval);
+    return;
+  }
   try {
     const [ordersRes, obsRes, estopRes] = await Promise.all([
       fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Cache-Control': 'no-cache' }) }),
