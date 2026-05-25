@@ -62,7 +62,6 @@ async function doLogin(role) {
       document.getElementById('control-center').classList.add('unlocked');
       setTimeout(initMap, 300);
       setTimeout(loadAnalyticsFromDB, 500);
-      setTimeout(loadHomeStats, 600); 
       startAnalyticsPolling();
       connectSocket('manager');
       setTimeout(loadStaffList, 600);
@@ -76,8 +75,7 @@ async function doLogin(role) {
       if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
       window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
       startAlertEngine();
-      startKitchenRobotPolling();
-setTimeout(initMap, 300);
+      startKitchenRobotPolling();imeout(initMap, 300);
     }
 
     // Show user badge

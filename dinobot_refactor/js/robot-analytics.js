@@ -269,11 +269,10 @@ window._raObstacleInterval = setInterval(async () => {
     return;
   }
   try {
-    const [ordersRes, obsRes, estopRes, obsEvRes] = await Promise.all([
+    const [ordersRes, obsRes, estopRes] = await Promise.all([
       fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Cache-Control': 'no-cache' }) }),
       fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
-      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() }),
-      fetch(API_BASE + '/api/robot-stats/obstacle-event', { headers: authHeaders() })
+      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
     ]);
     if (ordersRes.status === 401) {
       clearInterval(window._raObstacleInterval);
@@ -285,7 +284,6 @@ window._raObstacleInterval = setInterval(async () => {
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
 const od = obsRes.ok ? await obsRes.json() : {};
 const ed = estopRes.ok ? await estopRes.json() : {};
-if (obsEvRes.ok) { const od2 = await obsEvRes.json(); window._raObstacleEvents = od2.obstacle_events || []; }
 const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
 const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
 const dispatched = orders.filter(o => o.status === 'delivered');
@@ -305,7 +303,7 @@ if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiv
 }
 setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
   } catch {}
-}, 15000);
+}, 2000);
 
 }
 
@@ -400,17 +398,9 @@ if (chart) chart.appendChild(detail);
 }
 function closeRobotAnalyticsOverlay() {
   const el = document.getElementById('robot-analytics-overlay');
-  if (el) {
-    el.style.display = 'none';
-    el.innerHTML = '';
-  }
+  if (el) el.style.display = 'none';
   document.body.style.overflow = '';
   if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
-  window._raObstacleInterval = null;
-  window._raActiveCard = null;
-  window._raCalendarFilter = null;
-  window._raActiveTimeFilter = 'all';
-  _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 }
 
 function raResetToDefault() {
