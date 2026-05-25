@@ -191,6 +191,7 @@ function connectSocket(room) {
 
    _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
+      console.log('[order:updated]', order_ref, status);
       if (!window._kitchenReady) return;
 
       // Always update student tracking
