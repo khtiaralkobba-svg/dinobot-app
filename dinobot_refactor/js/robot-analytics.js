@@ -595,13 +595,18 @@ function raShowCardChart(type) {
     } else if (type === 'obstacles') {
   const obstacleEvents = window._raObstacleEvents || [];
   const trueTotal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
-  if (cal && obstacleEvents.length > 0) {
-    const filtered = obstacleEvents.filter(e => {
-      const d = new Date(e.triggered_at);
-      if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
-      return d.getFullYear() === cal.year && d.getMonth() === cal.month;
-    });
-    bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [{ val: 0, label: 'none' }];
+  if (cal) {
+    if (obstacleEvents.length > 0) {
+      const filtered = obstacleEvents.filter(e => {
+        const d = new Date(e.triggered_at);
+        if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
+        return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+      });
+      bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [];
+    } else {
+      // No timestamped events to filter by — can't show per-day data
+      bars = [];
+    }
   } else {
     bars = [{ val: trueTotal, label: 'total' }];
   }
