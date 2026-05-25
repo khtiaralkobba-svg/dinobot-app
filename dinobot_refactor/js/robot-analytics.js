@@ -292,7 +292,9 @@ if (!window._raCalendarFilter) {
   setCard('ra-card-dispatches', dispatched.length);
   setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
   setCard('ra-card-estops', ed.estop_events?.length || 0);
-  setCard('ra-card-obstacles', od.obstacles_avoided || 0);
+  const fetchedObstacles = od.obstacles_avoided || raData.obstaclesAvoided || 0;
+window._raTotalObstacles = fetchedObstacles;
+setCard('ra-card-obstacles', fetchedObstacles);
   setCard('ra-card-history', deliveryTimes.length + '  runs');
 }
 setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
@@ -591,17 +593,18 @@ function raShowCardChart(type) {
       }
 
     } else if (type === 'obstacles') {
-      const obstacleEvents = window._raObstacleEvents || [];
-      if (cal && obstacleEvents.length > 0) {
-        const filtered = obstacleEvents.filter(e => {
-          const d = new Date(e.triggered_at);
-          if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
-          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
-        });
-        bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [{ val: 0, label: 'none' }];
-      } else {
-        bars = [{ val: window._raTotalObstacles || 0, label: 'total' }];
-      }
+  const obstacleEvents = window._raObstacleEvents || [];
+  const trueTotal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
+  if (cal && obstacleEvents.length > 0) {
+    const filtered = obstacleEvents.filter(e => {
+      const d = new Date(e.triggered_at);
+      if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
+      return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+    });
+    bars = filtered.length > 0 ? [{ val: filtered.length, label: 'selected period' }] : [{ val: 0, label: 'none' }];
+  } else {
+    bars = [{ val: trueTotal, label: 'total' }];
+  }
     } else if (type === 'history') {
       const allOrders = window._raAllOrders || [];
       let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
