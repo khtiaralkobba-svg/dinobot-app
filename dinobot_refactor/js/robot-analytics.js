@@ -537,46 +537,59 @@ function raShowCardChart(type) {
     let label = '';
 
     if (type === 'delivery') {
-      let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-      if (cal) {
-        delivered = delivered.filter(o => {
-          const d = new Date(o.placed_at);
-          if (cal.day) {
-            const start = new Date(cal.year, cal.month, cal.day);
-            const end = new Date(cal.year, cal.month, cal.day + 20);
-            return d >= start && d <= end;
-          }
-          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
-        });
+  let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  const now = new Date();
+  const tf = window._raActiveTimeFilter || 'all';
+  if (cal) {
+    delivered = delivered.filter(o => {
+      const d = new Date(o.placed_at);
+      if (cal.day) {
+        const start = new Date(cal.year, cal.month, cal.day);
+        const end = new Date(cal.year, cal.month, cal.day + 20);
+        return d >= start && d <= end;
       }
-      bars = delivered.slice(0, 20).map(o => ({
+      return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+    });
+  } else if (tf === 'today') {
+    delivered = delivered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+  } else if (tf === 'week') {
+    delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+  } else if (tf === 'month') {
+    delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
+  }
+  bars = delivered.slice(-20).map(o => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 's'
       }));
       label = 's';
 
     } else if (type === 'dispatches') {
-      const byDay = {};
-      let dispatchOrders = allOrders.filter(o => o.status === 'delivered');
-      if (cal) {
-        dispatchOrders = dispatchOrders.filter(o => {
-          const d = new Date(o.placed_at);
-          if (cal.day) {
-            const start = new Date(cal.year, cal.month, cal.day);
-            const end = new Date(cal.year, cal.month, cal.day + 20);
-            return d >= start && d <= end;
-          }
-          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
-        });
+  const byDay = {};
+  let dispatchOrders = allOrders.filter(o => o.status === 'delivered' && o.placed_at);
+  const now = new Date();
+  const tf = window._raActiveTimeFilter || 'all';
+  if (cal) {
+    dispatchOrders = dispatchOrders.filter(o => {
+      const d = new Date(o.placed_at);
+      if (cal.day) {
+        const start = new Date(cal.year, cal.month, cal.day);
+        const end = new Date(cal.year, cal.month, cal.day + 20);
+        return d >= start && d <= end;
       }
-      dispatchOrders.forEach(o => {
-        const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
-        byDay[day] = (byDay[day] || 0) + 1;
-      });
-      bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
-
-    } else if (type === 'battery') {
-      bars = raData.batteryReadings.slice(-20).map(b => ({ val: b, label: '%' }));
+      return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+    });
+  } else if (tf === 'today') {
+    dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+  } else if (tf === 'week') {
+    dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+  } else if (tf === 'month') {
+    dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
+  }
+  dispatchOrders.forEach(o => {
+    const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    byDay[day] = (byDay[day] || 0) + 1;
+  });
+  bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
       label = '%';
 
     } else if (type === 'estops') {
@@ -611,19 +624,27 @@ function raShowCardChart(type) {
     bars = [{ val: trueTotal, label: 'total' }];
   }
     } else if (type === 'history') {
-      const allOrders = window._raAllOrders || [];
-      let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-      if (cal) {
-        delivered = delivered.filter(o => {
-          const d = new Date(o.placed_at);
-          if (cal.day) {
-            const start = new Date(cal.year, cal.month, cal.day);
-            const end = new Date(cal.year, cal.month, cal.day + 20);
-            return d >= start && d <= end;
-          }
-          return d.getFullYear() === cal.year && d.getMonth() === cal.month;
-        });
+  const allOrders = window._raAllOrders || [];
+  let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  const now = new Date();
+  const tf = window._raActiveTimeFilter || 'all';
+  if (cal) {
+    delivered = delivered.filter(o => {
+      const d = new Date(o.placed_at);
+      if (cal.day) {
+        const start = new Date(cal.year, cal.month, cal.day);
+        const end = new Date(cal.year, cal.month, cal.day + 20);
+        return d >= start && d <= end;
       }
+      return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+    });
+  } else if (tf === 'today') {
+    delivered = delivered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+  } else if (tf === 'week') {
+    delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+  } else if (tf === 'month') {
+    delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
+  }
       const points = delivered.slice(-20).map((o, i) => ({
         val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
         label: 'R' + (delivered.length - 20 + i + 1)
@@ -738,7 +759,7 @@ function raShowCardChart(type) {
 
 function raFilterChart(filter) {
   const isLight = document.body.classList.contains('light-mode');
-  
+
   // Update button styles
   ['today','week','month','all'].forEach(f => {
     const btn = document.getElementById('ra-filter-' + f);
@@ -748,11 +769,16 @@ function raFilterChart(filter) {
     btn.style.color = f === filter ? '#60A5FA' : 'rgba(180,210,245,0.4)';
   });
 
+  window._raActiveTimeFilter = filter;
+  window._raCalendarFilter = null;
+  const calBtn = document.getElementById('ra-calendar-btn');
+  if (calBtn) calBtn.textContent = '📅 CALENDAR';
+
   const allOrders = window._raAllOrders || [];
   const now = new Date();
-  
+
+  // Apply time filter to all orders first
   let filtered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-  
   if (filter === 'today') {
     filtered = filtered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
   } else if (filter === 'week') {
@@ -763,20 +789,37 @@ function raFilterChart(filter) {
     filtered = filtered.filter(o => new Date(o.placed_at) >= monthAgo);
   }
 
+  // Store current filter so raShowCardChart can pick it up
+  window._raActiveTimeFilter = filter;
+
+  // Update stat cards
   const times = filtered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+  const avgFiltered = times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
+  const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+  setCard('ra-card-dispatches', filtered.length);
+  setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
+  setCard('ra-card-history', times.length + '  runs');
+  setCard('ra-card-obstacles', filter === 'all' ? (window._raTotalObstacles || 0) : '—');
+  setCard('ra-card-estops', filter === 'all' ? (window._raTotalEstops || 0) : '—');
+
+  // If a card chart is active, re-render it with the new time filter applied
+  if (window._raActiveCard) {
+    const activeType = window._raActiveCard;
+    window._raActiveCard = null; // reset so raShowCardChart re-renders
+    raShowCardChartFiltered(activeType, filter, filtered, allOrders);
+    return;
+  }
+
+  // Default view: delivery times bar chart
   const recentTimes = times.slice(-20);
   const maxT = times.length ? Math.max(...times) : 1;
-  const avgDelivery = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
+  const avgDelivery = times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
   const minDelivery = times.length ? Math.round(Math.min(...times)) : null;
   const maxDelivery = times.length ? Math.round(Math.max(...times)) : null;
+  const filterLabel = filter === 'today' ? 'TODAY' : filter === 'week' ? 'THIS WEEK' : filter === 'month' ? 'THIS MONTH' : 'ALL TIME';
 
   const container = document.getElementById('ra-bars-container');
-  if (!container) {
-  raResetToDefault();
-  return;
-}
-
-  const filterLabel = filter === 'today' ? 'TODAY' : filter === 'week' ? 'THIS WEEK' : filter === 'month' ? 'THIS MONTH' : 'ALL TIME';
+  if (!container) { raResetToDefault(); return; }
 
   container.style.opacity = '0';
   container.style.transition = 'opacity 0.3s ease';
@@ -789,18 +832,15 @@ function raFilterChart(filter) {
         <div style="display:flex;align-items:flex-end;gap:10px;height:220px;position:relative;">
           ${recentTimes.map((t, i) => {
             const pct = maxT > 0 ? (t / maxT) * 100 : 0;
-            const barH = Math.max(4, (pct/100)*200);
+            const barH = Math.max(4, (pct / 100) * 200);
             const delay = (i * 0.06).toFixed(2);
             const isAvg = avgDelivery && Math.abs(t - avgDelivery) < avgDelivery * 0.1;
             const barColor = isAvg
               ? 'linear-gradient(to top,#1d4ed8,#60A5FA,#bae6fd)'
-              : t === minDelivery
-                ? 'linear-gradient(to top,#15803d,#4ADE80)'
-                : t === maxDelivery
-                  ? 'linear-gradient(to top,#991b1b,#ef4444)'
-                  : pct > 70
-                    ? 'linear-gradient(to top,#1e3a8a,#3b82f6)'
-                    : 'linear-gradient(to top,#2563eb,#93c5fd)';
+              : t === minDelivery ? 'linear-gradient(to top,#15803d,#4ADE80)'
+              : t === maxDelivery ? 'linear-gradient(to top,#991b1b,#ef4444)'
+              : pct > 70 ? 'linear-gradient(to top,#1e3a8a,#3b82f6)'
+              : 'linear-gradient(to top,#2563eb,#93c5fd)';
             const valColor = t === minDelivery ? '#4ADE80' : t === maxDelivery ? '#ef4444' : '#60A5FA';
             return `
               <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
@@ -820,6 +860,124 @@ function raFilterChart(filter) {
         </div>`;
     }
     container.style.opacity = '1';
+  }, 300);
+}
+
+// New helper: renders a card chart with a pre-filtered time window
+function raShowCardChartFiltered(type, filter, filtered, allOrders) {
+  const isLight = document.body.classList.contains('light-mode');
+  const chartEl = document.getElementById('ra-chart-section');
+  if (!chartEl) return;
+
+  window._raActiveCard = type;
+
+  const colors = { dispatches:'#FBB924', delivery:'#4ADE80', battery:'#60A5FA', estops:'#ef4444', obstacles:'#C084FC', history:'#60A5FA' };
+  const color = colors[type];
+  const titles = {
+    dispatches: 'DISPATCHES PER DAY',
+    delivery:   'DELIVERY TIMES — LAST 20 RUNS',
+    battery:    'BATTERY READINGS — THIS SESSION',
+    estops:     'E-STOP EVENTS',
+    obstacles:  'OBSTACLES AVOIDED',
+    history:    'PERFORMANCE HISTORY — LAST 20 RUNS'
+  };
+  const filterLabel = filter === 'today' ? 'TODAY' : filter === 'week' ? 'THIS WEEK' : filter === 'month' ? 'THIS MONTH' : 'ALL TIME';
+
+  // Highlight active card
+  document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
+    c.style.transform = 'translateY(0)';
+    c.style.borderColor = isLight ? 'rgba(30,100,200,0.2)' : 'rgba(251,185,36,0.15)';
+  });
+  const activeCard = document.getElementById('ra-card-' + type);
+  if (activeCard) { activeCard.style.borderColor = color; activeCard.style.transform = 'translateY(-4px)'; }
+
+  let bars = [];
+  let label = '';
+
+  if (type === 'delivery' || type === 'history') {
+    bars = filtered.slice(-20).map((o, i) => ({
+      val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
+      label: 'R' + (filtered.length - Math.min(filtered.length, 20) + i + 1)
+    }));
+    label = 's';
+  } else if (type === 'dispatches') {
+    // Group by day
+    const byDay = {};
+    filtered.forEach(o => {
+      const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+      byDay[day] = (byDay[day] || 0) + 1;
+    });
+    bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
+  } else if (type === 'battery') {
+    bars = raData.batteryReadings.slice(-20).map(b => ({ val: b, label: '%' }));
+    label = '%';
+  } else if (type === 'estops') {
+    const estopEvents = window._raEstopEvents || [];
+    const count = filter === 'all' ? (window._raTotalEstops || 0) : estopEvents.filter(e => {
+      const d = new Date(e.triggered_at);
+      const now = new Date();
+      if (filter === 'today') return d.toDateString() === now.toDateString();
+      if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
+      if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
+      return true;
+    }).length;
+    bars = [{ val: count, label: filterLabel }];
+  } else if (type === 'obstacles') {
+    const obsEvents = window._raObstacleEvents || [];
+    const count = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
+      const d = new Date(e.triggered_at);
+      const now = new Date();
+      if (filter === 'today') return d.toDateString() === now.toDateString();
+      if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
+      if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
+      return true;
+    }).length;
+    bars = [{ val: count, label: filterLabel }];
+  }
+
+  chartEl.style.transition = 'opacity 0.3s ease';
+  chartEl.style.opacity = '0';
+
+  setTimeout(() => {
+    const filterBtns = ['today','week','month','all'].map(f => `
+      <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f===filter?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f===filter?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f===filter?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('');
+
+    if (bars.length === 0) {
+      chartEl.innerHTML = `<div style="padding:40px 48px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>${filterBtns}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]} — ${filterLabel}</div>
+        <div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(180,210,245,0.3);">⬡ NO DATA FOR ${filterLabel}</div>
+      </div>`;
+    } else {
+      const maxVal = Math.max(...bars.map(b => b.val), 1);
+      chartEl.innerHTML = `<div style="padding:40px 48px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>${filterBtns}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]} — ${filterLabel}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:${isLight?'#1C0F00':'#ffffff'};">${bars.length} DATA POINTS</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="raResetToDefault()" style="padding:8px 18px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">↺ DEFAULT VIEW</button>
+            <button onclick="raShowCardChart('${type}')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:4px;height:220px;overflow:hidden;">
+          ${bars.map((b, i) => {
+            const pct = (b.val / maxVal) * 100;
+            const barH = Math.max(8, (pct / 100) * 200);
+            const delay = (i * 0.06).toFixed(2);
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:${color};line-height:1;animation:valPop 0.4s ease both;animation-delay:${delay}s;">${b.val}${label}</div>
+              <div style="width:100%;height:${barH}px;background:linear-gradient(to top,${color}80,${color});transform-origin:bottom;animation:barRise 0.6s cubic-bezier(0.34,1.56,0.64,1) both;animation-delay:${delay}s;border-radius:2px 2px 0 0;box-shadow:0 0 12px ${color}40;"></div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${isLight?'rgba(20,8,0,0.5)':'rgba(180,210,245,0.6)'};letter-spacing:1px;">${b.label || (i+1)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+    chartEl.style.opacity = '1';
+    chartEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
 }
 const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
