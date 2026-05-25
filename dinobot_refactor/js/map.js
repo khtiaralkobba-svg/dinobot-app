@@ -686,12 +686,6 @@ function initMap() {
   window._robotPollInterval = setInterval(async () => {
     try {
       const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
-      if (res.status === 404) {
-        console.warn('[map] /api/robot/status not found — stopping poll');
-        clearInterval(window._robotPollInterval);
-        window._robotPollInterval = null;
-        return;
-      }
       if (!res.ok) throw new Error('not ready');
       const data = await res.json();
 

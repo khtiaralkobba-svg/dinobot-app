@@ -465,14 +465,14 @@ function startDeliveryWatcher(ref) {
       const status = data.order?.status;
       if (!status) return;
       updateSessionOrderStatus(ref, status);
-      if (['dispatched','delivering'].includes(status) && !_shownPickupScreens.has(ref) && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
+      if (status === 'delivering' && !_shownPickupScreens.has(ref) && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
         showPickupScreen(ref);
       }
       if (status === 'delivered' || status === 'cancelled') {
         clearInterval(window._deliveryWatcher); window._deliveryWatcher = null;
       }
     } catch {}
-  }, 1000);
+  }, 2000);
 }
 
 /* ── TRACK MAP ───────────────────────────────────────────── */
@@ -578,11 +578,7 @@ async function confirmPickup() {
   const btn = document.getElementById('pickup-confirm-btn');
   btn.disabled = true; btn.textContent = 'RELEASING ROBOT...';
   try {
-    await fetch(API_BASE + '/api/robot/pickup', {
-  method: 'POST',
-  headers: authHeaders({ 'Content-Type': 'application/json' }),
-  body: JSON.stringify({})
-}).catch(() => {});
+    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST', headers: authHeaders() }).catch(() => {});
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
