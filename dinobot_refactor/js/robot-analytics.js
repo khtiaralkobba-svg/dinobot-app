@@ -973,7 +973,9 @@ function raApplyCalendarFilter() {
     }
     container.style.opacity = '1';
     if (window._raActiveCard) {
-      raShowCardChart(window._raActiveCard);
+      const activeType = window._raActiveCard;
+      window._raActiveCard = null;
+      raShowCardChart(activeType);
     }
   }, 300);
 
