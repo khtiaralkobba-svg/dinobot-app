@@ -234,6 +234,10 @@ function playCritAlert() {
   } catch(e) {}
 }
 
+setInterval(() => {
+  fetch(API_BASE + '/health').catch(() => {});
+}, 840000); // 14 minutes
+
 /* ── VOICE BUILDERS ──────────────────────────────────────── */
 function voiceNewOrder(orderRef, tableNum) { speak(`New order for table ${tableNum}`); }
 function voiceOrderReady(orderRef) { speak(`Order ${orderRef.replace('ORD-', '')} is ready for pickup`); }
