@@ -136,16 +136,16 @@ router.get(
 
       console.log('[heatmap] total fetched:', allOrders.length);
 
-      allOrders.forEach(order => {
+     allOrders.forEach(order => {
         const date = new Date(order.placed_at);
-        const day  = days[date.getDay()];
-        const hour = date.getHours();
-        if (!day || hour < 8 || hour > 21) return;
-        data.all[day][hour]++;
-        if (date >= monthAgo) data.month[day][hour]++;
-        if (date >= weekAgo)  data.week[day][hour]++;
-      });
-
+        const day  = days[date.getUTCDay()];
+        const hour = date.getUTCHours() + 3;
+        const finalHour = hour > 23 ? hour - 24 : hour;
+        if (!day || finalHour < 8 || finalHour > 21) return;
+        data.all[day][finalHour]++;
+        if (date >= monthAgo) data.month[day][finalHour]++;
+        if (date >= weekAgo)  data.week[day][finalHour]++;
+   });
       res.json({ heatmap: data });
     } catch(err) {
       console.error('[heatmap]', err);
