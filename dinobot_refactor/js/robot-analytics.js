@@ -1517,7 +1517,7 @@ Write a comprehensive professional report based on this data.`;
         date_from: from,
         date_to: to,
         content: reportText,
-        generated_by: currentUser?.employee_id || 'manager'
+        generated_by: window.currentUser?.employee_id || 'manager'
       })
     });
     const saveData = await saveRes.json();
