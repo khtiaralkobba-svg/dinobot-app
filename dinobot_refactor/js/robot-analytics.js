@@ -289,7 +289,7 @@ const dispatched = orders.filter(o => o.status === 'delivered');
 const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0)/deliveryTimes.length) : null;
 window._raAllOrders = orders;
 const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-if (!window._raCalendarFilter) {
+if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiveTimeFilter === 'all')) {
   setCard('ra-card-dispatches', dispatched.length);
   setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
   setCard('ra-card-estops', ed.estop_events?.length || 0);
@@ -547,11 +547,10 @@ function raShowCardChart(type) {
   } else if (tf === 'month') {
     delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
   }
-  bars = delivered.slice(-20).map(o => ({
-        val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
-        label: 's'
-      }));
-      label = 's';
+ bars = delivered.slice(-20).map((o, i) => ({
+  val: Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000),
+  label: 'R' + (delivered.length - Math.min(delivered.length, 20) + i + 1)
+}));
 
     } else if (type === 'dispatches') {
   const byDay = {};
@@ -644,8 +643,9 @@ function raShowCardChart(type) {
         <div style="padding:40px 48px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
   <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
-  ${['today','week','month','all'].map(f => `
-    <button onclick="window._raActiveTimeFilter='${f}';window._raCalendarFilter=null;raShowCardChart('history')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+  ${['today','week','month','all'].map(f => {
+    const active = (window._raActiveTimeFilter || 'all') === f;
+    return `<button onclick="window._raActiveTimeFilter='${f}';window._raCalendarFilter=null;raShowCardChart('history')" id="ra-filter-${f}" style="padding:6px 16px;background:${active?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${active?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${active?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`;}).join('')}
 </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
             <div>
@@ -894,9 +894,17 @@ function raShowCardChartFiltered(type, filter, filtered, allOrders) {
     }));
     label = 's';
   } else if (type === 'dispatches') {
-    // Group by day
     const byDay = {};
-    filtered.forEach(o => {
+    const now = new Date();
+    let dispatchOrders = allOrders.filter(o => o.status === 'delivered' && o.placed_at);
+    if (filter === 'today') {
+      dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+    } else if (filter === 'week') {
+      dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+    } else if (filter === 'month') {
+      dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
+    }
+    dispatchOrders.forEach(o => {
       const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
       byDay[day] = (byDay[day] || 0) + 1;
     });
