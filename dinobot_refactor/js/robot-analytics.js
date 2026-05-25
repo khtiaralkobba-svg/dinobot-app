@@ -403,6 +403,7 @@ function closeRobotAnalyticsOverlay() {
 function raResetToDefault() {
   window._raActiveCard = null;
   window._raCalendarFilter = null;
+  window._raActiveTimeFilter = 'all'
 _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 
 // Reset calendar button label
@@ -489,19 +490,7 @@ function raShowCardChart(type) {
   if (!chartEl) return;
 
   if (window._raActiveCard === type) {
-    window._raActiveCard = null;
-    document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
-      c.style.transform = 'translateY(0)';
-      c.style.borderColor = isLight ? 'rgba(30,100,200,0.2)' : 'rgba(251,185,36,0.15)';
-    });
-    const chartEl2 = document.getElementById('ra-chart-section');
-    if (chartEl2) {
-      chartEl2.style.opacity = '0';
-      setTimeout(() => {
-        chartEl2.style.opacity = '1';
-        chartEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
+    raResetToDefault();
     return;
   }
 
@@ -590,9 +579,7 @@ function raShowCardChart(type) {
     const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
     byDay[day] = (byDay[day] || 0) + 1;
   });
-  bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
-      label = '%';
-
+  
     } else if (type === 'estops') {
       const estopEvents = window._raEstopEvents || [];
       if (cal && estopEvents.length > 0) {
