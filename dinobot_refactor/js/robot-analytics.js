@@ -279,56 +279,22 @@ window._raObstacleInterval = setInterval(async () => {
       return;
     }
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
-    const od = obsRes.ok ? await obsRes.json() : {};
-    const ed = estopRes.ok ? await estopRes.json() : {};
-    const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
-    const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
-    const dispatched = orders.filter(o => o.status === 'delivered');
-    const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
-    const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-    setCard('ra-card-dispatches', calDispatched.length);
-setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
-setCard('ra-card-history', calDelivered.length + '  runs');
-setCard('ra-card-obstacles', '—');
-setCard('ra-card-estops', '—');
-
-const calBtn = document.getElementById('ra-calendar-btn');
-if (calBtn) {
-  calBtn.textContent = day
-    ? `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${day}`
-    : `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${year}`;
-}
-setCard('ra-card-history', calDelivered.length + '  runs');
-
-// Filter obstacles and estops by selected date
-const obstacleEvents = window._raObstacleEvents || [];
-const estopEvents = window._raEstopEvents || [];
-const calObstacles = obstacleEvents.filter(e => {
-  const d = new Date(e.triggered_at);
-  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
-  return d.getFullYear() === year && d.getMonth() === month;
-});
-const calEstops = estopEvents.filter(e => {
-  const d = new Date(e.triggered_at);
-  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
-  return d.getFullYear() === year && d.getMonth() === month;
-});
-setCard('ra-card-obstacles', '—');
-setCard('ra-card-estops', '—');
-
-// Update the calendar button label to show selected date
-const calBtn = document.getElementById('ra-calendar-btn');
-const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-if (calBtn) {
-  calBtn.textContent = day
-    ? `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${day}`
-    : `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${year}`;
-}
-    setCard('ra-card-battery',     raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
-    if (!window._raCalendarFilter) {
-  setCard('ra-card-estops',    ed.estop_events?.length || 0);
+const od = obsRes.ok ? await obsRes.json() : {};
+const ed = estopRes.ok ? await estopRes.json() : {};
+const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+const dispatched = orders.filter(o => o.status === 'delivered');
+const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0)/deliveryTimes.length) : null;
+window._raAllOrders = orders;
+const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+if (!window._raCalendarFilter) {
+  setCard('ra-card-dispatches', dispatched.length);
+  setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
+  setCard('ra-card-estops', ed.estop_events?.length || 0);
   setCard('ra-card-obstacles', od.obstacles_avoided || 0);
+  setCard('ra-card-history', deliveryTimes.length + '  runs');
 }
+setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
   } catch {}
 }, 2000);
 
@@ -1013,8 +979,6 @@ function raApplyCalendarFilter() {
     const setCard2 = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard2('ra-card-dispatches', calFiltered2.filter(o => o.status === 'delivered').length);
     setCard2('ra-card-avgdelivery', calAvg2 ? calAvg2 + 's' : '—');
-    setCard2('ra-card-obstacles', '—');
-setCard2('ra-card-estops', '—');
     return;
   }
 
@@ -1116,6 +1080,12 @@ setCard2('ra-card-estops', '—');
   const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
   setCard('ra-card-dispatches', calDispatched.length);
   setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
+  setCard('ra-card-history', calDelivered.length + '  runs');
+setCard('ra-card-obstacles', '—');
+setCard('ra-card-estops', '—');
+const calBtn = document.getElementById('ra-calendar-btn');
+const fullMonths2 = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+if (calBtn) calBtn.textContent = day ? `📅 ${fullMonths2[month].slice(0,3).toUpperCase()} ${day}` : `📅 ${fullMonths2[month].slice(0,3).toUpperCase()} ${year}`;
 }
 
 window.addEventListener('beforeunload', () => {
