@@ -286,8 +286,18 @@ window._raObstacleInterval = setInterval(async () => {
     const dispatched = orders.filter(o => o.status === 'delivered');
     const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-    setCard('ra-card-dispatches',  dispatched.length);
-    setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
+    setCard('ra-card-dispatches', calDispatched.length);
+    setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
+    setCard('ra-card-history', calDelivered.length + '  runs');
+
+// Update the calendar button label to show selected date
+const calBtn = document.getElementById('ra-calendar-btn');
+const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+if (calBtn) {
+  calBtn.textContent = day
+    ? `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${day}`
+    : `📅 ${fullMonths[month].slice(0,3).toUpperCase()} ${year}`;
+}
     setCard('ra-card-battery',     raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
     setCard('ra-card-estops',      ed.estop_events?.length || 0);
     setCard('ra-card-obstacles',   od.obstacles_avoided || 0);
