@@ -465,14 +465,14 @@ function startDeliveryWatcher(ref) {
       const status = data.order?.status;
       if (!status) return;
       updateSessionOrderStatus(ref, status);
-      if (status === 'delivering' && !_shownPickupScreens.has(ref) && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
+      if (['dispatched','delivering'].includes(status) && !_shownPickupScreens.has(ref) && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
         showPickupScreen(ref);
       }
       if (status === 'delivered' || status === 'cancelled') {
         clearInterval(window._deliveryWatcher); window._deliveryWatcher = null;
       }
     } catch {}
-  }, 2000);
+  }, 1000);
 }
 
 /* ── TRACK MAP ───────────────────────────────────────────── */
