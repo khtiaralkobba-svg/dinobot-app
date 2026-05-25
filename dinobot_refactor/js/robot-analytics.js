@@ -14,6 +14,7 @@ let raData = {
   obstaclesAvoided: 0,
 };
 
+let _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 function raTrackDispatch() { raData.dispatches++; raData._dispatchStart = Date.now(); }
 function raTrackDelivery() {
   if (raData._dispatchStart) {
@@ -669,17 +670,6 @@ function raShowCardChart(type) {
               <button onclick="raShowCardChart('history')" style="padding:8px 18px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;">✕ RESET</button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
-            ${[
-              ['FASTEST', minVal + 's', '#4ADE80'],
-              ['AVERAGE', avgVal + 's', '#60A5FA'],
-              ['SLOWEST', maxVal + 's', '#ef4444'],
-            ].map(([l,v,c]) => `
-              <div style="padding:14px 20px;background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.08);border-top:2px solid ${c};">
-                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-bottom:6px;">${l}</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:2px;">${v}</div>
-              </div>`).join('')}
-          </div>
           <div style="position:relative;height:180px;margin-bottom:24px;">
             <svg width="100%" height="100%" viewBox="0 0 1000 180" preserveAspectRatio="none" style="overflow:visible;">
               <defs>
@@ -701,9 +691,20 @@ function raShowCardChart(type) {
               }).join('')}
             </svg>
           </div>
-          <div style="display:flex;justify-content:space-between;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:24px;">
             ${points.filter((_,i) => i%4===0 || i===points.length-1).map(p => `
               <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(180,210,245,0.4);letter-spacing:1px;">${p.label}</div>`).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;">
+            ${[
+              ['FASTEST', minVal + 's', '#4ADE80'],
+              ['AVERAGE', avgVal + 's', '#60A5FA'],
+              ['SLOWEST', maxVal + 's', '#ef4444'],
+            ].map(([l,v,c]) => `
+              <div style="padding:14px 20px;background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.08);border-top:2px solid ${c};">
+                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-bottom:6px;">${l}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};letter-spacing:2px;">${v}</div>
+              </div>`).join('')}
           </div>
         </div>`;
       chartEl.style.opacity = '1';
@@ -980,16 +981,6 @@ function raShowCardChartFiltered(type, filter, filtered, allOrders) {
     chartEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 300);
 }
-const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-const filteredDispatched = filtered.filter(o => o.status === 'delivered');
-const avgFiltered = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
-setCard('ra-card-dispatches', filteredDispatched.length);
-setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
-setCard('ra-card-history', times.length + '  runs');
-setCard('ra-card-obstacles', filter === 'all' ? (window._raTotalObstacles || 0) : '—');
-setCard('ra-card-estops', filter === 'all' ? (window._raTotalEstops || 0) : '—');
-
-let _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 
 function raOpenCalendar() {
   const existing = document.getElementById('ra-calendar-popup');
