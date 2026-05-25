@@ -181,6 +181,7 @@ try {
           ['Avg Obstacles / Session', totalObstaclesAvoided && dispatched.length ? (totalObstaclesAvoided / dispatched.length).toFixed(1) : '—'],
           ['Avg E-Stops / Session', estops && dispatched.length ? (estops / dispatched.length).toFixed(1) : '—'],
           ['Avg Manual Overrides / Session', totalManualOverrides && dispatched.length ? (totalManualOverrides / dispatched.length).toFixed(1) : '—'],
+['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' units/s' : '—'],
         ].map(([l,v]) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
             <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
@@ -253,7 +254,7 @@ try {
       </div>
     </div>\``;
 
-    // Poll obstacle count every 5 seconds while overlay is open
+    // Poll obstacle count every 2 seconds while overlay is open
 if (window._raObstacleInterval) clearInterval(window._raObstacleInterval);
 window._raObstacleInterval = setInterval(async () => {
   if (!document.getElementById('robot-analytics-overlay') ||
@@ -386,8 +387,8 @@ const bgGradient = isLight ? '#e8f4fd' : `linear-gradient(135deg,${hexToRgba(hex
       </div>
     </div>`;
 
-  const chart = document.querySelector('#ra-body > div:last-child');
-  if (chart) chart.appendChild(detail);
+  const chart = document.getElementById('ra-chart-section');
+if (chart) chart.appendChild(detail);
 }
 function closeRobotAnalyticsOverlay() {
   const el = document.getElementById('robot-analytics-overlay');
@@ -398,7 +399,6 @@ function closeRobotAnalyticsOverlay() {
 
 function raResetToDefault() {
   window._raActiveCard = null;
-  window._raCalendarFilter = null;
   window._raCalendarFilter = null;
 _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 
@@ -521,12 +521,13 @@ function raShowCardChart(type) {
   setTimeout(() => {
     const color = colors[type];
     const titles = {
-      dispatches: 'DISPATCHES PER DAY — LAST 20 DAYS',
-      delivery:   'DELIVERY TIMES — LAST 20 RUNS',
-      battery:    'BATTERY READINGS — THIS SESSION',
-      estops:     'E-STOP EVENTS — ALL TIME',
-      obstacles:  'OBSTACLES AVOIDED — ALL TIME'
-    };
+  dispatches: 'DISPATCHES PER DAY — LAST 20 DAYS',
+  delivery:   'DELIVERY TIMES — LAST 20 RUNS',
+  battery:    'BATTERY READINGS — THIS SESSION',
+  estops:     'E-STOP EVENTS — ALL TIME',
+  obstacles:  'OBSTACLES AVOIDED — ALL TIME',
+  history:    'PERFORMANCE HISTORY — LAST 20 RUNS'
+};
 
     const allOrders = window._raAllOrders || [];
     const cal = window._raCalendarFilter;
@@ -807,6 +808,18 @@ function raOpenCalendar() {
   const existing = document.getElementById('ra-calendar-popup');
   if (existing) { existing.remove(); return; }
   raRenderCalendar();
+
+  setTimeout(() => {
+    function raCalendarOutsideClick(e) {
+      const popup = document.getElementById('ra-calendar-popup');
+      const btn = document.getElementById('ra-calendar-btn');
+      if (popup && !popup.contains(e.target) && e.target !== btn) {
+        popup.remove();
+        document.removeEventListener('click', raCalendarOutsideClick);
+      }
+    }
+    document.addEventListener('click', raCalendarOutsideClick);
+  }, 0);
 }
 
 function raRenderCalendar() {
