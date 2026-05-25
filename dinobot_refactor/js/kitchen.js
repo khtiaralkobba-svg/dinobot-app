@@ -297,9 +297,18 @@ function startKitchenRobotPolling() {
   if (window._kitchenRobotPoll) clearInterval(window._kitchenRobotPoll);
   window._kitchenRobotPoll = setInterval(async () => {
     try {
-      const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
-      const data = await res.json();
-      window._pythonOnline = true;
+      const res = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
+      if (res.status === 404) {
+      console.warn('[kitchen] /api/robot/status not found — stopping poll');
+      clearInterval(window._kitchenRobotPoll);
+      window._kitchenRobotPoll = null;
+      return;
+    }
+    if (res.status === 502) {
+    throw new Error('Robot offline');
+  }
+  const data = await res.json();
+  window._pythonOnline = true;
 
       const stateLabels = { 'MOVING_TO_TABLE':'● EN ROUTE', 'DELIVERING':'● DELIVERING', 'RETURNING':'● RETURNING', 'IDLE':'● DOCKED' };
       const kitchState = document.getElementById('kitch-robot-state');
