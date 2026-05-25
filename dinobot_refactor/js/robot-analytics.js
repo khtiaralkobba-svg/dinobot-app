@@ -793,7 +793,6 @@ function raFilterChart(filter) {
   setCard('ra-card-history', times.length + '  runs');
   const obsEvents = window._raObstacleEvents || [];
   const estopEvents = window._raEstopEvents || [];
-  const now = new Date();
   const filteredObs = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
     const d = new Date(e.triggered_at);
     if (filter === 'today') return d.toDateString() === now.toDateString();
