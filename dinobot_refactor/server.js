@@ -30,6 +30,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
 });
 
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 // ── Auth routes ───────────────────────────────────────────────────────────────
 const {
   login,
