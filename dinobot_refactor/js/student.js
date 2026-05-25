@@ -578,7 +578,11 @@ async function confirmPickup() {
   const btn = document.getElementById('pickup-confirm-btn');
   btn.disabled = true; btn.textContent = 'RELEASING ROBOT...';
   try {
-    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    await fetch(API_BASE + '/api/robot/pickup', {
+  method: 'POST',
+  headers: authHeaders({ 'Content-Type': 'application/json' }),
+  body: JSON.stringify({})
+}).catch(() => {});
     await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
     if (_pickupOrderRef) {
       await fetch(API_BASE + '/api/orders/' + _pickupOrderRef + '/status', {
