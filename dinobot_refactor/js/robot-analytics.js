@@ -812,6 +812,14 @@ function raFilterChart(filter) {
     container.style.opacity = '1';
   }, 300);
 }
+const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+const filteredDispatched = filtered.filter(o => o.status === 'delivered');
+const avgFiltered = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : null;
+setCard('ra-card-dispatches', filteredDispatched.length);
+setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
+setCard('ra-card-history', times.length + '  runs');
+setCard('ra-card-obstacles', filter === 'all' ? (window._raTotalObstacles || 0) : '—');
+setCard('ra-card-estops', filter === 'all' ? (window._raTotalEstops || 0) : '—');
 
 let _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
 
