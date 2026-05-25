@@ -489,7 +489,7 @@ function raShowCardChart(type) {
   const chartEl = document.getElementById('ra-chart-section');
   if (!chartEl) return;
 
-  if (window._raActiveCard === type) {
+  if (window._raActiveCard === type && type !== 'history') {
     raResetToDefault();
     return;
   }
