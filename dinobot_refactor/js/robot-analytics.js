@@ -633,6 +633,11 @@ function raShowCardChart(type) {
       const avgVal = Math.round(points.reduce((a, b) => a + b.val, 0) / points.length);
       chartEl.innerHTML = `
         <div style="padding:40px 48px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
+  ${['today','week','month','all'].map(f => `
+    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+</div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
             <div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#60A5FA;text-transform:uppercase;margin-bottom:6px;">⬡ PERFORMANCE HISTORY — LAST 20 RUNS</div>
@@ -695,6 +700,11 @@ function raShowCardChart(type) {
       const maxVal = Math.max(...bars.map(b => b.val), 1);
       chartEl.innerHTML = `
         <div style="padding:40px 48px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
+  ${['today','week','month','all'].map(f => `
+    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+</div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
             <div>
               <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:${color};text-transform:uppercase;margin-bottom:6px;">⬡ ${titles[type]}</div>
