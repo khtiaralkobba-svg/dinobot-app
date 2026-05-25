@@ -240,7 +240,7 @@ app.post('/api/reports/generate', async (req, res) => {
       .select()
       .single();
     if (error) throw error;
-    const url = `${req.protocol}://${req.get('host')}/reports/${data.id}`;
+    const url = `${process.env.APP_URL || `${req.protocol}://${req.get('host')}`}/reports/${data.id}`;
     res.json({ report_id: data.id, url, expires_at: data.expires_at });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -308,6 +308,53 @@ app.get('/reports/:id', async (req, res) => {
 </html>`);
   } catch (err) {
     res.status(500).send('<h1>Error loading report</h1>');
+  }
+});
+
+// ── Heatmap ───────────────────────────────────────────────────────────────────
+app.get('/api/orders/heatmap', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('placed_at')
+      .not('placed_at', 'is', null);
+    if (error) throw error;
+
+    const now = new Date();
+    const weekAgo  = new Date(now - 7  * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
+    const days  = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const hours = Array.from({ length: 14 }, (_, i) => i + 8);
+
+    function buildGrid(orders) {
+      const grid = {};
+      ['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(d => {
+        grid[d] = {};
+        hours.forEach(h => grid[d][h] = 0);
+      });
+      orders.forEach(o => {
+        const d = new Date(o.placed_at);
+        const day  = days[d.getDay()];
+        const hour = d.getHours();
+        if (grid[day] && hour >= 8 && hour <= 21) grid[day][hour]++;
+      });
+      return grid;
+    }
+
+    const all   = data;
+    const week  = data.filter(o => new Date(o.placed_at) >= weekAgo);
+    const month = data.filter(o => new Date(o.placed_at) >= monthAgo);
+
+    res.json({
+      heatmap: {
+        week:  buildGrid(week),
+        month: buildGrid(month),
+        all:   buildGrid(all)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
