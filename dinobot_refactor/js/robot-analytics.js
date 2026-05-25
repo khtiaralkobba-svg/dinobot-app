@@ -972,10 +972,10 @@ function raApplyCalendarFilter() {
         </div>`;
     }
     container.style.opacity = '1';
+    if (window._raActiveCard) {
+      raShowCardChart(window._raActiveCard);
+    }
   }, 300);
-  if (window._raActiveCard) {
-    raShowCardChart(window._raActiveCard);
-  }
 
   // Update stat cards based on calendar filter
   const calFiltered = allOrders.filter(o => {
