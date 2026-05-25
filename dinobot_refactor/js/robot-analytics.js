@@ -289,15 +289,13 @@ const dispatched = orders.filter(o => o.status === 'delivered');
 const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0)/deliveryTimes.length) : null;
 window._raAllOrders = orders;
 const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+const fetchedObstacles = od.obstacles_avoided || raData.obstaclesAvoided || 0;
+window._raTotalObstacles = fetchedObstacles;
 if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiveTimeFilter === 'all')) {
   setCard('ra-card-dispatches', dispatched.length);
   setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
   setCard('ra-card-estops', ed.estop_events?.length || 0);
-  const fetchedObstacles = od.obstacles_avoided || raData.obstaclesAvoided || 0;
-window._raTotalObstacles = fetchedObstacles;
-if (!window._raCalendarFilter) {
   setCard('ra-card-obstacles', fetchedObstacles);
-}
   setCard('ra-card-history', deliveryTimes.length + '  runs');
 }
 setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
