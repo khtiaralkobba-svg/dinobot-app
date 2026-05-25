@@ -295,7 +295,9 @@ if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiv
   setCard('ra-card-estops', ed.estop_events?.length || 0);
   const fetchedObstacles = od.obstacles_avoided || raData.obstaclesAvoided || 0;
 window._raTotalObstacles = fetchedObstacles;
-setCard('ra-card-obstacles', fetchedObstacles);
+if (!window._raCalendarFilter) {
+  setCard('ra-card-obstacles', fetchedObstacles);
+}
   setCard('ra-card-history', deliveryTimes.length + '  runs');
 }
 setCard('ra-card-battery', raData.batteryUsed ? raData.batteryUsed.toFixed(1) + '%' : '—');
