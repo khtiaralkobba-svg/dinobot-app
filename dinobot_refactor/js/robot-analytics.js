@@ -898,6 +898,27 @@ function raApplyCalendarFilter() {
   }
 
   const container = document.getElementById('ra-bars-container');
+  
+  // If a card chart is active, just re-render it with the new filter
+  if (window._raActiveCard) {
+    const activeType = window._raActiveCard;
+    window._raActiveCard = null;
+    raShowCardChart(activeType);
+    // Update stat cards
+    const calFiltered2 = allOrders.filter(o => {
+      if (!o.placed_at) return false;
+      const d = new Date(o.placed_at);
+      if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+    const calTimes2 = calFiltered2.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at).map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+    const calAvg2 = calTimes2.length ? Math.round(calTimes2.reduce((a,b)=>a+b,0)/calTimes2.length) : null;
+    const setCard2 = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+    setCard2('ra-card-dispatches', calFiltered2.filter(o => o.status === 'delivered').length);
+    setCard2('ra-card-avgdelivery', calAvg2 ? calAvg2 + 's' : '—');
+    return;
+  }
+
   if (!container) return;
 
   // Reset filter buttons
