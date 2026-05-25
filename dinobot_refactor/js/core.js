@@ -102,6 +102,12 @@ function animateCounter(id, target, duration) {
 
 /* ── LOAD HOME STATS ─────────────────────────────────────── */
 setTimeout(async () => {
+  if (!sessionStorage.getItem('accessToken')) {
+    animateCounter('counter-1', 0, 800);
+    animateCounter('counter-2', 0, 800);
+    animateCounter('counter-3', 0, 800);
+    return;
+  }
   try {
     const res = await fetch(API_BASE + '/api/orders/all', {
       headers: { 'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}` }
