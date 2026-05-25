@@ -80,7 +80,8 @@ async function openRobotAnalyticsOverlay() {
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#4ADE80;letter-spacing:2px;"><div style="width:8px;height:8px;background:#4ADE80;border-radius:50%;animation:blink 2s ease-in-out infinite;box-shadow:0 0 8px #4ADE80;"></div> UNIT-01 TRACKED</div>
           <div style="display:flex;align-items:center;gap:12px;position:relative;">
-            <button id="ra-calendar-btn" onclick="raOpenCalendar()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">📅 CALENDAR</button>
+          <button onclick="raOpenReportGenerator()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">📊 REPORT</button>  
+          <button id="ra-calendar-btn" onclick="raOpenCalendar()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(251,185,36,0.06);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;">📅 CALENDAR</button>
             <button onclick="closeRobotAnalyticsOverlay()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">✕ CLOSE</button>
           </div>
         </div>
@@ -1308,3 +1309,383 @@ window.addEventListener('beforeunload', () => {
     }));
   }
 });
+
+/* ══════════════════════════════════════════════════════════
+   robot-analytics-reports.js
+   Paste this entire block at the END of robot-analytics.js
+══════════════════════════════════════════════════════════ */
+
+// ── Report Generator Entry Point ─────────────────────────────────────────────
+function raOpenReportGenerator() {
+  const existing = document.getElementById('ra-report-panel');
+  if (existing) { existing.remove(); return; }
+
+  const isLight = document.body.classList.contains('light-mode');
+  const overlay = document.getElementById('robot-analytics-overlay');
+  if (!overlay) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'ra-report-panel';
+  panel.style.cssText = `
+    position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10000;
+    background:rgba(2,11,26,0.92);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+  `;
+
+  panel.innerHTML = `
+    <div style="background:linear-gradient(160deg,#071828,#061422);border:1px solid rgba(251,185,36,0.3);width:90%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;">
+      <div style="height:3px;background:linear-gradient(to right,#FBB924,#FBB92480,transparent);"></div>
+      <div style="padding:32px 36px;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(251,185,36,0.7);margin-bottom:6px;">// AI INTELLIGENCE</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:#FBB924;">GENERATE REPORT</div>
+          </div>
+          <button onclick="document.getElementById('ra-report-panel').remove()" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;padding:8px 16px;cursor:pointer;">✕ CLOSE</button>
+        </div>
+
+        <!-- Report Type -->
+        <div style="margin-bottom:20px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.5);margin-bottom:10px;">REPORT TYPE</div>
+          <div style="display:flex;gap:8px;">
+            ${['daily','weekly','monthly'].map(t => `
+              <button onclick="raSelectReportType('${t}')" id="ra-rtype-${t}"
+                style="flex:1;padding:12px;background:${t==='weekly'?'rgba(251,185,36,0.12)':'rgba(251,185,36,0.04)'};
+                border:1px solid ${t==='weekly'?'rgba(251,185,36,0.5)':'rgba(251,185,36,0.15)'};
+                color:${t==='weekly'?'#FBB924':'rgba(180,210,245,0.5)'};
+                font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;">
+                ${t.toUpperCase()}
+              </button>`).join('')}
+          </div>
+        </div>
+
+        <!-- Date Range -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.5);margin-bottom:8px;">FROM</div>
+            <input type="date" id="ra-report-from" style="width:100%;padding:10px 14px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:#e2e8f0;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;"/>
+          </div>
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.5);margin-bottom:8px;">TO</div>
+            <input type="date" id="ra-report-to" style="width:100%;padding:10px 14px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:#e2e8f0;font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;"/>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button onclick="raGenerateReport()" id="ra-generate-btn"
+          style="width:100%;padding:16px;background:rgba(251,185,36,0.1);border:1px solid rgba(251,185,36,0.4);
+          color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;
+          cursor:pointer;transition:all 0.2s;margin-bottom:20px;"
+          onmouseover="this.style.background='rgba(251,185,36,0.2)'"
+          onmouseout="this.style.background='rgba(251,185,36,0.1)'">
+          ⬡ GENERATE WITH AI
+        </button>
+
+        <!-- Status / Output -->
+        <div id="ra-report-output" style="display:none;"></div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(panel);
+
+  // Set default dates based on weekly
+  raSelectReportType('weekly');
+}
+
+// ── Select Report Type & Auto-fill Dates ─────────────────────────────────────
+function raSelectReportType(type) {
+  window._raReportType = type;
+  ['daily','weekly','monthly'].forEach(t => {
+    const btn = document.getElementById('ra-rtype-' + t);
+    if (!btn) return;
+    const active = t === type;
+    btn.style.background = active ? 'rgba(251,185,36,0.12)' : 'rgba(251,185,36,0.04)';
+    btn.style.borderColor = active ? 'rgba(251,185,36,0.5)' : 'rgba(251,185,36,0.15)';
+    btn.style.color = active ? '#FBB924' : 'rgba(180,210,245,0.5)';
+  });
+
+  const now = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  const fromEl = document.getElementById('ra-report-from');
+  const toEl = document.getElementById('ra-report-to');
+  if (!fromEl || !toEl) return;
+
+  toEl.value = fmt(now);
+  if (type === 'daily') {
+    fromEl.value = fmt(now);
+  } else if (type === 'weekly') {
+    const w = new Date(now); w.setDate(w.getDate() - 7);
+    fromEl.value = fmt(w);
+  } else {
+    const m = new Date(now); m.setDate(m.getDate() - 30);
+    fromEl.value = fmt(m);
+  }
+}
+
+// ── Generate Report ───────────────────────────────────────────────────────────
+async function raGenerateReport() {
+  const type = window._raReportType || 'weekly';
+  const from = document.getElementById('ra-report-from')?.value;
+  const to   = document.getElementById('ra-report-to')?.value;
+
+  if (!from || !to) { showToast('⚠ Please select a date range'); return; }
+
+  const btn = document.getElementById('ra-generate-btn');
+  const output = document.getElementById('ra-report-output');
+  if (!output) return;
+
+  btn.textContent = '⬡ ANALYZING DATA...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  output.style.display = 'none';
+
+  // Build stats from orders in date range
+  const allOrders = window._raAllOrders || [];
+  const fromDate = new Date(from);
+  const toDate   = new Date(to); toDate.setHours(23,59,59);
+
+  const rangeOrders = allOrders.filter(o => {
+    const d = new Date(o.placed_at);
+    return d >= fromDate && d <= toDate;
+  });
+
+  const delivered = rangeOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+  const times     = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+  const avgTime   = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) : 0;
+  const minTime   = times.length ? Math.round(Math.min(...times)) : 0;
+  const maxTime   = times.length ? Math.round(Math.max(...times)) : 0;
+  const totalDisp = rangeOrders.filter(o => o.status === 'delivered').length;
+  const obstacles = window._raTotalObstacles || 0;
+  const estops    = window._raTotalEstops || 0;
+
+  // Group by day
+  const byDay = {};
+  delivered.forEach(o => {
+    const day = new Date(o.placed_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    if (!byDay[day]) byDay[day] = [];
+    byDay[day].push((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+  });
+  const dailySummary = Object.entries(byDay).map(([d, ts]) =>
+    `${d}: ${ts.length} deliveries, avg ${Math.round(ts.reduce((a,b)=>a+b,0)/ts.length)}s`
+  ).join('\n');
+
+  // Call Groq via your backend
+  const systemPrompt = `You are an expert robotics operations analyst writing a professional ${type} performance report for a restaurant delivery robot system called Dinobot. Write in a clear, professional tone. Structure the report with these sections: Executive Summary, Performance Highlights, Delivery Analysis, Risk Assessment, and Recommendations. Use the data provided. Be specific and insightful. Do not use markdown symbols like ** or ##, write in plain text with clear section headers in ALL CAPS followed by a colon.`;
+
+  const userMessage = `Generate a ${type} robot performance report for the period ${from} to ${to}.
+
+DATA:
+- Total Dispatches: ${totalDisp}
+- Delivered Orders: ${delivered.length}
+- Average Delivery Time: ${avgTime}s
+- Fastest Delivery: ${minTime}s
+- Slowest Delivery: ${maxTime}s
+- Obstacles Avoided: ${obstacles}
+- E-Stop Events: ${estops}
+- Daily Breakdown:
+${dailySummary || 'No daily data available'}
+
+Write a comprehensive professional report based on this data.`;
+
+  let reportText = '';
+  try {
+    const res = await fetch(API_BASE + '/api/groq', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        system: systemPrompt,
+        message: [{ role: 'user', content: userMessage }]
+      })
+    });
+    const data = await res.json();
+    reportText = data.reply || 'Report generation failed.';
+  } catch (err) {
+    reportText = 'Could not connect to AI. Please try again.';
+  }
+
+  // Save to backend & get URL
+  let reportUrl = null;
+  let reportId  = null;
+  try {
+    const saveRes = await fetch(API_BASE + '/api/reports/generate', {
+      method: 'POST',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        type,
+        date_from: from,
+        date_to: to,
+        content: reportText,
+        generated_by: currentUser?.employee_id || 'manager'
+      })
+    });
+    const saveData = await saveRes.json();
+    reportUrl = saveData.url;
+    reportId  = saveData.report_id;
+  } catch {}
+
+  btn.textContent = '⬡ GENERATE WITH AI';
+  btn.disabled = false;
+  btn.style.opacity = '1';
+
+  // Store for downloads
+  window._raLastReport = { text: reportText, type, from, to, totalDisp, delivered: delivered.length, avgTime, minTime, maxTime, obstacles, estops };
+
+  // Render output
+  output.style.display = 'block';
+  output.innerHTML = `
+    <div style="border-top:1px solid rgba(251,185,36,0.2);padding-top:20px;">
+
+      <!-- Report preview -->
+      <div style="background:rgba(2,11,26,0.6);border:1px solid rgba(96,165,250,0.15);padding:20px 24px;margin-bottom:16px;max-height:220px;overflow-y:auto;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#FBB924;margin-bottom:12px;">⬡ REPORT PREVIEW</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;line-height:1.8;color:rgba(180,210,245,0.8);white-space:pre-wrap;">${reportText.substring(0,600)}${reportText.length > 600 ? '...' : ''}</div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+        <button onclick="raDownloadPDF()" style="flex:1;padding:12px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;">⬇ PDF</button>
+        <button onclick="raDownloadCSV()" style="flex:1;padding:12px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);color:#4ADE80;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;">⬇ CSV</button>
+        ${reportUrl ? `<button onclick="raRegenerateReport()" style="flex:1;padding:12px;background:rgba(251,185,36,0.08);border:1px solid rgba(251,185,36,0.3);color:#FBB924;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;">↺ REGENERATE</button>` : ''}
+      </div>
+
+      <!-- QR Code -->
+      ${reportUrl ? `
+        <div style="background:rgba(2,11,26,0.6);border:1px solid rgba(251,185,36,0.2);padding:24px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(251,185,36,0.7);margin-bottom:16px;">⬡ SCAN TO VIEW ON PHONE</div>
+          <div id="ra-qr-container" style="display:inline-block;background:white;padding:16px;margin-bottom:16px;"></div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(180,210,245,0.4);letter-spacing:1px;margin-bottom:4px;">EXPIRES IN 7 DAYS</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(180,210,245,0.3);word-break:break-all;">${reportUrl}</div>
+        </div>
+      ` : `<div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(239,68,68,0.6);padding:12px;">⚠ Could not save report to server — QR unavailable</div>`}
+    </div>`;
+
+  // Generate QR code
+  if (reportUrl) {
+    raRenderQRCode(reportUrl, 'ra-qr-container');
+  }
+}
+
+// ── QR Code Generator (pure JS, no library needed) ───────────────────────────
+function raRenderQRCode(url, containerId) {
+  // Load qrcode.js from CDN dynamically
+  if (window.QRCode) {
+    _raDrawQR(url, containerId);
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  script.onload = () => _raDrawQR(url, containerId);
+  document.head.appendChild(script);
+}
+
+function _raDrawQR(url, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: url,
+    width: 180,
+    height: 180,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+// ── Download PDF ──────────────────────────────────────────────────────────────
+function raDownloadPDF() {
+  const r = window._raLastReport;
+  if (!r) return;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dinobot ${r.type} Report</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; color:#1a1a2e; padding:40px 48px; background:#fff; }
+    .header { border-bottom:3px solid #FBB924; padding-bottom:20px; margin-bottom:28px; }
+    .brand { font-size:11px; letter-spacing:4px; color:#FBB924; text-transform:uppercase; margin-bottom:8px; }
+    h1 { font-size:32px; color:#020b1a; font-weight:900; margin-bottom:4px; }
+    .meta { font-size:12px; color:#666; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
+    .stat { background:#f8faff; border:1px solid #e2e8f0; border-top:3px solid #FBB924; padding:14px 16px; }
+    .stat-label { font-size:9px; letter-spacing:2px; color:#888; text-transform:uppercase; margin-bottom:4px; }
+    .stat-value { font-size:24px; font-weight:900; color:#020b1a; }
+    .content { font-size:13px; line-height:1.9; color:#334155; white-space:pre-wrap; }
+    .footer { margin-top:40px; padding-top:16px; border-top:1px solid #e2e8f0; font-size:10px; color:#999; text-align:center; }
+    @media print { body { padding:20px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">// Dinobot Intelligence System</div>
+    <h1>ROBOT ${r.type.toUpperCase()} REPORT</h1>
+    <div class="meta">${r.from} → ${r.to} &nbsp;·&nbsp; Generated ${new Date().toLocaleString()}</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total Dispatches</div><div class="stat-value">${r.totalDisp}</div></div>
+    <div class="stat"><div class="stat-label">Deliveries</div><div class="stat-value">${r.delivered}</div></div>
+    <div class="stat"><div class="stat-label">Avg Delivery Time</div><div class="stat-value">${r.avgTime}s</div></div>
+    <div class="stat"><div class="stat-label">Fastest</div><div class="stat-value">${r.minTime}s</div></div>
+    <div class="stat"><div class="stat-label">Slowest</div><div class="stat-value">${r.maxTime}s</div></div>
+    <div class="stat"><div class="stat-label">Obstacles Avoided</div><div class="stat-value">${r.obstacles}</div></div>
+  </div>
+  <div class="content">${r.text}</div>
+  <div class="footer">Dinobot Robot Intelligence System · Confidential · ${new Date().getFullYear()}</div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 500);
+}
+
+// ── Download CSV ──────────────────────────────────────────────────────────────
+function raDownloadCSV() {
+  const r = window._raLastReport;
+  if (!r) return;
+
+  const allOrders = window._raAllOrders || [];
+  const fromDate  = new Date(r.from);
+  const toDate    = new Date(r.to); toDate.setHours(23,59,59);
+
+  const rows = allOrders.filter(o => {
+    const d = new Date(o.placed_at);
+    return d >= fromDate && d <= toDate && o.status === 'delivered' && o.placed_at && o.delivered_at;
+  }).map(o => {
+    const secs = Math.round((new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
+    return [
+      o.id || '',
+      o.placed_at || '',
+      o.delivered_at || '',
+      secs,
+      o.table_number || '',
+      o.status || ''
+    ].join(',');
+  });
+
+  const csv = [
+    'Order ID,Placed At,Delivered At,Delivery Time (s),Table,Status',
+    ...rows
+  ].join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `dinobot-report-${r.type}-${r.from}-to-${r.to}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Regenerate ────────────────────────────────────────────────────────────────
+function raRegenerateReport() {
+  document.getElementById('ra-report-output').style.display = 'none';
+  raGenerateReport();
+}
