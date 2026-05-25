@@ -62,6 +62,7 @@ async function doLogin(role) {
       document.getElementById('control-center').classList.add('unlocked');
       setTimeout(initMap, 300);
       setTimeout(loadAnalyticsFromDB, 500);
+      setTimeout(loadHomeStats, 600); 
       startAnalyticsPolling();
       connectSocket('manager');
       setTimeout(loadStaffList, 600);
