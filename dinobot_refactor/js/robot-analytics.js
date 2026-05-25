@@ -693,7 +693,7 @@ function raShowCardChart(type) {
         </div>`;
     } else {
       const maxVal = Math.max(...bars.map(b => b.val), 1);
-const allZero = bars.every(b => b.val === 0);
+      const allZero = bars.every(b => b.val === 0);
       chartEl.innerHTML = `
         <div style="padding:40px 48px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -1044,7 +1044,7 @@ function raApplyCalendarFilter() {
       container.innerHTML = `<div style="text-align:center;padding:48px 0;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(180,210,245,0.3);">⬡ NO DELIVERIES FOR ${chartTitle.toUpperCase()}</div>`;
     } else {
       const maxVal = Math.max(...bars.map(b => b.val), 1);
-const allZero = bars.every(b => b.val === 0);
+      const allZero = bars.every(b => b.val === 0);
       const minVal = Math.min(...bars.map(b => b.val));
       const avgVal = Math.round(bars.reduce((a,b) => a+b.val, 0) / bars.length);
 
