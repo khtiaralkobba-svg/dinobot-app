@@ -197,7 +197,9 @@ try {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
         ${['today','week','month','all'].map(f => `
-          <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+          <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'}
+border:1px solid ${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'}
+color:${f===(window._raActiveFilter||'all')?'#60A5FA':'rgba(180,210,245,0.4)'}font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
           
       </div>
 
@@ -403,7 +405,7 @@ function raResetToDefault() {
   window._raActiveCard = null;
   window._raCalendarFilter = null;
 _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
-
+window._raActiveFilter = 'all';
 // Reset calendar button label
 const calBtn = document.getElementById('ra-calendar-btn');
 if (calBtn) calBtn.textContent = '📅 CALENDAR';
@@ -445,7 +447,9 @@ setCard('ra-card-estops', window._raTotalEstops || 0);
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
         ${['today','week','month','all'].map(f => `
-          <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+          <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'}
+border:1px solid ${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'}
+color:${f===(window._raActiveFilter||'all')?'#60A5FA':'rgba(180,210,245,0.4)'}font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
       </div>
       <div id="ra-chart-inner" style="display:flex;flex-direction:column;gap:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
@@ -538,6 +542,10 @@ function raShowCardChart(type) {
 
     if (type === 'delivery') {
       let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      const now = new Date();
+if (window._raActiveFilter === 'today') delivered = delivered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+else if (window._raActiveFilter === 'week') delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+else if (window._raActiveFilter === 'month') delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
       if (cal) {
         delivered = delivered.filter(o => {
           const d = new Date(o.placed_at);
@@ -558,6 +566,10 @@ function raShowCardChart(type) {
     } else if (type === 'dispatches') {
       const byDay = {};
       let dispatchOrders = allOrders.filter(o => o.status === 'delivered');
+      const now = new Date();
+if (window._raActiveFilter === 'today') dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+else if (window._raActiveFilter === 'week') dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+else if (window._raActiveFilter === 'month') dispatchOrders = dispatchOrders.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
       if (cal) {
         dispatchOrders = dispatchOrders.filter(o => {
           const d = new Date(o.placed_at);
@@ -613,6 +625,10 @@ function raShowCardChart(type) {
     } else if (type === 'history') {
       const allOrders = window._raAllOrders || [];
       let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
+      const now = new Date();
+if (window._raActiveFilter === 'today') delivered = delivered.filter(o => new Date(o.placed_at).toDateString() === now.toDateString());
+else if (window._raActiveFilter === 'week') delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 7*24*60*60*1000));
+else if (window._raActiveFilter === 'month') delivered = delivered.filter(o => new Date(o.placed_at) >= new Date(now - 30*24*60*60*1000));
       if (cal) {
         delivered = delivered.filter(o => {
           const d = new Date(o.placed_at);
@@ -636,7 +652,9 @@ function raShowCardChart(type) {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
   <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
   ${['today','week','month','all'].map(f => `
-    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'}
+border:1px solid ${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'}
+color:${f===(window._raActiveFilter||'all')?'#60A5FA':'rgba(180,210,245,0.4)'}font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
 </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
             <div>
@@ -703,7 +721,9 @@ function raShowCardChart(type) {
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:28px;flex-wrap:wrap;">
   <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(180,210,245,0.4);margin-right:8px;">FILTER:</div>
   ${['today','week','month','all'].map(f => `
-    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f==='all'?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'};border:1px solid ${f==='all'?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'};color:${f==='all'?'#60A5FA':'rgba(180,210,245,0.4)'};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
+    <button onclick="raFilterChart('${f}')" id="ra-filter-${f}" style="padding:6px 16px;background:${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.15)':'rgba(96,165,250,0.04)'}
+border:1px solid ${f===(window._raActiveFilter||'all')?'rgba(96,165,250,0.5)':'rgba(96,165,250,0.15)'}
+color:${f===(window._raActiveFilter||'all')?'#60A5FA':'rgba(180,210,245,0.4)'}font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);">${f==='today'?'TODAY':f==='week'?'THIS WEEK':f==='month'?'THIS MONTH':'ALL TIME'}</button>`).join('')}
 </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;">
             <div>
@@ -737,6 +757,8 @@ function raShowCardChart(type) {
 }
 
 function raFilterChart(filter) {
+  window._raActiveFilter = filter;
+  if (window._raActiveCard) { raShowCardChart(window._raActiveCard); return; }
   const isLight = document.body.classList.contains('light-mode');
   
   // Update button styles
