@@ -793,8 +793,12 @@ function raFilterChart(filter) {
   // If a card chart is active, re-render it with the new time filter applied
   if (window._raActiveCard) {
     const activeType = window._raActiveCard;
-    window._raActiveCard = null; // reset so raShowCardChart re-renders
-    raShowCardChartFiltered(activeType, filter, filtered, allOrders);
+    window._raActiveCard = null;
+    if (activeType === 'history') {
+      raShowCardChart('history');
+    } else {
+      raShowCardChartFiltered(activeType, filter, filtered, allOrders);
+    }
     return;
   }
 
