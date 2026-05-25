@@ -287,8 +287,24 @@ window._raObstacleInterval = setInterval(async () => {
     const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0) / deliveryTimes.length) : null;
     const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard('ra-card-dispatches', calDispatched.length);
-    setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
-    setCard('ra-card-history', calDelivered.length + '  runs');
+setCard('ra-card-avgdelivery', calAvg ? calAvg + 's' : '—');
+setCard('ra-card-history', calDelivered.length + '  runs');
+
+// Filter obstacles and estops by selected date
+const obstacleEvents = window._raObstacleEvents || [];
+const estopEvents = window._raEstopEvents || [];
+const calObstacles = obstacleEvents.filter(e => {
+  const d = new Date(e.triggered_at);
+  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+  return d.getFullYear() === year && d.getMonth() === month;
+});
+const calEstops = estopEvents.filter(e => {
+  const d = new Date(e.triggered_at);
+  if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+  return d.getFullYear() === year && d.getMonth() === month;
+});
+setCard('ra-card-obstacles', calObstacles.length);
+setCard('ra-card-estops', calEstops.length);
 
 // Update the calendar button label to show selected date
 const calBtn = document.getElementById('ra-calendar-btn');
@@ -422,6 +438,8 @@ const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' +
 setCard('ra-card-dispatches', _dispatched.length);
 setCard('ra-card-avgdelivery', _avg ? _avg + 's' : '—');
 setCard('ra-card-history', _times.length + '  runs');
+setCard('ra-card-obstacles', window._raTotalObstacles || 0);
+setCard('ra-card-estops', window._raTotalEstops || 0);
   document.querySelectorAll('[id^="ra-card-"]').forEach(c => {
     c.style.transform = 'translateY(0)';
     c.style.borderColor = 'rgba(251,185,36,0.15)';
