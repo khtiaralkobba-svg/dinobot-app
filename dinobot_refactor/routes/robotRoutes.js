@@ -132,7 +132,10 @@ router.get('/manual', authenticateToken, authorizeRoles('manager'), async (req, 
 });
 
 // ── Log obstacle event ────────────────────────────────────────────────────────
-router.post('/obstacle-event', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+router.post('/obstacle-event', (req, res, next) => {
+  if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) return next();
+  authenticateToken(req, res, next);
+}, authorizeRoles('manager'), async (req, res) => {
   try {
     const { error } = await supabase
       .from('robot_obstacle_events')
