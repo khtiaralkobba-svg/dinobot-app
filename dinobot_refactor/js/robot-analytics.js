@@ -1251,6 +1251,20 @@ function raApplyCalendarFilter() {
     const setCard2 = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
     setCard2('ra-card-dispatches', calFiltered2.filter(o => o.status === 'delivered').length);
     setCard2('ra-card-avgdelivery', calAvg2 ? calAvg2 + 's' : '—');
+    const obsEvs2 = window._raObstacleEvents || [];
+    const estopEvs2 = window._raEstopEvents || [];
+    const filtObs2 = obsEvs2.filter(e => {
+      const d = new Date(e.triggered_at);
+      if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+    const filtEstops2 = estopEvs2.filter(e => {
+      const d = new Date(e.triggered_at);
+      if (day) return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+    setCard2('ra-card-obstacles', obsEvs2.length > 0 ? filtObs2.length : '—');
+    setCard2('ra-card-estops', estopEvs2.length > 0 ? filtEstops2.length : '—');
     return;
   }
 
