@@ -821,7 +821,6 @@ function raFilterChart(filter) {
   setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
   setCard('ra-card-history', times.length + '  runs');
   const obsEvents = window._raObstacleEvents || [];
-const now = new Date();
 let filteredObsCount = obsEvents;
 if (filter === 'today') {
   filteredObsCount = obsEvents.filter(e => new Date(e.triggered_at).toDateString() === now.toDateString());
