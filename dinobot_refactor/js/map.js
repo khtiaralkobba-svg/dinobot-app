@@ -247,6 +247,7 @@ function updateObstacleCount() {
 
 async function syncObstaclesToRobot() {
   try { sessionStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
+  if (obstacles.length === 0 && !obstacleMode) return; // nothing to sync
   try {
     const targetId = currentTarget?.id;
     const tableObstacles = tables
