@@ -933,15 +933,45 @@ function raShowCardChartFiltered(type, filter, filtered, allOrders) {
     bars = [{ val: count, label: filterLabel }];
   } else if (type === 'obstacles') {
     const obsEvents = window._raObstacleEvents || [];
-    const count = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
-      const d = new Date(e.triggered_at);
-      const now = new Date();
-      if (filter === 'today') return d.toDateString() === now.toDateString();
-      if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
-      if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
-      return true;
-    }).length;
-    bars = [{ val: count, label: filterLabel }];
+    const now = new Date();
+    let filteredEvents = obsEvents;
+    if (filter === 'today') {
+      filteredEvents = obsEvents.filter(e => new Date(e.triggered_at).toDateString() === now.toDateString());
+    } else if (filter === 'week') {
+      filteredEvents = obsEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 7*24*60*60*1000));
+    } else if (filter === 'month') {
+      filteredEvents = obsEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 30*24*60*60*1000));
+    }
+    if (filter === 'all') {
+      // Group by date for all time
+      const byDay = {};
+      obsEvents.forEach(e => {
+        const day = new Date(e.triggered_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+        byDay[day] = (byDay[day] || 0) + 1;
+      });
+      bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
+    } else if (filter === 'today') {
+      // Group by hour
+      const byHour = {};
+      filteredEvents.forEach(e => {
+        const hour = new Date(e.triggered_at).getHours();
+        const label = hour + ':00';
+        byHour[label] = (byHour[label] || 0) + 1;
+      });
+      bars = Object.entries(byHour).map(([hour, count]) => ({ val: count, label: hour }));
+    } else {
+      // Group by day of week / date for week and month
+      const byDay = {};
+      filteredEvents.forEach(e => {
+        const d = new Date(e.triggered_at);
+        const label = filter === 'week'
+          ? d.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit' })
+          : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        byDay[label] = (byDay[label] || 0) + 1;
+      });
+      bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
+    }
+    if (bars.length === 0) bars = [{ val: 0, label: filterLabel }];
   }
 
   chartEl.style.transition = 'opacity 0.3s ease';
