@@ -213,17 +213,6 @@ async function getStuckOrders() {
   return data || [];
 }
 
-module.exports = {
-  createOrder,
-  getOrderByRef,
-  getAllOrders,
-  updateOrderStatus,
-  cancelOrder,
-  resetStuckOrders,
-  logStuckOrder,
-  getStuckOrders
-};
-
 async function getActiveOrders() {
   const { data: orders, error } = await supabase
     .from('orders')
