@@ -185,7 +185,11 @@ function renderCart() {
       <td colspan="2" style="color:var(--text-dim);font-family:monospace;font-size:13px;letter-spacing:3px;">TOTAL</td>
       <td class="cart-item-price" style="font-size:22px;">$${cartTotal().toFixed(2)}</td>
     </tr></tfoot>
-  </table>`;
+  </table>
+  <div style="margin-top:16px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text-dim);margin-bottom:8px;">⬡ SPECIAL INSTRUCTIONS (optional)</div>
+    <textarea id="order-notes" placeholder="e.g. No tomatoes, extra sauce, allergies..." style="width:100%;padding:12px 14px;background:rgba(255,107,26,0.05);border:1px solid rgba(255,107,26,0.25);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;resize:vertical;min-height:80px;outline:none;box-sizing:border-box;" maxlength="300"></textarea>
+  </div>`;
 }
 
 function changeQty(id, delta) {
@@ -232,9 +236,10 @@ async function placeOrder() {
     const orderItems = MENU_ITEMS.filter(m => (cart[m.id] || 0) > 0).map(m => ({
       id: m.id, name: m.name, emoji: m.emoji, qty: cart[m.id], unitPrice: m.price
     }));
+    const notes = document.getElementById('order-notes')?.value?.trim() || '';
     const res  = await fetch(API_BASE + '/api/orders', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tableNumber: selectedTable, items: orderItems })
+      body: JSON.stringify({ tableNumber: selectedTable, items: orderItems, notes })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed');
@@ -242,7 +247,7 @@ async function placeOrder() {
     const order = data.order;
     const now   = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    sessionOrders.push({ order_ref: order.order_ref, table_number: order.table_number, status: 'new', placedAt: timeStr, items: orderItems });
+    sessionOrders.push({ order_ref: order.order_ref, table_number: order.table_number, status: 'new', placedAt: timeStr, items: orderItems, notes });
     _shownPickupScreens.clear();
     activeTrackingRef = order.order_ref;
 

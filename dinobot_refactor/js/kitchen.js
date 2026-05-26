@@ -455,6 +455,7 @@ function renderKitchenOrder(order) {
     </div>
     <div class="ticket-items">${itemLines || '<span style="color:var(--text-dim)">No items</span>'}</div>
     <div class="ticket-received">Received ${timeStr}</div>
+    ${order.notes ? `<div style="margin:8px 0;padding:8px 12px;background:rgba(251,185,36,0.08);border-left:3px solid rgba(251,185,36,0.5);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:#FBB924;">📝 ${order.notes}</div>` : ''}
     ${actionHtml}`;
 
   document.getElementById(colId).appendChild(card);
