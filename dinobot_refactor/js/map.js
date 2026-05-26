@@ -520,16 +520,47 @@ function animateMap() {
   // Robot
   const rs = 11;
   const navMode = window._robotNavMode || 'NORMAL';
-  if (navMode !== 'NORMAL') {
-    const ringColor = navMode === 'EMERGENCY' ? '#ef4444' : navMode === 'REJOIN' ? '#C084FC' : '#FBB924';
-    ctx.save(); ctx.strokeStyle = ringColor; ctx.lineWidth = 2; ctx.shadowColor = ringColor; ctx.shadowBlur = 16;
+  if (navMode !== 'NORMAL' || eStopActive) {
+    const ringColor = eStopActive ? '#ef4444' : navMode === 'EMERGENCY' ? '#ef4444' : navMode === 'AVOIDANCE' ? '#FBB924' : '#C084FC';
+    const navDisplayLabel = eStopActive ? 'E-STOP' : navMode === 'AVOIDANCE' ? 'AVOIDANCE' : navMode === 'EMERGENCY' ? 'E-STOP' : navMode;
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 200);
+
+    // Outer pulsing ring
+    ctx.save();
+    ctx.strokeStyle = ringColor;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.3 + 0.3 * pulse;
+    ctx.shadowColor = ringColor; ctx.shadowBlur = 24;
     ctx.beginPath();
-    for (let i=0;i<6;i++){ const a=(Math.PI/3)*i-Math.PI/2, r=rs+9; i===0?ctx.moveTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r):ctx.lineTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r); }
+    for (let i=0;i<6;i++) { const a=(Math.PI/3)*i-Math.PI/2, r=rs+18; i===0?ctx.moveTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r):ctx.lineTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r); }
     ctx.closePath(); ctx.stroke(); ctx.restore();
-    ctx.fillStyle = ringColor; ctx.font = 'bold 8px Share Tech Mono,monospace'; ctx.textAlign = 'center';
-    ctx.shadowColor = ringColor; ctx.shadowBlur = 6;
-    const navDisplayLabel = eStopActive ? 'E-STOP' : navMode === 'EMERGENCY' ? 'E-STOP' : navMode === 'AVOIDANCE' ? 'AVOIDANCE' : navMode;
-    ctx.fillText(navDisplayLabel, robotX*W, robotY*H - 24); ctx.shadowBlur = 0;
+
+    // Inner solid ring
+    ctx.save();
+    ctx.strokeStyle = ringColor;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.9;
+    ctx.shadowColor = ringColor; ctx.shadowBlur = 16;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    for (let i=0;i<6;i++) { const a=(Math.PI/3)*i-Math.PI/2, r=rs+9; i===0?ctx.moveTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r):ctx.lineTo(robotX*W+Math.cos(a)*r,robotY*H+Math.sin(a)*r); }
+    ctx.closePath(); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+
+    // Label badge above robot
+    ctx.save();
+    const labelX = robotX*W, labelY = robotY*H - rs - 22;
+    const labelW = navDisplayLabel.length * 6.5 + 14, labelH = 16;
+    ctx.fillStyle = ringColor; ctx.globalAlpha = 0.15;
+    ctx.fillRect(labelX - labelW/2, labelY - labelH/2, labelW, labelH);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = ringColor; ctx.lineWidth = 1;
+    ctx.strokeRect(labelX - labelW/2, labelY - labelH/2, labelW, labelH);
+    ctx.fillStyle = ringColor;
+    ctx.font = 'bold 8px Share Tech Mono,monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = ringColor; ctx.shadowBlur = 8;
+    ctx.fillText(navDisplayLabel, labelX, labelY);
+    ctx.restore();
   }
 
   const risk = window._robotRisk || 0;
