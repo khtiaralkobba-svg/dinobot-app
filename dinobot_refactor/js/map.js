@@ -528,7 +528,8 @@ function animateMap() {
     ctx.closePath(); ctx.stroke(); ctx.restore();
     ctx.fillStyle = ringColor; ctx.font = 'bold 8px Share Tech Mono,monospace'; ctx.textAlign = 'center';
     ctx.shadowColor = ringColor; ctx.shadowBlur = 6;
-    ctx.fillText(navMode, robotX*W, robotY*H - 24); ctx.shadowBlur = 0;
+    const navDisplayLabel = eStopActive ? 'E-STOP' : navMode === 'EMERGENCY' ? 'E-STOP' : navMode === 'AVOIDANCE' ? 'AVOIDANCE' : navMode;
+    ctx.fillText(navDisplayLabel, robotX*W, robotY*H - 24); ctx.shadowBlur = 0;
   }
 
   const risk = window._robotRisk || 0;
@@ -631,11 +632,25 @@ function animateOverlayMap() {
 
   // Robot
   const rs=13;
+  const navMode = window._robotNavMode || 'NORMAL';
+  const robotColor = eStopActive ? '#ef4444' : navMode === 'EMERGENCY' ? '#ef4444' : navMode === 'AVOIDANCE' ? '#FBB924' : '#FF6B1A';
+  const navLabel = eStopActive ? 'E-STOP' : navMode === 'EMERGENCY' ? 'E-STOP' : navMode === 'AVOIDANCE' ? 'AVOIDANCE' : null;
+
+  if (navLabel) {
+    ctx.save();
+    ctx.font = 'bold 9px Share Tech Mono,monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = robotColor;
+    ctx.shadowColor = robotColor; ctx.shadowBlur = 8;
+    ctx.fillText(navLabel, robotX*W, robotY*H - 28);
+    ctx.restore();
+  }
+
   ctx.save();ctx.translate(robotX*W,robotY*H);ctx.rotate(robotAngle);
   ctx.beginPath();
   for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*rs,Math.sin(a)*rs):ctx.lineTo(Math.cos(a)*rs,Math.sin(a)*rs);}
   ctx.closePath();
-  ctx.fillStyle=eStopActive?'#ef4444':'#FF6B1A';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=20;
+  ctx.fillStyle=robotColor;ctx.shadowColor=robotColor;ctx.shadowBlur=20;
   ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
 
   drawObstacles(ctx,W,H);
