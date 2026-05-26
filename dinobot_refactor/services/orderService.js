@@ -53,6 +53,7 @@ async function createOrder({ tableNumber, items, notes }) {
     table_number: Number(tableNumber),
     status: 'new',
     total,
+    notes: notes || null,
     items
   };
 }
