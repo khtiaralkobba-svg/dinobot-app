@@ -727,7 +727,11 @@ function initMap() {
     }).catch(() => {});
   try {
     const saved = localStorage.getItem('dinobotObstacles');
-    if (saved) { obstacles = JSON.parse(saved); updateObstacleCount(); }
+    if (saved) {
+      obstacles = JSON.parse(saved);
+      updateObstacleCount();
+      syncObstaclesToRobot(); // re-sync to robot on login
+    }
   } catch {}
 
   const container = document.getElementById('map-container');
