@@ -91,11 +91,13 @@ router.post('/obstacle', authenticateToken, authorizeRoles('manager'), async (re
 
 router.get('/obstacle', authenticateToken, authorizeRoles('manager'), async (req, res) => {
   try {
-    const { count, error } = await supabase
-      .from('robot_obstacle_events')
-      .select('*', { count: 'exact', head: true });
+    const { data, error } = await supabase
+      .from('robot_live_stats')
+      .select('obstacles_avoided')
+      .eq('id', 1)
+      .single();
     if (error) throw error;
-    res.json({ obstacles_avoided: count || 0 });
+    res.json({ obstacles_avoided: data.obstacles_avoided });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

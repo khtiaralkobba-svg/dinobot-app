@@ -70,14 +70,12 @@ async function doLogin(role) {
       document.querySelector('#dashboard-hero-title .dash-title').innerHTML = 'KITCHEN <span style="color:var(--orange)">CENTER</span>';
       document.getElementById('kitchen-center').classList.add('unlocked');
       await loadKitchenOrders();
-      window._kitchenReady = true;
       connectSocket('kitchen');
       sessionStorage.setItem('lastEmployeeId', empInput.value.trim());
       if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
       window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
       startAlertEngine();
-      startKitchenRobotPolling();
-setTimeout(initMap, 300);
+      startKitchenRobotPolling();imeout(initMap, 300);
     }
 
     // Show user badge
@@ -112,7 +110,6 @@ setTimeout(initMap, 300);
 }
 
 async function doLogout() {
-   window._kitchenReady = false;
   try { await fetch(API_BASE + '/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch {}
   sessionStorage.removeItem('accessToken');
 
@@ -191,8 +188,6 @@ function connectSocket(room) {
 
    _socket.on('order:updated', (payload) => {
       const { order_ref, status, prep_started_at, table_number } = payload;
-      console.log('[order:updated]', order_ref, status);
-      if (!window._kitchenReady) return;
 
       // Always update student tracking
       updateSessionOrderStatus(order_ref, status);

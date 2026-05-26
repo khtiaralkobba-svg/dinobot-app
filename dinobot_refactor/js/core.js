@@ -102,22 +102,7 @@ function animateCounter(id, target, duration) {
 
 /* ── LOAD HOME STATS ─────────────────────────────────────── */
 setTimeout(async () => {
-  const token = sessionStorage.getItem('accessToken');
-  if (!token) {
-    animateCounter('counter-1', 0, 800);
-    animateCounter('counter-2', 0, 800);
-    animateCounter('counter-3', 0, 800);
-    return;
-  }
-  try {
-    const role = JSON.parse(atob(token.split('.')[1])).role;
-    if (role !== 'manager') {
-      animateCounter('counter-1', 0, 800);
-      animateCounter('counter-2', 0, 800);
-      animateCounter('counter-3', 0, 800);
-      return;
-    }
-  } catch {
+  if (!sessionStorage.getItem('accessToken')) {
     animateCounter('counter-1', 0, 800);
     animateCounter('counter-2', 0, 800);
     animateCounter('counter-3', 0, 800);

@@ -597,30 +597,23 @@ function raShowCardChart(type) {
       }
 
     } else if (type === 'obstacles') {
-      const obstacleEvents = window._raObstacleEvents || [];
-      const now = new Date();
-      const tf = window._raActiveTimeFilter || 'all';
-      let filteredEvs = obstacleEvents;
-      if (cal) {
-        filteredEvs = obstacleEvents.filter(e => {
-          const d = new Date(e.triggered_at);
-          if (cal.day) return d.getFullYear()===cal.year && d.getMonth()===cal.month && d.getDate()===cal.day;
-          return d.getFullYear()===cal.year && d.getMonth()===cal.month;
-        });
-        bars = [{ val: filteredEvs.length, label: 'selected' }];
-      } else if (tf === 'today') {
-        filteredEvs = obstacleEvents.filter(e => new Date(e.triggered_at).toDateString() === now.toDateString());
-        bars = [{ val: filteredEvs.length, label: 'TODAY' }];
-      } else {
-        if (tf === 'week') filteredEvs = obstacleEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 7*24*60*60*1000));
-        else if (tf === 'month') filteredEvs = obstacleEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 30*24*60*60*1000));
-        const byDay = {};
-        filteredEvs.forEach(e => {
-          const day = new Date(e.triggered_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
-          byDay[day] = (byDay[day] || 0) + 1;
-        });
-        bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
-      }
+  const obstacleEvents = window._raObstacleEvents || [];
+  const trueTotal = window._raTotalObstacles || raData.obstaclesAvoided || 0;
+  if (cal) {
+    if (obstacleEvents.length > 0) {
+      const filtered = obstacleEvents.filter(e => {
+        const d = new Date(e.triggered_at);
+        if (cal.day) return d.getFullYear() === cal.year && d.getMonth() === cal.month && d.getDate() === cal.day;
+        return d.getFullYear() === cal.year && d.getMonth() === cal.month;
+      });
+      bars = [{ val: filtered.length, label: filtered.length > 0 ? 'selected period' : 'none' }];
+    } else {
+      // No timestamped events to filter by — show 0 bar
+      bars = [{ val: 0, label: 'no data' }];
+  }
+  } else {
+    bars = [{ val: trueTotal, label: 'total' }];
+  }
     } else if (type === 'history') {
   const allOrders = window._raAllOrders || [];
   let delivered = allOrders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
@@ -798,24 +791,8 @@ function raFilterChart(filter) {
   setCard('ra-card-dispatches', filtered.length);
   setCard('ra-card-avgdelivery', avgFiltered ? avgFiltered + 's' : '—');
   setCard('ra-card-history', times.length + '  runs');
-  const obsEvents = window._raObstacleEvents || [];
-  const estopEvents = window._raEstopEvents || [];
-  const filteredObs = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
-    const d = new Date(e.triggered_at);
-    if (filter === 'today') return d.toDateString() === now.toDateString();
-    if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
-    if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
-    return true;
-  }).length;
-  const filteredEstops = filter === 'all' ? (window._raTotalEstops || 0) : estopEvents.filter(e => {
-    const d = new Date(e.triggered_at);
-    if (filter === 'today') return d.toDateString() === now.toDateString();
-    if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
-    if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
-    return true;
-  }).length;
-  setCard('ra-card-obstacles', filteredObs);
-  setCard('ra-card-estops', filteredEstops);
+  setCard('ra-card-obstacles', filter === 'all' ? (window._raTotalObstacles || 0) : '—');
+  setCard('ra-card-estops', filter === 'all' ? (window._raTotalEstops || 0) : '—');
 
   // If a card chart is active, re-render it with the new time filter applied
   if (window._raActiveCard) {
@@ -952,21 +929,15 @@ function raShowCardChartFiltered(type, filter, filtered, allOrders) {
     bars = [{ val: count, label: filterLabel }];
   } else if (type === 'obstacles') {
     const obsEvents = window._raObstacleEvents || [];
-    const now = new Date();
-    let filteredEvs = obsEvents;
-    if (filter === 'today') {
-      filteredEvs = obsEvents.filter(e => new Date(e.triggered_at).toDateString() === now.toDateString());
-      bars = [{ val: filteredEvs.length, label: 'TODAY' }];
-    } else {
-      if (filter === 'week') filteredEvs = obsEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 7*24*60*60*1000));
-      else if (filter === 'month') filteredEvs = obsEvents.filter(e => new Date(e.triggered_at) >= new Date(now - 30*24*60*60*1000));
-      const byDay = {};
-      filteredEvs.forEach(e => {
-        const day = new Date(e.triggered_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
-        byDay[day] = (byDay[day] || 0) + 1;
-      });
-      bars = Object.entries(byDay).slice(-20).map(([day, count]) => ({ val: count, label: day }));
-    }
+    const count = filter === 'all' ? (window._raTotalObstacles || 0) : obsEvents.filter(e => {
+      const d = new Date(e.triggered_at);
+      const now = new Date();
+      if (filter === 'today') return d.toDateString() === now.toDateString();
+      if (filter === 'week') return d >= new Date(now - 7*24*60*60*1000);
+      if (filter === 'month') return d >= new Date(now - 30*24*60*60*1000);
+      return true;
+    }).length;
+    bars = [{ val: count, label: filterLabel }];
   }
 
   chartEl.style.transition = 'opacity 0.3s ease';
