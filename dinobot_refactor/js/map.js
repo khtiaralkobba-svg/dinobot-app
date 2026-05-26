@@ -246,9 +246,21 @@ function updateObstacleCount() {
 }
 
 async function syncObstaclesToRobot() {
-  try { sessionStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
-  if (obstacles.length === 0 && !obstacleMode) return; // nothing to sync
+  try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
+    // Restore obstacles from localStorage if current array is empty (e.g. different tab)
+    if (obstacles.length === 0) {
+      try {
+        const saved = localStorage.getItem('dinobotObstacles');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            obstacles = parsed;
+            updateObstacleCount();
+          }
+        }
+      } catch {}
+    }
     const targetId = currentTarget?.id;
     const tableObstacles = tables
       .filter(t => t.id !== targetId)
@@ -714,7 +726,7 @@ function initMap() {
       }
     }).catch(() => {});
   try {
-    const saved = sessionStorage.getItem('dinobotObstacles');
+    const saved = localStorage.getItem('dinobotObstacles');
     if (saved) { obstacles = JSON.parse(saved); updateObstacleCount(); }
   } catch {}
 
