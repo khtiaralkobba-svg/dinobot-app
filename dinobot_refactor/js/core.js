@@ -101,17 +101,9 @@ function animateCounter(id, target, duration) {
 }
 
 /* ── LOAD HOME STATS ─────────────────────────────────────── */
-setTimeout(async () => {
-  if (!sessionStorage.getItem('accessToken')) {
-    animateCounter('counter-1', 0, 800);
-    animateCounter('counter-2', 0, 800);
-    animateCounter('counter-3', 0, 800);
-    return;
-  }
+async function loadHomeStats() {
   try {
-    const res = await fetch(API_BASE + '/api/orders/all', {
-      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}` }
-    });
+    const res = await fetch(API_BASE + '/api/orders/all', { headers: authHeaders() });
     if (!res.ok) {
       animateCounter('counter-1', 0, 800);
       animateCounter('counter-2', 0, 800);
@@ -147,7 +139,7 @@ setTimeout(async () => {
     animateCounter('counter-2', 0, 800);
     animateCounter('counter-3', 0, 800);
   }
-}, 3200);
+}
 
 /* ── SPEECH HELPERS ──────────────────────────────────────── */
 function speak(text, { rate = 1.05, pitch = 1.0, volume = 0.9, priority = false } = {}) {
