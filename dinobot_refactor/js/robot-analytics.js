@@ -44,6 +44,7 @@ function raTrackBattery(pct) {
 function raTrackSpeed(speed) { raData.avgSpeed = speed; }
 
 async function raTrackObstacleAvoided() {
+  if (currentRole !== 'manager') return;
   raData.obstaclesAvoided++;
   try {
     await Promise.all([
