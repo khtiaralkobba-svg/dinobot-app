@@ -15,6 +15,8 @@ let raData = {
 };
 
 let _raCalendarDate = { year: new Date().getFullYear(), month: new Date().getMonth(), day: null, mode: 'day' };
+window._raActiveTimeFilter = 'all';
+window._raCalendarFilter = null;
 function raTrackDispatch() { raData.dispatches++; raData._dispatchStart = Date.now(); }
 function raTrackDelivery() {
   if (raData._dispatchStart) {
@@ -68,6 +70,8 @@ async function openRobotAnalyticsOverlay() {
   }
   const isLight = document.body.classList.contains('light-mode');
   el.style.cssText = `display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow-y:auto;background:${isLight?'#f4faff':'#020b1a'};z-index:9500;`;
+  window._raActiveTimeFilter = 'all';
+  window._raCalendarFilter = null;
  
 
   el.innerHTML = `
@@ -111,14 +115,6 @@ async function openRobotAnalyticsOverlay() {
   let estops = raData.estopEvents;
   let totalObstaclesAvoided = raData.obstaclesAvoided;
   try {
-    const obsRes = await fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() });
-    if (obsRes.ok) {
-        const od = await obsRes.json();
-        totalObstaclesAvoided = od.obstacles_avoided || raData.obstaclesAvoided;
-        window._raTotalObstacles = totalObstaclesAvoided;
-    }
-    } catch {}
-try {
   const estopRes = await fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() });
   if (estopRes.ok) { const ed = await estopRes.json(); estops = ed.estop_events?.length || 0; window._raEstopEvents = ed.estop_events || []; }
   window._raTotalEstops = estops;
@@ -126,7 +122,12 @@ try {
 
 try {
   const obsEvRes = await fetch(API_BASE + '/api/robot-stats/obstacle-event', { headers: authHeaders() });
-  if (obsEvRes.ok) { const od2 = await obsEvRes.json(); window._raObstacleEvents = od2.obstacle_events || []; }
+  if (obsEvRes.ok) {
+    const od2 = await obsEvRes.json();
+    window._raObstacleEvents = od2.obstacle_events || [];
+    totalObstaclesAvoided = window._raObstacleEvents.length || raData.obstaclesAvoided;
+    window._raTotalObstacles = totalObstaclesAvoided;
+  }
 } catch {}
 
 let totalManualOverrides = 0;
@@ -269,10 +270,11 @@ window._raObstacleInterval = setInterval(async () => {
     return;
   }
   try {
-    const [ordersRes, obsRes, estopRes] = await Promise.all([
+    const [ordersRes, obsRes, estopRes, obsEvRes] = await Promise.all([
       fetch(API_BASE + '/api/orders/all', { headers: authHeaders({ 'Cache-Control': 'no-cache' }) }),
       fetch(API_BASE + '/api/robot-stats/obstacle', { headers: authHeaders() }),
-      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() })
+      fetch(API_BASE + '/api/robot-stats/estop', { headers: authHeaders() }),
+      fetch(API_BASE + '/api/robot-stats/obstacle-event', { headers: authHeaders() })
     ]);
     if (ordersRes.status === 401) {
       clearInterval(window._raObstacleInterval);
@@ -284,13 +286,15 @@ window._raObstacleInterval = setInterval(async () => {
     const orders = ordersRes.ok ? (await ordersRes.json()).orders || [] : [];
 const od = obsRes.ok ? await obsRes.json() : {};
 const ed = estopRes.ok ? await estopRes.json() : {};
+const odEv = obsEvRes.ok ? await obsEvRes.json() : {};
+window._raObstacleEvents = odEv.obstacle_events || window._raObstacleEvents || [];
 const delivered = orders.filter(o => o.status === 'delivered' && o.placed_at && o.delivered_at);
 const deliveryTimes = delivered.map(o => (new Date(o.delivered_at) - new Date(o.placed_at)) / 1000);
 const dispatched = orders.filter(o => o.status === 'delivered');
 const avgDelivery = deliveryTimes.length ? Math.round(deliveryTimes.reduce((a,b)=>a+b,0)/deliveryTimes.length) : null;
 window._raAllOrders = orders;
 const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-const fetchedObstacles = od.obstacles_avoided || raData.obstaclesAvoided || 0;
+const fetchedObstacles = window._raObstacleEvents.length || raData.obstaclesAvoided || 0;
 window._raTotalObstacles = fetchedObstacles;
 if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiveTimeFilter === 'all')) {
   setCard('ra-card-dispatches', dispatched.length);
