@@ -27,8 +27,11 @@ function raTrackDelivery() {
 async function raTrackEStop() {
   raData.estopEvents++;
   window._raTotalEstops = (window._raTotalEstops || 0) + 1;
-  const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
-  setCard('ra-card-estops', window._raTotalEstops);
+  const overlay = document.getElementById('robot-analytics-overlay');
+  if (overlay && overlay.style.display !== 'none') {
+    const el = document.querySelector('#ra-body .ra-card-estops');
+    if (el) el.textContent = window._raTotalEstops;
+  }
   try {
     await fetch(API_BASE + '/api/robot-stats/estop', {
       method: 'POST',

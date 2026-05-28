@@ -249,27 +249,26 @@ function updateObstacleCount() {
 async function syncObstaclesToRobot() {
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
-    // Restore obstacles from localStorage if current array is empty (e.g. different tab)
-    if (obstacles.length === 0) {
-      try {
-        const saved = localStorage.getItem('dinobotObstacles');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            obstacles = parsed;
-            updateObstacleCount();
-          }
-        }
-      } catch {}
-    }
+    // Build table obstacles — exclude the current delivery target
+    const tableObstacles = tables
+      .filter(t => !currentTarget || t.id !== currentTarget.id)
+      .map(t => ({
+        x: t.x,
+        y: t.y,
+        type: 'table',
+        radius: 0.045   // adjust to match your real table footprint
+      }));
+
     const allObstacles = [
-      ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r }))
+      ...tableObstacles,
+      ...obstacles.map(o => ({ x: o.x, y: o.y, type: o.type, radius: o.r }))
     ];
+
     await fetch(API_BASE + '/api/obstacles/current', {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ obstacles: allObstacles })
-});
+    });
   } catch {}
 }
 
