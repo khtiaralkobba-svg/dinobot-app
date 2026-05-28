@@ -897,3 +897,14 @@ body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div
   background: #dceef8 !important;
   border-color: rgba(255,106,0,0.1) !important;
 }
+
+body.light-mode #layout-assistant-panel > div:last-child > div:last-child > div:first-child {
+  background: #f4faff !important;
+  border-color: rgba(30,100,200,0.15) !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:last-child > div:first-child * {
+  color: #1C0F00 !important;
+}
+body.light-mode #la-right-title {
+  color: rgba(20,8,0,0.2) !important;
+}
