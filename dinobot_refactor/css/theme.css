@@ -615,8 +615,8 @@ body.light-mode #menu-overlay-body > div > div[style*="position:absolute"] {
   border-color: rgba(30,100,200,0.3) !important;
 }
 body.light-mode #menu-overlay-body > button {
-  background: linear-gradient(160deg, rgba(5,100,50,0.12), rgba(2,60,30,0.18)) !important;
-  border-color: rgba(74,222,128,0.6) !important;
+  background: linear-gradient(160deg, #0d3320, #081a10) !important;
+  border-color: #4ADE80 !important;
 }
 body.light-mode #menu-overlay-body > button div {
   color: rgba(20,8,0,0.6) !important;
