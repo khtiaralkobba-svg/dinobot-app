@@ -899,8 +899,8 @@ body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div
 }
 
 body.light-mode #layout-assistant-panel > div:last-child > div:last-child > div:first-child {
-  background: #f4faff !important;
-  border-color: rgba(30,100,200,0.15) !important;
+  background: linear-gradient(160deg, rgba(255,106,0,0.06) 0%, #f4faff 60%) !important;
+  border-color: rgba(255,106,0,0.2) !important;
 }
 body.light-mode #layout-assistant-panel > div:last-child > div:last-child > div:first-child * {
   color: #1C0F00 !important;
