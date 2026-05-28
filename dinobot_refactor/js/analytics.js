@@ -78,8 +78,10 @@ function recordWaitTime(ref) {
 /* ── FORMAT HELPERS ──────────────────────────────────────── */
 function fmtMins(mins) {
   if (mins === null || mins === undefined) return '—';
-  const m = Math.floor(mins), s = Math.round((mins % 1) * 60);
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'00')}`;
+  const totalSeconds = Math.round(mins * 60);
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
 /* ── UPDATE UI ───────────────────────────────────────────── */
@@ -192,7 +194,7 @@ async function loadAnalyticsFromDB() {
       if (['dispatched','delivering','delivered'].includes(order.status)) analytics.dispatches++;
       if (order.prep_started_at && order.ready_at) {
         const mins = (new Date(order.ready_at) - new Date(order.prep_started_at)) / 60000;
-        if (mins > 0 && mins < 120) {
+        if (mins > 0.1 && mins < 120) {
           analytics.prepTimes.push(mins);
           if (mins > 15) analytics.lateOrders++;
           if (analytics.fastestPrep === null || mins < analytics.fastestPrep) analytics.fastestPrep = mins;

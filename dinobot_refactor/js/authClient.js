@@ -167,8 +167,16 @@ function connectSocket(room) {
       }
     });
 
-    _socket.on('staff:online',  (id) => { _onlineStaff.add(id);    loadStaffList(); });
-    _socket.on('staff:offline', (id) => { _onlineStaff.delete(id); loadStaffList(); });
+    _socket.on('staff:online',  (id) => { 
+      _onlineStaff.add(id);
+      loadStaffList();
+      if (currentRole === 'manager') showToast('● ' + id + ' is now online');
+    });
+    _socket.on('staff:offline', (id) => { 
+      _onlineStaff.delete(id);
+      loadStaffList();
+      if (currentRole === 'manager') showToast('⬡ ' + id + ' went offline');
+    });
 
     _socket.on('reconnect', () => {
       _socket.emit('join', room);
