@@ -634,6 +634,48 @@ body.light-mode #menu-overlay-body > div > div > div[id^="menu-item-row"] {
   border-color: rgba(30,100,200,0.15) !important;
 }
 
+/* ── LIGHT MODE — AI MENU ADVISOR OVERLAY ────────────────── */
+body.light-mode #ai-menu-overlay {
+  background: #f4faff !important;
+}
+body.light-mode #ai-menu-overlay > div:first-child {
+  background: rgba(245,255,255,0.96) !important;
+  border-color: rgba(74,222,128,0.3) !important;
+}
+body.light-mode #ai-menu-overlay > div:first-child * {
+  color: #1C0F00 !important;
+}
+body.light-mode #ai-menu-messages,
+body.light-mode #ai-menu-options {
+  background: transparent !important;
+}
+body.light-mode #ai-menu-overlay > div:last-child > div:first-child {
+  background: #e8f4fd !important;
+  border-color: rgba(74,222,128,0.2) !important;
+}
+body.light-mode #ai-menu-overlay > div:last-child > div:last-child > div:first-child {
+  background: rgba(245,255,255,0.8) !important;
+  border-color: rgba(74,222,128,0.15) !important;
+}
+body.light-mode #ai-menu-steps .la-step {
+  border-color: transparent !important;
+}
+body.light-mode #ai-menu-steps .la-step-active {
+  background: rgba(74,222,128,0.1) !important;
+  border-color: rgba(74,222,128,0.4) !important;
+}
+body.light-mode #ai-menu-input {
+  background: #e8f4fd !important;
+  border-color: rgba(74,222,128,0.3) !important;
+  color: #0f3d6e !important;
+}
+body.light-mode #ai-menu-right-title {
+  color: rgba(20,8,0,0.15) !important;
+}
+body.light-mode #ai-menu-empty * {
+  color: rgba(20,8,0,0.15) !important;
+}
+
 /* ── LIGHT MODE — HEATMAP OVERLAY FULL FIX ──────────────── */
 body.light-mode #heatmap-overlay {
   background: #f4faff !important;
