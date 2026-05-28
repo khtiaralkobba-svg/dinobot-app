@@ -113,7 +113,7 @@ async function loadKitchenOrders() {
       }
     });
 
-    const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['delivered'].includes(o.status)).map(([ref])=>ref);
+    const isRobotBusy = incoming.some(o => ['dispatched', 'delivering'].includes(o.status));
     if (isRobotBusy !== robotBusy) {
       robotBusy = isRobotBusy;
       setAllDispatchButtons(!isRobotBusy);
