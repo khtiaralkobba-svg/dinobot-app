@@ -256,7 +256,7 @@ async function syncObstaclesToRobot() {
         x: t.x,
         y: t.y,
         type: 'table',
-        radius: 0.045   // adjust to match your real table footprint
+        radius: 0.028   // adjust to match your real table footprint
       }));
 
     const allObstacles = [
