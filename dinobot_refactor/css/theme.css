@@ -1,5 +1,7 @@
 /* ── CSS VARIABLES — DARK MODE (DEFAULT) ─────────────────── */
 :root {
+  --bg: #020b1a;
+  --card-bg: rgba(10,25,60,0.98);
   --orange: #FF6B1A;
   --orange-bright: #FF8C3A;
   --orange-glow: rgba(255, 107, 26, 0.4);
@@ -16,6 +18,8 @@
 
 /* ── LIGHT MODE OVERRIDES ────────────────────────────────── */
 body.light-mode {
+  --bg: #f4faff;
+  --card-bg: #e8f4fd;
   --orange: #FF6A00;
   --orange-bright: #E95F00;
   --orange-glow: rgba(255, 106, 0, 0.3);
@@ -595,6 +599,20 @@ body.light-mode #staff-list-panel > div[style*="position:absolute"] {
   border-color: rgba(109,40,217,0.5) !important;
   font-weight: 700 !important;
   letter-spacing: 3px !important;
+}
+
+/* ── LIGHT MODE — MENU OVERLAY ──────────────────────────── */
+body.light-mode #menu-overlay {
+  background: #f4faff !important;
+}
+body.light-mode #menu-overlay-body > div {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+body.light-mode #menu-overlay-body > div > div[style*="position:absolute"] {
+  background: #c8dff5 !important;
+  color: #1d4ed8 !important;
+  border-color: rgba(30,100,200,0.3) !important;
 }
 
 /* ── LIGHT MODE — HEATMAP OVERLAY FULL FIX ──────────────── */
