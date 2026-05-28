@@ -4,6 +4,7 @@
 
 /* ── ROBOT STATE ─────────────────────────────────────────── */
 let eStopActive = false;
+const ROBOT_BASE = 'http://YOUR_ROBOT_IP:5000';
 let robotState  = 'DOCKED';
 let currentTarget = null;
 let robotX = 0.08, robotY = 0.5, targetX = 0.08, targetY = 0.5, robotAngle = 0;
@@ -269,7 +270,7 @@ async function syncObstaclesToRobot() {
       ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
       ...tableObstacles
     ];
-    await fetch(API_BASE + '/api/robot/obstacles', {
+    await fetch(ROBOT_BASE + '/api/robot/obstacles', {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ obstacles: allObstacles })
@@ -748,7 +749,7 @@ function initMap() {
   if (window._robotPollInterval) clearInterval(window._robotPollInterval);
   window._robotPollInterval = setInterval(async () => {
     try {
-      const res  = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
+      const res  = await fetch(ROBOT_BASE + '/api/robot/status', { headers: authHeaders() });
       if (!res.ok) throw new Error('not ready');
       const data = await res.json();
 
