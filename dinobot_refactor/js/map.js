@@ -531,6 +531,18 @@ function animateMap() {
     ctx.shadowBlur = 0; ctx.fillStyle = isLight ? 'rgba(20,8,0,0.7)' : 'rgba(220,232,248,0.8)';
     ctx.font = '10px Share Tech Mono,monospace'; ctx.textAlign = 'center';
     ctx.fillText('T'+t.id, tx, ty+20);
+
+    // Draw obstacle ring on non-target tables
+    if (!isTarget) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(tx, ty, 22, 0, Math.PI*2);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.25 + 0.15 * Math.sin(Date.now() / 400);
+      ctx.setLineDash([4, 3]);
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.restore();
+    }
   });
 
   // Dock
