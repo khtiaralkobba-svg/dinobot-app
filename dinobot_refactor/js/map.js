@@ -246,24 +246,30 @@ function updateObstacleCount() {
     : 'no obstacles';
 }
 
-async function syncObstaclesToRobot() {
+async function syncObstaclesToRobot(excludeTableId = null) {
+  const excludeId = excludeTableId ?? currentTarget?.id ?? null;
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
-    // Build table obstacles — exclude the current delivery target
+    if (obstacles.length === 0) {
+      try {
+        const saved = localStorage.getItem('dinobotObstacles');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            obstacles = parsed;
+            updateObstacleCount();
+          }
+        }
+      } catch {}
+    }
     const tableObstacles = tables
-      .filter(t => !currentTarget || t.id !== currentTarget.id)
-      .map(t => ({
-        x: t.x,
-        y: t.y,
-        type: 'table',
-        radius: 0.028   // adjust to match your real table footprint
-      }));
+      .filter(t => t.id !== excludeId)
+      .map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.028 }));
 
     const allObstacles = [
       ...tableObstacles,
       ...obstacles.map(o => ({ x: o.x, y: o.y, type: o.type, radius: o.r }))
     ];
-
     await fetch(API_BASE + '/api/obstacles/current', {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
@@ -782,7 +788,7 @@ function initMap() {
           currentTarget = tables.find(t => t.id === data.target_table) || null;
           if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
-          syncObstaclesToRobot(); // Re-sync excluding new target table
+          syncObstaclesToRobot(data.target_table); // Re-sync excluding new target table
           document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
           document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
         }
@@ -791,7 +797,7 @@ function initMap() {
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
       } else if (data.state === 'IDLE') {
         currentTarget = null;
-        syncObstaclesToRobot();
+        syncObstaclesToRobot(null);
         if (robotBusy) {
           robotBusy = false; setAllDispatchButtons(true);
           const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['delivered'].includes(o.status)).map(([ref])=>ref);
