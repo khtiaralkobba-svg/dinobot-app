@@ -4,7 +4,7 @@
 
 /* ── ROBOT STATE ─────────────────────────────────────────── */
 let eStopActive = false;
-const ROBOT_BASE = 'http://YOUR_ROBOT_IP:5000';
+const ROBOT_BASE = 'https://dinobot-app.onrender.com';
 let robotState  = 'DOCKED';
 let currentTarget = null;
 let robotX = 0.08, robotY = 0.5, targetX = 0.08, targetY = 0.5, robotAngle = 0;
