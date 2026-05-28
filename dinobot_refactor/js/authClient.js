@@ -71,8 +71,8 @@ async function doLogin(role) {
       document.querySelector('#dashboard-hero-title .dash-title').innerHTML = 'KITCHEN <span style="color:var(--orange)">CENTER</span>';
       document.getElementById('kitchen-center').classList.add('unlocked');
       await loadKitchenOrders();
-      connectSocket('kitchen');
       sessionStorage.setItem('lastEmployeeId', empInput.value.trim());
+      connectSocket('kitchen');
       if (window._kitchenPollInterval) clearInterval(window._kitchenPollInterval);
       window._kitchenPollInterval = setInterval(loadKitchenOrders, 30000);
       startAlertEngine();
