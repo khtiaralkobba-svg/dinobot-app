@@ -144,6 +144,10 @@ async function doLogout() {
 function connectSocket(room) {
   if (_socket && _socket.connected) {
     _socket.emit('join', room);
+    if (room === 'kitchen') {
+      const empId = sessionStorage.getItem('lastEmployeeId');
+      if (empId) _socket.emit('staff:login', empId);
+    }
     return;
   }
   if (_socket) return;
@@ -158,14 +162,14 @@ function connectSocket(room) {
       reconnectionAttempts: 10
     });
 
-    _socket.on('connect', () => {
-      console.log('[socket] connected, joining:', room);
+    // If already connected, emit immediately
+    if (_socket.connected) {
       _socket.emit('join', room);
       if (room === 'kitchen') {
         const empId = sessionStorage.getItem('lastEmployeeId');
         if (empId) _socket.emit('staff:login', empId);
       }
-    });
+    }
 
     _socket.on('staff:online',  (id) => { 
       _onlineStaff.add(id);
@@ -180,7 +184,11 @@ function connectSocket(room) {
 
     _socket.on('reconnect', () => {
       _socket.emit('join', room);
-      if (room === 'kitchen') loadKitchenOrders();
+      if (room === 'kitchen') {
+        loadKitchenOrders();
+        const empId = sessionStorage.getItem('lastEmployeeId');
+        if (empId) _socket.emit('staff:login', empId);
+      }
     });
 
     _socket.on('order:new', (order) => {
