@@ -41,16 +41,16 @@ async function renderMenuOverlay() {
         </div>
         <div style="text-align:left;">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(74,222,128,0.7);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;">⬡ AI Powered</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#ffffff;line-height:1;">AI MENU ADVISOR</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-top:2px;">Get AI recommendations · Add directly to menu</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--text);line-height:1;">AI MENU ADVISOR</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:2px;">Get AI recommendations · Add directly to menu</div>
         </div>
       </div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:#4ADE80;">OPEN →</div>
     </button>
 
     <!-- Add new item form -->
-    <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(74,222,128,0.2);padding:28px 32px;position:relative;">
-      <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(74,222,128,0.6);border:1px solid rgba(74,222,128,0.15);">⬡ ADD NEW ITEM</div>
+    <div style="background:var(--card-bg,rgba(10,25,60,0.98));border:1px solid rgba(74,222,128,0.2);padding:28px 32px;position:relative;">
+      <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:var(--bg,#030f20);color:rgba(74,222,128,0.6);border:1px solid rgba(74,222,128,0.15);">⬡ ADD NEW ITEM</div>
       <div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr 100px auto;gap:12px;align-items:end;margin-top:8px;">
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">EMOJI</div>
@@ -66,7 +66,7 @@ async function renderMenuOverlay() {
         </div>
         <div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;">CATEGORY</div>
-          <select id="new-item-cat" class="form-input" style="background:rgba(5,20,60,0.6);color:var(--text);">
+          <select id="new-item-cat" class="form-input" style="background:var(--card-bg);color:var(--text);">
             <option value="Mains">Mains</option>
 <option value="Sides">Sides</option>
 <option value="Drinks">Drinks</option>
@@ -84,17 +84,17 @@ async function renderMenuOverlay() {
 
     <!-- Menu items by category -->
     ${cats.map(cat => `
-      <div style="background:linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98));border:1px solid rgba(74,222,128,0.15);padding:28px 32px;position:relative;">
-        <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:#030f20;color:rgba(74,222,128,0.6);border:1px solid rgba(74,222,128,0.15);">⬡ ${cat}</div>
+      <div style="background:var(--card-bg,rgba(10,25,60,0.98));border:1px solid rgba(74,222,128,0.15);padding:28px 32px;position:relative;">
+        <div style="position:absolute;top:-11px;left:24px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;padding:2px 12px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);background:var(--bg,#030f20);color:rgba(74,222,128,0.6);border:1px solid rgba(74,222,128,0.15);">⬡ ${cat}</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
           ${items.filter(i => i.cat === cat).map(item => `
-            <div id="menu-item-row-${item.id}" style="display:grid;grid-template-columns:50px 1fr 2fr 100px auto;gap:16px;align-items:center;padding:14px 18px;background:rgba(5,15,40,0.5);border:1px solid rgba(74,222,128,0.08);">
+            <div id="menu-item-row-${item.id}" style="display:grid;grid-template-columns:50px 1fr 2fr 100px auto;gap:16px;align-items:center;padding:14px 18px;background:var(--card-bg,rgba(5,15,40,0.5));border:1px solid rgba(74,222,128,0.15);">
               <div style="font-size:24px;text-align:center;">${item.emoji}</div>
               <div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#ffffff;letter-spacing:2px;">${item.name}</div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:2px;">${item.description || ''}</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text);letter-spacing:2px;">${item.name}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:2px;">${item.description || ''}</div>
               </div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;">${item.cat}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;">${item.cat}</div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#4ADE80;letter-spacing:1px;">$${Number(item.price).toFixed(2)}</div>
               <div style="display:flex;gap:8px;">
                 <button onclick="editMenuItem('${item.id}', '${item.name}', '${item.emoji}', '${item.cat}', '${(item.description||'').replace(/'/g,"\\'")}', ${item.price})" style="padding:8px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.3);color:#60A5FA;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(96,165,250,0.18)'" onmouseout="this.style.background='rgba(96,165,250,0.08)'">EDIT</button>
