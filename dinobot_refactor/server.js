@@ -376,6 +376,8 @@ app.get('/api/orders/heatmap', async (req, res) => {
 });
 
 // ── Socket.io ─────────────────────────────────────────────────────────────────
+const onlineStaff = new Set();
+
 io.on('connection', socket => {
   console.log('[socket] connected:', socket.id);
 
@@ -384,10 +386,14 @@ io.on('connection', socket => {
   socket.on('join', room => {
     socket.join(room);
     console.log(`[socket] ${socket.id} joined: ${room}`);
+    if (room === 'manager') {
+      onlineStaff.forEach(id => socket.emit('staff:online', id));
+    }
   });
 
   socket.on('staff:login', (employeeId) => {
     _staffId = employeeId;
+    onlineStaff.add(employeeId);
     io.to('manager').emit('staff:online', employeeId);
     console.log(`[socket] staff online: ${employeeId}`);
   });
@@ -395,6 +401,7 @@ io.on('connection', socket => {
   socket.on('disconnect', reason => {
     console.log('[socket] disconnected:', socket.id, reason);
     if (_staffId) {
+      onlineStaff.delete(_staffId);
       io.to('manager').emit('staff:offline', _staffId);
       console.log(`[socket] staff offline: ${_staffId}`);
     }
