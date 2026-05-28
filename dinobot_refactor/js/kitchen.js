@@ -315,17 +315,18 @@ function startKitchenRobotPolling() {
         else if (data.state === 'RETURNING')      kitchEta.textContent = '~1 min';
         else                                       kitchEta.textContent = '~2 min';
     }
-      const isNowBusy = ['MOVING_TO_TABLE','DELIVERING'].includes(data.state);
-      robotBusy = isNowBusy;
-      setAllDispatchButtons(!isNowBusy);
+      const isNowBusy = ['MOVING_TO_TABLE','DELIVERING','RETURNING','RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
+      if (isNowBusy !== robotBusy) {
+        robotBusy = isNowBusy;
+        setAllDispatchButtons(!isNowBusy);
+      }
     } catch {
       if (window._pythonOnline !== false) {
         window._pythonOnline = false;
-        document.querySelectorAll('[data-dispatch="true"]').forEach(btn => {
-          btn.disabled = true; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none';
-          btn.title = 'Robot server offline';
-        });
       }
+      // Don't disable buttons when Python goes offline — let kitchen still try
+      robotBusy = false;
+      setAllDispatchButtons(true);
     }
   }, 3000);
 }
