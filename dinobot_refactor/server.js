@@ -414,6 +414,37 @@ socket.on('staff:logout', (employeeId) => {
   });
 });
 
+app.get('/api/stats/public', async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .select('status, table_number, placed_at, delivered_at')
+      .gte('placed_at', today.toISOString());
+    
+    if (error) throw error;
+    
+    const delivered = (data || []).filter(o => o.status === 'delivered');
+    const tables = new Set(delivered.map(o => o.table_number)).size;
+    const avgDelivery = delivered.length > 0
+      ? Math.round(delivered.reduce((sum, o) => {
+          if (!o.placed_at || !o.delivered_at) return sum + 15;
+          return sum + (new Date(o.delivered_at) - new Date(o.placed_at)) / 60000;
+        }, 0) / delivered.length)
+      : 0;
+
+    res.json({
+      ordersToday: delivered.length,
+      avgDelivery,
+      tablesServed: tables
+    });
+  } catch (err) {
+    res.json({ ordersToday: 0, avgDelivery: 0, tablesServed: 0 });
+  }
+});
+
 app.set('io', io);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
