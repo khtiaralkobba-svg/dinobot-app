@@ -872,3 +872,11 @@ body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div
 body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:last-child * {
   color: rgba(20,8,0,0.5) !important;
 }
+body.light-mode #layout-chat-messages > div {
+  background: #dceef8 !important;
+  color: #1C0F00 !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+body.light-mode #layout-chat-messages > div * {
+  color: #1C0F00 !important;
+}
