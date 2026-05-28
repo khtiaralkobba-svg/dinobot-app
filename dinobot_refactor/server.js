@@ -397,6 +397,12 @@ io.on('connection', socket => {
     io.to('manager').emit('staff:online', employeeId);
     console.log(`[socket] staff online: ${employeeId}`);
   });
+  
+socket.on('staff:logout', (employeeId) => {
+    onlineStaff.delete(employeeId);
+    io.to('manager').emit('staff:offline', employeeId);
+    console.log(`[socket] staff logout: ${employeeId}`);
+  });
 
   socket.on('disconnect', reason => {
     console.log('[socket] disconnected:', socket.id, reason);

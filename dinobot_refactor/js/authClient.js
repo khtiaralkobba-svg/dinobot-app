@@ -114,7 +114,14 @@ async function doLogin(role) {
 
 async function doLogout() {
   try { await fetch(API_BASE + '/api/auth/logout', { method: 'POST', headers: authHeaders() }); } catch {}
+  if (_socket && currentRole === 'kitchen') {
+    const empId = sessionStorage.getItem('lastEmployeeId');
+    console.log('[logout] emitting staff:logout for:', empId);
+    _socket.emit('staff:logout', empId);
+    setTimeout(() => { _socket?.disconnect(); _socket = null; }, 500);
+  }
   sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('lastEmployeeId');
 
   if (window._kitchenPollInterval)  { clearInterval(window._kitchenPollInterval);  window._kitchenPollInterval = null; }
   if (window._kitchenRobotPoll)     { clearInterval(window._kitchenRobotPoll);      window._kitchenRobotPoll = null; }
