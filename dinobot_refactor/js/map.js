@@ -801,8 +801,10 @@ function initMap() {
           currentTarget = tables.find(t => t.id === data.target_table) || null;
           if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
-          // Only POST when target actually changes — but always pass the correct ID
+          // POST immediately, then again after 1s to ensure robot map clears the target table
           syncObstaclesToRobot(data.target_table);
+          setTimeout(() => syncObstaclesToRobot(data.target_table), 1000);
+          setTimeout(() => syncObstaclesToRobot(data.target_table), 3000);
         }
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
         // Find button by table id instead of array index — safe if tables were added/removed
