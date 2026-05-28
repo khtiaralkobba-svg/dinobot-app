@@ -52,7 +52,8 @@ async function updateStatus(req, res) {
   try {
     const result = await orderService.updateOrderStatus(
       req.params.orderRef,
-      req.body.status
+      req.body.status,
+      req.body.handled_by || req.user?.employeeId || null
     );
 
     if (!result) {

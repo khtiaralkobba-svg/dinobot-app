@@ -491,7 +491,10 @@ async function setOrderStatus(ref, newStatus) {
     const res = await fetch(API_BASE + '/api/orders/' + ref + '/status', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
-      body: JSON.stringify({ status: newStatus })
+      body: JSON.stringify({ 
+        status: newStatus,
+        handled_by: newStatus === 'prep' ? sessionStorage.getItem('lastEmployeeId') : undefined
+      })
     });
     if (res.ok && newStatus === 'prep') {
       const d = await res.json();

@@ -135,7 +135,23 @@ async function getStaff(req, res) {
 
     if (error) throw error;
 
-    return res.json({ success: true, staff: data || [] });
+    // Count orders handled per staff from orders table
+    const { data: orderCounts } = await supabase
+      .from('orders')
+      .select('handled_by')
+      .not('handled_by', 'is', null);
+
+    const countMap = {};
+    (orderCounts || []).forEach(o => {
+      countMap[o.handled_by] = (countMap[o.handled_by] || 0) + 1;
+    });
+
+    const staff = (data || []).map(s => ({
+      ...s,
+      orders_handled: countMap[s.employee_id] || 0
+    }));
+
+    return res.json({ success: true, staff });
   } catch (err) {
     console.error('Get staff error:', err);
     return res.status(500).json({ success: false, error: 'Server error' });
@@ -165,7 +181,7 @@ async function updateStaffStatus(req, res) {
     return res.json({
       success: true,
       message: disabled ? 'Account disabled' : 'Account enabled',
-      user: { id: dafta.id, employeeId: data.employee_id, is_disabled: data.is_disabled }
+      user: { id: data.id, employeeId: data.employee_id, is_disabled: data.is_disabled }
     });
   } catch (err) {
     console.error('Update staff status error:', err);
