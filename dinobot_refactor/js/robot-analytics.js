@@ -26,6 +26,9 @@ function raTrackDelivery() {
 }
 async function raTrackEStop() {
   raData.estopEvents++;
+  window._raTotalEstops = (window._raTotalEstops || 0) + 1;
+  const setCard = (cls, val) => { const el = document.querySelector('#ra-body .' + cls); if (el) el.textContent = val; };
+  setCard('ra-card-estops', window._raTotalEstops);
   try {
     await fetch(API_BASE + '/api/robot-stats/estop', {
       method: 'POST',
@@ -300,7 +303,7 @@ window._raTotalObstacles = fetchedObstacles;
 if (!window._raCalendarFilter && (!window._raActiveTimeFilter || window._raActiveTimeFilter === 'all')) {
   setCard('ra-card-dispatches', dispatched.length);
   setCard('ra-card-avgdelivery', avgDelivery ? avgDelivery + 's' : '—');
-  setCard('ra-card-estops', ed.estop_events?.length || 0);
+  setCard('ra-card-estops', ed.estop_events?.length || window._raTotalEstops || 0);
   if (window._raActiveCard !== 'obstacles') {
     setCard('ra-card-obstacles', fetchedObstacles);
   }
