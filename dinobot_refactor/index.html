@@ -475,6 +475,18 @@
           <div class="metric"><div class="metric-header"><span>Battery</span><span id="bat-pct">78%</span></div><div class="metric-bar"><div class="metric-fill" id="bat-bar" style="width:78%"></div></div></div>
           <div class="metric"><div class="metric-header"><span>Speed</span><span id="speed-val">0 cm/s</span></div><div class="metric-bar"><div class="metric-fill" id="speed-bar" style="width:0%"></div></div></div>
           <div class="metric"><div class="metric-header"><span>Load</span><span id="load-val">Empty</span></div><div class="metric-bar"><div class="metric-fill" id="load-bar" style="width:0%"></div></div></div>
+          <div class="metric" style="margin-top:10px;">
+            <div class="metric-header">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);">MAX SPEED</span>
+              <span id="robot-speed-label" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#FF6B1A;">40%</span>
+            </div>
+            <input type="range" id="robot-speed-slider" min="10" max="100" value="40" step="5"
+              style="width:100%;accent-color:#FF6B1A;margin-top:6px;cursor:pointer;"
+              oninput="onSpeedSliderChange(this.value)">
+            <div style="display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;margin-top:2px;">
+              <span>SLOW</span><span>FAST</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -335,6 +335,16 @@ function drawObstacles(ctx, W, H) {
 }
 
 /* ── ROBOT STATE DISPLAY ─────────────────────────────────── */
+
+function onSpeedSliderChange(val) {
+  document.getElementById('robot-speed-label').textContent = val + '%';
+  fetch(API_BASE + '/api/robot/speed', {
+    method: 'POST',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ speed_pct: parseInt(val) })
+  }).catch(() => {});
+}
+
 function setRobotState(state, label, color) {
   const badge = document.getElementById('robot-state-badge');
   if (!badge) return;
