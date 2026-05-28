@@ -1094,7 +1094,8 @@ function raRenderCalendar() {
 
   const popup = document.createElement('div');
   popup.id = 'ra-calendar-popup';
-  popup.style.cssText = `position:absolute;z-index:9999;background:#061422;border:1px solid rgba(96,165,250,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.5);min-width:320px;`;
+  const isLightCal = document.body.classList.contains('light-mode');
+popup.style.cssText = `position:absolute;z-index:9999;background:${isLightCal?'#e8f4fd':'#061422'};border:1px solid ${isLightCal?'rgba(30,100,200,0.3)':'rgba(96,165,250,0.3)'};box-shadow:0 20px 60px rgba(0,0,0,0.5);min-width:320px;`;
 
   if (mode === 'month') {
     // Month picker

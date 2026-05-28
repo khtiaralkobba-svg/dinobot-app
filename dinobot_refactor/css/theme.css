@@ -676,6 +676,31 @@ body.light-mode #ai-menu-empty * {
   color: rgba(20,8,0,0.15) !important;
 }
 
+/* ── LIGHT MODE — ROBOT ANALYTICS OVERLAY ───────────────── */
+body.light-mode #robot-analytics-overlay {
+  background: #f4faff !important;
+}
+body.light-mode #ra-calendar-popup {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.3) !important;
+}
+body.light-mode #ra-calendar-popup * {
+  color: #1C0F00 !important;
+}
+body.light-mode #ra-calendar-popup button {
+  color: #1d4ed8 !important;
+}
+body.light-mode #ra-calendar-popup div[style*="color:#60A5FA"] {
+  color: #1d4ed8 !important;
+}
+body.light-mode #ra-calendar-popup div[style*="color:#ffffff"] {
+  color: #1C0F00 !important;
+}
+body.light-mode #ra-calendar-popup div[style*="background:#061422"],
+body.light-mode #ra-calendar-popup div[style*="background: #061422"] {
+  background: #e8f4fd !important;
+}
+
 /* ── LIGHT MODE — AI MENU CARDS ─────────────────────────── */
 body.light-mode #ai-menu-options .ai-menu-card,
 body.light-mode #ai-menu-options > div > div {
