@@ -522,7 +522,16 @@ async function dispatchRobot(ref, tableNum) {
       method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ order_ref: ref, table_number: tableNum, role: 'kitchen' })
     });
-    if (!robotRes.ok) throw new Error('Robot rejected dispatch');
+    if (!robotRes.ok) {
+      const robotErr = await robotRes.json().catch(() => ({}));
+      // Robot rejected — reset order back to ready so kitchen can retry
+      await fetch(API_BASE + '/api/orders/' + ref + '/status', {
+        method: 'PATCH', headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ status: 'ready' })
+      }).catch(() => {});
+      kitchenOrders[ref].status = 'ready';
+      throw new Error(robotErr.error || 'Robot rejected dispatch');
+    }
     robotBusy = true; setAllDispatchButtons(false);
     if (btn) btn.textContent = '⬡ Robot En Route';
     showToast('🤖 Robot dispatched → Table ' + tableNum);
