@@ -522,7 +522,8 @@ async function dispatchRobot(ref, tableNum) {
       method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ order_ref: ref, table_number: tableNum, role: 'kitchen' })
     });
-    if (!robotRes.ok) throw new Error('Robot rejected dispatch');
+    const robotErr = await robotRes.json().catch(() => ({}));
+    if (!robotRes.ok) throw new Error(robotErr.error || 'Robot rejected dispatch');
     robotBusy = true; setAllDispatchButtons(false);
     if (btn) btn.textContent = '⬡ Robot En Route';
     showToast('🤖 Robot dispatched → Table ' + tableNum);
