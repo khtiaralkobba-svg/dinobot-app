@@ -393,6 +393,16 @@ function applyStatusToTimeline(ref, status, tableNum) {
     if (status === 'delivered') {
       markDone('ts-enroute'); markDone('ts-delivered');
       document.getElementById('pickup-overlay')?.classList.remove('show');
+      // Show tray collection button
+      const cancelBtn = document.getElementById('cancel-btn-' + ref);
+      if (cancelBtn) {
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = '🤖 COLLECT MY TRAY';
+        cancelBtn.style.background = 'linear-gradient(135deg,#FF6B1A,#ff8c3a)';
+        cancelBtn.style.opacity = '1';
+        cancelBtn.style.cursor = 'pointer';
+        cancelBtn.onclick = () => requestTrayCollection(ref, tableNum);
+      }
     }
   }
 
@@ -402,6 +412,7 @@ function applyStatusToTimeline(ref, status, tableNum) {
   if (cancelBtn) {
     if (status === 'new') { cancelBtn.disabled=false;cancelBtn.textContent='CANCEL ORDER';cancelBtn.style.opacity='1';cancelBtn.style.cursor='pointer'; }
     else if (status === 'cancelled') { cancelBtn.disabled=true;cancelBtn.textContent='ORDER CANCELLED';cancelBtn.style.opacity='0.5';cancelBtn.style.cursor='not-allowed'; }
+    else if (status === 'delivered') { /* handled above — tray collection button */ }
     else { cancelBtn.disabled=true;cancelBtn.textContent='CANNOT CANCEL';cancelBtn.style.opacity='0.5';cancelBtn.style.cursor='not-allowed'; }
   }
 }
@@ -600,5 +611,76 @@ async function confirmPickup() {
     }, 1500);
   } catch {
     showToast('✗ Failed — try again'); btn.disabled = false; btn.textContent = "✓ I'VE TAKEN MY ORDER";
+  }
+}
+
+/* ── TRAY COLLECTION ─────────────────────────────────────── */
+async function requestTrayCollection(ref, tableNum) {
+  const btn = document.getElementById('cancel-btn-' + ref);
+  if (btn) { btn.disabled = true; btn.textContent = '⬡ Dispatching Robot...'; }
+  try {
+    const res = await fetch(API_BASE + '/api/robot/dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ table_number: tableNum, order_ref: null, role: 'tray' })
+    });
+    if (!res.ok) throw new Error('Robot unavailable');
+    if (btn) { btn.disabled = true; btn.textContent = '⬡ Robot Coming to Collect Tray...'; }
+    showToast('🤖 Robot dispatched to collect your tray!');
+
+    // Poll for robot arrival then show tray loaded screen
+    window._trayWatcher = setInterval(async () => {
+      try {
+        const r = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
+        const data = await r.json();
+        if (data.state === 'DELIVERING') {
+          clearInterval(window._trayWatcher);
+          showTrayLoadedScreen(ref);
+        }
+      } catch {}
+    }, 3000);
+  } catch (err) {
+    showToast('✗ ' + (err.message || 'Failed to dispatch robot'));
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 COLLECT MY TRAY'; }
+  }
+}
+
+function showTrayLoadedScreen(ref) {
+  const overlay = document.getElementById('pickup-overlay');
+  const list    = document.getElementById('pickup-items-list');
+  const tag     = document.getElementById('pickup-table-tag');
+  const btn     = document.getElementById('pickup-confirm-btn');
+  const order   = sessionOrders.find(o => o.order_ref === ref);
+
+  list.innerHTML = `
+    <div style="text-align:center;padding:24px 0;">
+      <div style="font-size:48px;margin-bottom:12px;">🤖</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(251,185,36,0.8);">ROBOT HAS ARRIVED</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;margin-top:8px;">Place your tray on the robot</div>
+    </div>`;
+  if (tag) tag.textContent = `⬡ Table ${order?.table_number} · Tray Collection`;
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✓ TRAY LOADED — SEND ROBOT BACK';
+    btn.onclick = confirmTrayLoaded;
+  }
+  if (overlay) overlay.classList.add('show');
+}
+
+async function confirmTrayLoaded() {
+  const btn = document.getElementById('pickup-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'SENDING ROBOT BACK...'; }
+  try {
+    await fetch(API_BASE + '/api/robot/pickup', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    await fetch(API_BASE + '/api/robot/recall', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    btn.textContent = '✓ THANK YOU!';
+    setTimeout(() => {
+      document.getElementById('pickup-overlay')?.classList.remove('show');
+      showToast('✓ Tray collected — thank you! 🎓');
+      btn.onclick = confirmPickup; // reset for next use
+    }, 1500);
+  } catch {
+    showToast('✗ Failed — try again');
+    if (btn) { btn.disabled = false; btn.textContent = '✓ TRAY LOADED — SEND ROBOT BACK'; }
   }
 }
