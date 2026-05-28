@@ -118,7 +118,7 @@ async function getAllOrders() {
 // ==========================
 // UPDATE STATUS
 // ==========================
-async function updateOrderStatus(orderRef, status) {
+async function updateOrderStatus(orderRef, status, handledBy = null) {
   const updateData = { 
     status,
     updated_at: new Date().toISOString()
@@ -128,7 +128,12 @@ async function updateOrderStatus(orderRef, status) {
     updateData.delivered_at = new Date().toISOString();
   }
 
+  if (status === 'ready') {
+    updateData.ready_at = new Date().toISOString();
+  }
+
   if (status === 'prep') {
+    if (handledBy) updateData.handled_by = handledBy;
     const { data: existing } = await supabase
       .from('orders')
       .select('prep_started_at')
