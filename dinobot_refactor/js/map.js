@@ -262,13 +262,8 @@ async function syncObstaclesToRobot() {
         }
       } catch {}
     }
-    const targetId = currentTarget?.id;
-    const tableObstacles = tables
-      .filter(t => t.id !== targetId)
-      .map(t => ({ x: t.x, y: t.y, type: 'table', radius: 0.022 }));
     const allObstacles = [
-      ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
-      ...tableObstacles
+      ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r }))
     ];
     await fetch(API_BASE + '/api/obstacles/current', {
       method: 'POST',
@@ -495,7 +490,6 @@ function animateMap() {
         document.getElementById('speed-val').textContent = '0 cm/s'; document.getElementById('speed-bar').style.width = '0%';
         raTrackDelivery();
         addActivity('dot-order', `UNIT-01 arrived at <strong>Table ${currentTarget.id}</strong>`);
-        setTimeout(() => { if (robotState === 'DELIVERING') recallUnit(); }, 4000);
       }
       if (dist < 0.015 && robotState === 'RETURNING') {
         robotX = dockX; robotY = dockY; robotState = 'DOCKED';
