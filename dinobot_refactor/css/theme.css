@@ -676,6 +676,19 @@ body.light-mode #ai-menu-empty * {
   color: rgba(20,8,0,0.15) !important;
 }
 
+/* ── LIGHT MODE — AI MENU CARDS ─────────────────────────── */
+body.light-mode #ai-menu-options .ai-menu-card,
+body.light-mode #ai-menu-options > div > div {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
+body.light-mode #ai-menu-options .ai-menu-card * {
+  color: #1C0F00 !important;
+}
+body.light-mode #ai-menu-right-title {
+  color: #1C0F00 !important;
+}
+
 /* ── LIGHT MODE — HEATMAP OVERLAY FULL FIX ──────────────── */
 body.light-mode #heatmap-overlay {
   background: #f4faff !important;
