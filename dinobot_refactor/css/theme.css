@@ -615,11 +615,15 @@ body.light-mode #menu-overlay-body > div > div[style*="position:absolute"] {
   border-color: rgba(30,100,200,0.3) !important;
 }
 body.light-mode #menu-overlay-body > button {
-  background: linear-gradient(160deg, #0d3320, #081a10) !important;
+  background: linear-gradient(160deg, rgba(74,222,128,0.15), rgba(74,222,128,0.08)) !important;
   border-color: #4ADE80 !important;
 }
 body.light-mode #menu-overlay-body > button div {
-  color: rgba(20,8,0,0.6) !important;
+  color: #1a5c2a !important;
+}
+body.light-mode #menu-overlay-body > button div[style*="AI MENU ADVISOR"],
+body.light-mode #menu-overlay-body > button div[style*="font-size:24px"] {
+  color: #1a5c2a !important;
 }
 body.light-mode #menu-overlay-body > div > div > div[id^="menu-item-row"] {
   background: #f4faff !important;
