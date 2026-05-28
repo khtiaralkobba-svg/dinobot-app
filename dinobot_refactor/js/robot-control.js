@@ -32,8 +32,11 @@ function toggleEStop() {
 }
 
 /* ── DISPATCH ────────────────────────────────────────────── */
+let _dispatching = false;
 async function dispatch(tableId) {
   if (eStopActive) { showToast('⚠ EMERGENCY STOP ACTIVE'); return; }
+  if (_dispatching) { showToast('⬡ Already dispatching...'); return; }
+  _dispatching = true;
 
   let orderRef = null;
   try {
@@ -58,7 +61,7 @@ async function dispatch(tableId) {
     });
     const errData = await res.json().catch(() => ({}));
     if (!res.ok) { showToast('⬡ ' + (errData.error || 'Robot unavailable')); return; }
-  } catch { showToast('✗ Cannot reach robot server'); return; }
+  } catch { showToast('✗ Cannot reach robot server'); _dispatching = false; return; }
 
   document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.dispatch-btn')[tableId - 1]?.classList.add('active');
@@ -68,6 +71,7 @@ async function dispatch(tableId) {
   addActivity('dot-robot', `UNIT-01 dispatched to <strong>Table ${tableId}</strong>`);
   showToast('⬡ UNIT-01 dispatched → Table ' + tableId);
   recordDispatch();
+  setTimeout(() => { _dispatching = false; }, 3000);
 }
 
 /* ── RECALL ──────────────────────────────────────────────── */
