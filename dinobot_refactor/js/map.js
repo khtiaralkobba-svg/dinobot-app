@@ -270,11 +270,11 @@ async function syncObstaclesToRobot() {
       ...obstacles.map(o => ({ x:o.x, y:o.y, type:o.type, radius:o.r })),
       ...tableObstacles
     ];
-    await fetch(ROBOT_BASE + '/api/robot/obstacles', {
+    await fetch(API_BASE + '/api/obstacles/current', {
       method: 'POST',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ obstacles: allObstacles })
-    });
+});
   } catch {}
 }
 

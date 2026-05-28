@@ -97,6 +97,17 @@ app.post('/api/groq', async (req, res) => {
 // ── Robot proxy routes ────────────────────────────────────────────────────────
 const ROBOT_URL = process.env.ROBOT_URL || 'http://localhost:5000';
 
+let storedObstacles = [];
+
+app.get('/api/obstacles/current', (req, res) => {
+  res.json({ obstacles: storedObstacles });
+});
+
+app.post('/api/obstacles/current', (req, res) => {
+  storedObstacles = req.body.obstacles || [];
+  res.json({ success: true });
+});
+
 // ── Table layout ──────────────────────────────────────────────────────────────
 let tableLayout = null;
 
@@ -145,6 +156,9 @@ const robotProxyRoutes = [
   { path: '/manual/stop',  method: 'POST' },
   { path: '/manual/move',  method: 'POST' },
   { path: '/obstacles', method: 'POST' },
+  { path: '/obstacles', method: 'POST' },
+{ path: '/obstacles', method: 'GET'  },
+{ path: '/reset',     method: 'POST' },
 ];
 
 robotProxyRoutes.forEach(({ path: robotPath, method }) => {
