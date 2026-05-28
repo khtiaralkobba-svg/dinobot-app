@@ -614,6 +614,17 @@ body.light-mode #menu-overlay-body > div > div[style*="position:absolute"] {
   color: #1d4ed8 !important;
   border-color: rgba(30,100,200,0.3) !important;
 }
+body.light-mode #menu-overlay-body > button {
+  background: linear-gradient(160deg, rgba(5,40,20,0.08), rgba(2,15,10,0.12)) !important;
+  border-color: rgba(74,222,128,0.4) !important;
+}
+body.light-mode #menu-overlay-body > button div {
+  color: rgba(20,8,0,0.6) !important;
+}
+body.light-mode #menu-overlay-body > div > div > div[id^="menu-item-row"] {
+  background: #f4faff !important;
+  border-color: rgba(30,100,200,0.15) !important;
+}
 
 /* ── LIGHT MODE — HEATMAP OVERLAY FULL FIX ──────────────── */
 body.light-mode #heatmap-overlay {
