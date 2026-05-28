@@ -210,7 +210,7 @@ function playCritAlert() {
 
 setInterval(() => {
   fetch(API_BASE + '/health').catch(() => {});
-}, 840000); // 14 minutes
+}, 600000); // 10 minutes
 
 /* ── VOICE BUILDERS ──────────────────────────────────────── */
 function voiceNewOrder(orderRef, tableNum) { speak(`New order for table ${tableNum}`); }
