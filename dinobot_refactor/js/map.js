@@ -791,7 +791,7 @@ function initMap() {
         syncObstaclesToRobot();
         if (robotBusy) {
           robotBusy = false; setAllDispatchButtons(true);
-          const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['dispatched','delivering','delivered'].includes(o.status)).map(([ref])=>ref);
+          const toRemove = Object.entries(kitchenOrders).filter(([,o])=>['delivered'].includes(o.status)).map(([ref])=>ref);
           toRemove.forEach(ref => {
             const card = document.getElementById('order-' + ref);
             if (card) { card.style.transition='opacity 0.4s,transform 0.4s';card.style.opacity='0';card.style.transform='translateX(20px)';setTimeout(()=>card.remove(),420); }
