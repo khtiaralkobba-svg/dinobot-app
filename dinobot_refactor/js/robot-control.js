@@ -92,6 +92,7 @@ function recallUnit() {
 function pauseUnit() {
   if (eStopActive) return;
   paused = !paused;
+  if (paused && robotState === 'DOCKED') { paused = false; showToast('⬡ Nothing to pause'); return; }
   const btn = document.getElementById('pause-btn');
   if (paused) {
     btn.textContent = '⬡ RESUME UNIT';
