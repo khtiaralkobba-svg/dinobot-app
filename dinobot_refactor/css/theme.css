@@ -603,7 +603,11 @@ body.light-mode #staff-list-panel > div[style*="position:absolute"] {
 
 /* ── LIGHT MODE — MENU OVERLAY ──────────────────────────── */
 body.light-mode #menu-overlay {
-  background: #f4faff !important;
+  background: #ffffff !important;
+}
+body.light-mode #menu-overlay > div:first-child {
+  background: linear-gradient(160deg, rgba(74,222,128,0.12) 0%, transparent 60%) !important;
+  border-color: rgba(74,222,128,0.3) !important;
 }
 body.light-mode #menu-overlay-body > div {
   background: #e8f4fd !important;
