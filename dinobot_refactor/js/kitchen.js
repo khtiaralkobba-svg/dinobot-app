@@ -306,15 +306,15 @@ function startKitchenRobotPolling() {
       const kitchDest  = document.getElementById('kitch-robot-dest');
       const kitchBat   = document.getElementById('kitch-robot-bat');
       const kitchEta   = document.getElementById('kitch-robot-eta');
-      if (kitchState) kitchState.textContent = stateLabels[data.state] || '● ' + data.state;
+      if (kitchState) kitchState.textContent = stateLabels[data.state] || '● ' + (data.state || 'OFFLINE');
       if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table ' + data.target_table : '—';
-      if (kitchBat)   kitchBat.textContent   = data.battery + '%';
+      if (kitchBat)   kitchBat.textContent   = data.battery ? data.battery + '%' : '—';
       if (kitchEta) {
-        if (data.state === 'IDLE')            kitchEta.textContent = '—';
-        else if (data.state === 'DELIVERING') kitchEta.textContent = 'Arrived';
-        else if (data.state === 'RETURNING')  kitchEta.textContent = '~1 min';
-        else                                   kitchEta.textContent = '~2 min';
-      }
+        if (!data.state || data.state === 'IDLE') kitchEta.textContent = '—';
+        else if (data.state === 'DELIVERING')     kitchEta.textContent = 'Arrived';
+        else if (data.state === 'RETURNING')      kitchEta.textContent = '~1 min';
+        else                                       kitchEta.textContent = '~2 min';
+    }
       const isNowBusy = ['MOVING_TO_TABLE','DELIVERING'].includes(data.state);
       robotBusy = isNowBusy;
       setAllDispatchButtons(!isNowBusy);

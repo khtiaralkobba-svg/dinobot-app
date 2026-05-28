@@ -388,7 +388,6 @@ io.on('connection', socket => {
 
   socket.on('staff:login', (employeeId) => {
     _staffId = employeeId;
-    socket.join('manager');
     io.to('manager').emit('staff:online', employeeId);
     console.log(`[socket] staff online: ${employeeId}`);
   });
