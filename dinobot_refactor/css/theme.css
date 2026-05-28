@@ -880,3 +880,20 @@ body.light-mode #layout-chat-messages > div {
 body.light-mode #layout-chat-messages > div * {
   color: #1C0F00 !important;
 }
+
+body.light-mode #layout-chat-messages > div[style*="background"] {
+  background: #dceef8 !important;
+  color: #1C0F00 !important;
+}
+body.light-mode #layout-chat-messages > div[style*="background"] * {
+  color: #1C0F00 !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:nth-child(2) {
+  background: transparent !important;
+  border: none !important;
+}
+
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:first-child {
+  background: #dceef8 !important;
+  border-color: rgba(255,106,0,0.1) !important;
+}

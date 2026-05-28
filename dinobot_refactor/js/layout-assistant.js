@@ -32,11 +32,12 @@ function layoutAddMessage(role, text) {
   if (!messages) return;
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'display:flex;flex-direction:column;gap:4px;animation:fadeInUp 0.3s ease;align-items:' + (role === 'bot' ? 'flex-start' : 'flex-end') + ';';
+  const isLight = document.body.classList.contains('light-mode');
   const bubble = document.createElement('div');
   bubble.style.cssText = 'padding:10px 14px;font-family:Rajdhani,sans-serif;font-size:14px;line-height:1.5;max-width:90%;white-space:pre-wrap;' +
     (role === 'bot'
-      ? 'background:rgba(5,22,65,0.7);border:1px solid var(--border);border-left:2px solid var(--orange);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);color:var(--text);'
-      : 'background:rgba(255,107,26,0.12);border:1px solid var(--border-bright);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);color:var(--text);');
+      ? `background:${isLight?'#dceef8':'rgba(5,22,65,0.7)'};border:1px solid var(--border);border-left:2px solid var(--orange);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);color:var(--text);`
+      : `background:${isLight?'rgba(255,107,26,0.1)':'rgba(255,107,26,0.12)'};border:1px solid var(--border-bright);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);color:var(--text);`);
   bubble.textContent = text;
   wrapper.appendChild(bubble);
   messages.appendChild(wrapper);
@@ -48,7 +49,8 @@ function layoutShowTyping() {
   if (!messages) return;
   const el = document.createElement('div');
   el.id = 'layout-typing';
-  el.style.cssText = 'display:flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(5,22,65,0.7);border:1px solid var(--border);border-left:2px solid var(--orange);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);width:fit-content;';
+  const isLightTyping = document.body.classList.contains('light-mode');
+  el.style.cssText = `display:flex;align-items:center;gap:6px;padding:10px 14px;background:${isLightTyping?'#dceef8':'rgba(5,22,65,0.7)'};border:1px solid var(--border);border-left:2px solid var(--orange);clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);width:fit-content;`;
   el.innerHTML = '<span style="width:6px;height:6px;background:var(--orange);border-radius:50%;animation:typingDot 1.2s ease-in-out infinite;"></span><span style="width:6px;height:6px;background:var(--orange);border-radius:50%;animation:typingDot 1.2s ease-in-out infinite;animation-delay:0.2s;"></span><span style="width:6px;height:6px;background:var(--orange);border-radius:50%;animation:typingDot 1.2s ease-in-out infinite;animation-delay:0.4s;"></span>';
   messages.appendChild(el);
   messages.scrollTop = messages.scrollHeight;
