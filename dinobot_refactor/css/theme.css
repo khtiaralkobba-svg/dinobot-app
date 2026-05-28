@@ -820,3 +820,32 @@ body.light-mode #ra-calendar-popup div[style*="letter-spacing:1px"] {
   color: rgba(20,8,0,0.6) !important;
   font-size: 11px !important;
 }
+
+/* ── LIGHT MODE — REPORT GENERATOR ──────────────────────── */
+body.light-mode #ra-report-panel {
+  background: rgba(240,248,255,0.92) !important;
+}
+body.light-mode #ra-report-panel > div {
+  background: #e8f4fd !important;
+  border-color: rgba(251,185,36,0.4) !important;
+}
+body.light-mode #ra-report-panel * {
+  color: #1C0F00 !important;
+}
+body.light-mode #ra-report-panel input[type="date"] {
+  background: #f4faff !important;
+  border-color: rgba(30,100,200,0.3) !important;
+  color: #1C0F00 !important;
+}
+body.light-mode #ra-generate-btn {
+  background: rgba(251,185,36,0.15) !important;
+  border-color: rgba(251,185,36,0.5) !important;
+  color: #92400e !important;
+}
+body.light-mode #ra-report-output {
+  background: #f4faff !important;
+}
+body.light-mode #ra-report-output > div > div:first-child {
+  background: #e8f4fd !important;
+  border-color: rgba(30,100,200,0.2) !important;
+}
