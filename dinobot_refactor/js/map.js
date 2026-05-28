@@ -247,7 +247,7 @@ function updateObstacleCount() {
 }
 
 async function syncObstaclesToRobot(excludeTableId = null) {
-  const excludeId = excludeTableId ?? currentTarget?.id ?? null;
+  const excludeId = excludeTableId !== undefined ? excludeTableId : (currentTarget?.id ?? null);
   try { localStorage.setItem('dinobotObstacles', JSON.stringify(obstacles)); } catch {}
   try {
     if (obstacles.length === 0) {
@@ -784,14 +784,17 @@ function initMap() {
       setRobotState(stateLabels[data.state]||data.state, data.target_table?'Table '+data.target_table:'—', stateColors[data.state]||'#4ADE80');
 
       if (data.target_table && ['MOVING_TO_TABLE','DELIVERING'].includes(data.state)) {
-        if (!currentTarget || currentTarget.id !== data.target_table) {
+        const targetChanged = !currentTarget || currentTarget.id !== data.target_table;
+        if (targetChanged) {
           currentTarget = tables.find(t => t.id === data.target_table) || null;
           if (currentTarget) { targetX = currentTarget.x; targetY = currentTarget.y; }
           robotState = data.state === 'DELIVERING' ? 'DELIVERING' : 'DISPATCHED';
-          syncObstaclesToRobot(data.target_table); // Re-sync excluding new target table
-          document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
-          document.querySelectorAll('.dispatch-btn')[data.target_table - 1]?.classList.add('active');
+          // Only POST when target actually changes — but always pass the correct ID
+          syncObstaclesToRobot(data.target_table);
         }
+        document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
+        // Find button by table id instead of array index — safe if tables were added/removed
+        document.querySelector(`.dispatch-btn[onclick="dispatch(${data.target_table})"]`)?.classList.add('active');
       } else if (data.state === 'RETURNING' && robotState !== 'RETURNING') {
         robotState = 'RETURNING'; targetX = dockX; targetY = dockY; currentTarget = null;
         document.querySelectorAll('.dispatch-btn').forEach(b => b.classList.remove('active'));
