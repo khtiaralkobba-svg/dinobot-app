@@ -520,7 +520,7 @@ async function dispatchRobot(ref, tableNum) {
     if (!res.ok) throw new Error('Failed to update order');
     const robotRes = await fetch(`${API_BASE}/api/robot/dispatch`, {
       method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ order_ref: ref, table_number: tableNum })
+      body: JSON.stringify({ order_ref: ref, table_number: tableNum, role: 'kitchen' })
     });
     if (!robotRes.ok) throw new Error('Robot rejected dispatch');
     robotBusy = true; setAllDispatchButtons(false);

@@ -58,7 +58,7 @@ async function dispatch(tableId) {
     // ✅ FIX
     const res = await fetch(API_BASE + '/api/robot/dispatch', {
       method: 'POST', headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ table_number: tableId, order_ref: orderRef })
+      body: JSON.stringify({ table_number: tableId, order_ref: orderRef, role: 'manager' })
     });
     const errData = await res.json().catch(() => ({}));
     if (!res.ok) { showToast('⬡ ' + (errData.error || 'Robot unavailable')); return; }
