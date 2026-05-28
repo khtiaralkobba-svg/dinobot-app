@@ -103,7 +103,7 @@ function animateCounter(id, target, duration) {
 /* ── LOAD HOME STATS ─────────────────────────────────────── */
 async function loadHomeStats() {
   try {
-    const res = await fetch(API_BASE + '/api/orders/all', { headers: authHeaders() });
+    const res = await fetch(API_BASE + '/api/stats/public');
     if (!res.ok) {
       animateCounter('counter-1', 0, 800);
       animateCounter('counter-2', 0, 800);
@@ -111,35 +111,17 @@ async function loadHomeStats() {
       return;
     }
     const data = await res.json();
-    const orders = data.orders || [];
-    const today = new Date().toDateString();
-
-    const deliveredToday = orders.filter(o =>
-      o.status === 'delivered' && new Date(o.placed_at).toDateString() === today
-    ).length;
-
-    const deliveredWithTimes = orders.filter(o =>
-      o.status === 'delivered' && o.placed_at && o.delivered_at
-    );
-    const avgDelivery = deliveredWithTimes.length
-      ? Math.round(deliveredWithTimes.reduce((sum, o) =>
-          sum + (new Date(o.delivered_at) - new Date(o.placed_at)) / 60000, 0
-        ) / deliveredWithTimes.length)
-      : 0;
-
-    const tablesServed = new Set(
-      orders.filter(o => new Date(o.placed_at).toDateString() === today).map(o => o.table_number)
-    ).size;
-
-    animateCounter('counter-1', deliveredToday || 0, 1200);
-    animateCounter('counter-2', avgDelivery || 0, 800);
-    animateCounter('counter-3', tablesServed || 0, 1000);
+    animateCounter('counter-1', data.ordersToday || 0, 1200);
+    animateCounter('counter-2', data.avgDelivery || 0, 800);
+    animateCounter('counter-3', data.tablesServed || 0, 1000);
   } catch {
     animateCounter('counter-1', 0, 800);
     animateCounter('counter-2', 0, 800);
     animateCounter('counter-3', 0, 800);
   }
 }
+
+setInterval(loadHomeStats, 30000);
 
 /* ── SPEECH HELPERS ──────────────────────────────────────── */
 function speak(text, { rate = 1.05, pitch = 1.0, volume = 0.9, priority = false } = {}) {
