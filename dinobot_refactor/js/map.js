@@ -849,7 +849,7 @@ function initMap() {
       if (kitchDest)  kitchDest.textContent  = data.target_table ? 'Table '+data.target_table : '—';
       if (kitchBat)   kitchBat.textContent   = data.battery + '%';
 
-      const isRobotBusy = ['MOVING_TO_TABLE','DELIVERING','RETURNING','RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
+      const isRobotBusy = ['MOVING_TO_TABLE','RETURNING','RETURNING_TO_DOCK_FOR_DISPATCH'].includes(data.state);
       if (isRobotBusy !== robotBusy) { robotBusy = isRobotBusy; setAllDispatchButtons(!isRobotBusy); }
 
       document.getElementById('estop-btn').disabled = false;
