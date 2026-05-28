@@ -191,11 +191,10 @@ try {
           ['Total E-Stop Events', estops || 0],
           ['Total Manual Overrides', totalManualOverrides || 0],
           ['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' cm/s' : '—'],
-          ['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' units/s' : '—'],
         ].map(([l,v]) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
             <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${isLight?'#1C0F00':'var(--text)'};letter-spacing:1px;">${v}</span>
+            <span id="${l==='Current Speed'?'ra-live-speed':''}" style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${isLight?'#1C0F00':'var(--text)'};letter-spacing:1px;">${v}</span>
           </div>`).join('')}
       </div>
     </div>

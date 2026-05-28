@@ -787,6 +787,8 @@ function initMap() {
       raTrackBattery(data.battery);
       document.getElementById('bat-pct').textContent  = data.battery + '%';
       document.getElementById('speed-val').textContent = data.speed + ' cm/s';
+      const raSpeedEl = document.getElementById('ra-live-speed');
+      if (raSpeedEl) raSpeedEl.textContent = data.speed + ' cm/s';
       document.getElementById('speed-bar').style.width = Math.min(data.speed, 100) + '%';
       document.getElementById('load-val').textContent  = data.state === 'IDLE' ? 'Empty' : 'Loaded';
       document.getElementById('load-bar').style.width  = data.state === 'IDLE' ? '0%' : '80%';
