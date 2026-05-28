@@ -55,12 +55,12 @@ async function raTrackObstacleAvoided() {
     await Promise.all([
       fetch(API_BASE + '/api/robot-stats/obstacle', {
         method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: authHeaders({ 'Content-Type': 'application/json', 'x-robot-secret': 'dinobot-robot-key-2025' }),
         body: JSON.stringify({ obstacles_avoided: raData.obstaclesAvoided })
       }),
       fetch(API_BASE + '/api/robot-stats/obstacle-event', {
         method: 'POST',
-        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        headers: authHeaders({ 'Content-Type': 'application/json', 'x-robot-secret': 'dinobot-robot-key-2025' }),
         body: JSON.stringify({ triggered_at: new Date().toISOString() })
       })
     ]);

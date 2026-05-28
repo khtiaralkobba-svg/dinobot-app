@@ -75,7 +75,16 @@ router.get('/session', authenticateToken, authorizeRoles('manager'), async (req,
 });
 
 // ── Update obstacle count real time ──────────────────────────────────────────
-router.post('/obstacle', authenticateToken, authorizeRoles('manager'), async (req, res) => {
+router.post('/obstacle', (req, res, next) => {
+  if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
+    req._robotAuth = true;
+    return next();
+  }
+  authenticateToken(req, res, next);
+}, (req, res, next) => {
+  if (req._robotAuth) return next();
+  authorizeRoles('manager')(req, res, next);
+}, async (req, res) => {
   try {
     const { obstacles_avoided } = req.body;
     const { error } = await supabase
@@ -133,9 +142,15 @@ router.get('/manual', authenticateToken, authorizeRoles('manager'), async (req, 
 
 // ── Log obstacle event ────────────────────────────────────────────────────────
 router.post('/obstacle-event', (req, res, next) => {
-  if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) return next();
+  if (req.headers['x-robot-secret'] === process.env.ROBOT_SECRET) {
+    req._robotAuth = true;
+    return next();
+  }
   authenticateToken(req, res, next);
-}, authorizeRoles('manager'), async (req, res) => {
+}, (req, res, next) => {
+  if (req._robotAuth) return next();
+  authorizeRoles('manager')(req, res, next);
+}, async (req, res) => {
   try {
     const { error } = await supabase
       .from('robot_obstacle_events')
