@@ -849,3 +849,26 @@ body.light-mode #ra-report-output > div > div:first-child {
   background: #e8f4fd !important;
   border-color: rgba(30,100,200,0.2) !important;
 }
+
+/* ── LIGHT MODE — AI LAYOUT ASSISTANT LEFT PANEL ────────── */
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child {
+  background: #e8f4fd !important;
+  border-color: rgba(255,106,0,0.15) !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:first-child {
+  background: #dceef8 !important;
+  border-color: rgba(255,106,0,0.1) !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:first-child * {
+  color: #1C0F00 !important;
+}
+body.light-mode #layout-chat-messages {
+  background: transparent !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:last-child {
+  background: #dceef8 !important;
+  border-color: rgba(255,106,0,0.1) !important;
+}
+body.light-mode #layout-assistant-panel > div:last-child > div:first-child > div:last-child * {
+  color: rgba(20,8,0,0.5) !important;
+}
