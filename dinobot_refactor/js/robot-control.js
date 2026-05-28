@@ -18,6 +18,7 @@ function toggleEStop() {
     addActivity('dot-system', '🛑 <strong>EMERGENCY STOP</strong> activated');
     // ✅ FIX
     fetch(API_BASE + '/api/robot/stop', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    raTrackEStop();
   } else {
     btn.classList.remove('active');
     btn.innerHTML = '<span class="estop-icon">🛑</span> EMERGENCY STOP — ALL UNITS <span class="estop-icon">🛑</span>';
