@@ -50,7 +50,6 @@ function raTrackBattery(pct) {
 function raTrackSpeed(speed) { raData.avgSpeed = speed; }
 
 async function raTrackObstacleAvoided() {
-  if (currentRole !== 'manager') return;
   raData.obstaclesAvoided++;
   try {
     await Promise.all([
@@ -188,10 +187,11 @@ try {
       <div style="background:${isLight?'#e8f4fd':'linear-gradient(160deg,rgba(10,25,60,0.98),rgba(5,15,40,0.98))'};border:1px solid ${isLight?'rgba(30,100,200,0.2)':'rgba(251,185,36,0.2)'};padding:28px 32px;">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:#FBB924;text-transform:uppercase;margin-bottom:20px;border-bottom:1px solid rgba(251,185,36,0.15);padding-bottom:10px;">⬡ Robot Status</div>
         ${[
-          ['Avg Obstacles / Session', totalObstaclesAvoided && dispatched.length ? (totalObstaclesAvoided / dispatched.length).toFixed(1) : '—'],
-          ['Avg E-Stops / Session', estops && dispatched.length ? (estops / dispatched.length).toFixed(1) : '—'],
-          ['Avg Manual Overrides / Session', totalManualOverrides && dispatched.length ? (totalManualOverrides / dispatched.length).toFixed(1) : '—'],
-['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' units/s' : '—'],
+          ['Total Obstacles Avoided', totalObstaclesAvoided || 0],
+          ['Total E-Stop Events', estops || 0],
+          ['Total Manual Overrides', totalManualOverrides || 0],
+          ['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' cm/s' : '—'],
+          ['Current Speed', raData.avgSpeed ? raData.avgSpeed + ' units/s' : '—'],
         ].map(([l,v]) => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid ${isLight?'rgba(30,100,200,0.1)':'rgba(255,255,255,0.05)'}">
             <span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:${isLight?'rgba(20,8,0,0.7)':'var(--text-dim)'};letter-spacing:2px;">${l}</span>
