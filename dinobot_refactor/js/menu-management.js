@@ -5,6 +5,7 @@
 async function openMenuOverlay() {
   const el = document.getElementById('menu-overlay');
   el.style.display = 'flex';
+  el.style.background = document.body.classList.contains('light-mode') ? '#f0f4f8' : '#020b1a';
   document.body.style.overflow = 'hidden';
   await renderMenuOverlay();
 }
