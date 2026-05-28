@@ -31,6 +31,13 @@ async function login(req, res) {
     if (!valid) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
+    
+    // Check if the user's role matches what they selected
+    const requestedRole = req.body.role || null;
+    if (requestedRole && user.role !== requestedRole) {
+      return res.status(403).json({ success: false, error: 'Invalid credentials' });
+    }
+
 
     // Update last_login timestamp
     await supabase

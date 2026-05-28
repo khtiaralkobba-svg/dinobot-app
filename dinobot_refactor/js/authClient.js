@@ -38,7 +38,7 @@ async function doLogin(role) {
       method: 'POST',
       credentials: 'include',
       headers: authHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ employeeId: empInput.value.trim(), password: passInput.value })
+      body: JSON.stringify({ employeeId: empInput.value.trim(), password: passInput.value, role })
     });
     const data = await res.json();
     passInput.value = '';
