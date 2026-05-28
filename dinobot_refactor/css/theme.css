@@ -815,3 +815,8 @@ body.light-mode .heatmap-select-bar {
   border-color: rgba(30,100,200,0.2) !important;
   color: rgba(20,8,0,0.5) !important;
 }
+
+body.light-mode #ra-calendar-popup div[style*="letter-spacing:1px"] {
+  color: rgba(20,8,0,0.6) !important;
+  font-size: 11px !important;
+}
