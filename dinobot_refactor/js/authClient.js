@@ -65,6 +65,7 @@ async function doLogin(role) {
       startAnalyticsPolling();
       connectSocket('manager');
       setTimeout(loadStaffList, 600);
+      setInterval(loadStaffList, 5000);
       loadHomeStats();
     } else {
       document.querySelector('#dashboard-hero-title .dash-subtitle').textContent = '// Kitchen Staff Dashboard';
