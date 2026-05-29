@@ -387,9 +387,9 @@ function applyStatusToTimeline(ref, status, tableNum) {
       const sub = document.getElementById('ts-enroute-sub-' + ref);
       if (sub) sub.textContent = 'Heading to Table ' + tableNum;
     }
-    if (status === 'delivering' && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5) {
+    if (status === 'delivering' && sessionOrders.some(o => o.order_ref === ref) && studentStep === 5 && !window._trayModeActive) {
       showPickupScreen(ref);
-    }
+  }
     if (status === 'delivered') {
       markDone('ts-enroute'); markDone('ts-delivered');
       document.getElementById('pickup-overlay')?.classList.remove('show');
@@ -472,9 +472,11 @@ function startTrackingPolling(ref) {
       const syncObsRes = await fetch(API_BASE + '/api/obstacles/current');
       if (syncObsRes.ok) {
         const syncObsData = await syncObsRes.json();
-        obstacles = (syncObsData.obstacles || []).map(o => ({
-          x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
-        }));
+        studentObstacles = (syncObsData.obstacles || [])
+          .filter(o => o.type !== 'table')
+          .map(o => ({
+            x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
+          }));
       }
 
       // Sync table layout
@@ -643,6 +645,7 @@ async function requestTrayCollection(ref, tableNum) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ table_number: tableNum, order_ref: null, role: 'tray' })
     });
+    window._trayModeActive = true;
     if (!res.ok) throw new Error('Robot unavailable');
     if (btn) { btn.disabled = true; btn.textContent = '⬡ Robot Coming to Collect Tray...'; }
     showToast('🤖 Robot dispatched to collect your tray!');
@@ -696,6 +699,7 @@ async function confirmTrayLoaded() {
     setTimeout(() => {
       document.getElementById('pickup-overlay')?.classList.remove('show');
       showToast('✓ Tray collected — thank you! 🎓');
+      window._trayModeActive = false;
       btn.onclick = confirmPickup; // reset for next use
     }, 1500);
   } catch {
