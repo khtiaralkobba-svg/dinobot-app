@@ -472,11 +472,9 @@ function startTrackingPolling(ref) {
       const syncObsRes = await fetch(API_BASE + '/api/obstacles/current');
       if (syncObsRes.ok) {
         const syncObsData = await syncObsRes.json();
-        studentObstacles = (syncObsData.obstacles || [])
-          .filter(o => o.type !== 'table')
-          .map(o => ({
-            x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
-          }));
+        obstacles = (syncObsData.obstacles || []).map(o => ({
+          x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
+        }));
       }
 
       // Sync table layout
@@ -654,7 +652,7 @@ async function requestTrayCollection(ref, tableNum) {
       try {
         const r = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
         const data = await r.json();
-        if (data.state === 'DELIVERING' || data.state === 'IDLE') {
+        if (data.state === 'DELIVERING') {
           clearInterval(window._trayWatcher);
           showTrayLoadedScreen(ref);
         }
