@@ -654,7 +654,7 @@ async function requestTrayCollection(ref, tableNum) {
       try {
         const r = await fetch(API_BASE + '/api/robot/status', { headers: authHeaders() });
         const data = await r.json();
-        if (data.state === 'DELIVERING') {
+        if (data.state === 'DELIVERING' || data.state === 'IDLE') {
           clearInterval(window._trayWatcher);
           showTrayLoadedScreen(ref);
         }
