@@ -462,7 +462,7 @@ function startTrackingPolling(ref) {
       const order  = sessionOrders.find(o => o.order_ref === ref);
       updateSessionOrderStatus(ref, status);
       applyStatusToTimeline(ref, status, order?.table_number);
-      if (['delivered','cancelled'].includes(status)) clearInterval(trackingInterval);
+      if (status === 'cancelled') clearInterval(trackingInterval);
       if (robotRes.ok) {
         const robotData = await robotRes.json();
         robotX = robotData.x_norm; robotY = robotData.y_norm; robotAngle = robotData.theta;
@@ -543,10 +543,15 @@ function animateTrackMap(ref, tableNum) {
     ctx.lineWidth = isLight ? 1.5 : 0;
     ctx.shadowColor = isTarget ? (isLight?'#FF6F3C':'#C084FC') : (isLight?'#1d4ed8':'#60A5FA');
     ctx.shadowBlur = isTarget ? 10 : 4;
-    ctx.fillRect(tx-12, ty-8, 24, 16); if (isLight) ctx.strokeRect(tx-12, ty-8, 24, 16);
+    ctx.beginPath(); ctx.arc(tx, ty, isTarget ? 10 : 7, 0, Math.PI*2); ctx.fill();
+    if (isLight) { ctx.beginPath(); ctx.arc(tx, ty, isTarget ? 10 : 7, 0, Math.PI*2); ctx.stroke(); }
     ctx.fillStyle = isLight ? (isTarget?'#7c1d00':'#0d3b8c') : 'rgba(255,255,255,0.9)';
     ctx.shadowBlur = 0; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('T'+t.id, tx, ty); ctx.restore();
+    ctx.fillText('T'+t.id, tx, ty);
+    ctx.fillStyle = isLight ? 'rgba(20,8,0,0.7)' : 'rgba(220,232,248,0.8)';
+    ctx.font = '9px Share Tech Mono,monospace'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('T'+t.id, tx, ty + (isTarget ? 10 : 7) + 12);
+    ctx.restore();
   });
 
   // Dock
