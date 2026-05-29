@@ -472,9 +472,11 @@ function startTrackingPolling(ref) {
       const syncObsRes = await fetch(API_BASE + '/api/obstacles/current');
       if (syncObsRes.ok) {
         const syncObsData = await syncObsRes.json();
-        obstacles = (syncObsData.obstacles || []).map(o => ({
-          x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
-        }));
+        studentObstacles = (syncObsData.obstacles || [])
+          .filter(o => o.type !== 'table')
+          .map(o => ({
+            x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
+          }));
       }
 
       // Sync table layout
@@ -565,7 +567,7 @@ function animateTrackMap(ref, tableNum) {
   ctx.fillStyle = isLight ? '#FF6F3C' : '#FF6B1A';
   ctx.beginPath(); ctx.moveTo(0,-10); ctx.lineTo(6,6); ctx.lineTo(0,2); ctx.lineTo(-6,6); ctx.closePath(); ctx.fill(); ctx.restore();
 
-  drawObstacles(ctx, W, H);
+  drawStudentObstacles(ctx, W, H);
   trackMapFrame = requestAnimationFrame(() => animateTrackMap(ref, tableNum));
 }
 
@@ -702,4 +704,26 @@ async function confirmTrayLoaded() {
     showToast('✗ Failed — try again');
     if (btn) { btn.disabled = false; btn.textContent = '✓ TRAY LOADED — SEND ROBOT BACK'; }
   }
+}
+
+let studentObstacles = [];
+
+function drawStudentObstacles(ctx, W, H) {
+  studentObstacles.forEach((o, i) => {
+    const def = OBSTACLE_TYPES[o.type] || OBSTACLE_TYPES.person;
+    const px = o.x * W, py = o.y * H;
+    const r = o.r * Math.min(W, H);
+    ctx.save();
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI*2);
+    ctx.fillStyle = def.color; ctx.globalAlpha = 0.22; ctx.fill();
+    ctx.globalAlpha = 0.85; ctx.strokeStyle = def.color; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.font = Math.round(r * 1.25) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(def.emoji, px, py);
+    ctx.font = '9px Share Tech Mono,monospace';
+    ctx.fillStyle = def.color; ctx.globalAlpha = 0.85;
+    ctx.fillText(def.label.toUpperCase(), px, py + r + 11);
+    ctx.restore();
+  });
 }
