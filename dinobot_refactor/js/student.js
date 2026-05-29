@@ -506,7 +506,7 @@ function startTrackingPolling(ref) {
         }
       }
     } catch {}
-  }, 5000);
+  }, 2000);
 }
 
 function startDeliveryWatcher(ref) {
