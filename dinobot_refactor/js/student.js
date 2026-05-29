@@ -538,19 +538,14 @@ function animateTrackMap(ref, tableNum) {
   tables.forEach(t => {
     const tx = t.x*W, ty = t.y*H, isTarget = tableNum === t.id;
     ctx.save();
-    ctx.fillStyle = isTarget ? (isLight?'rgba(255,106,0,0.25)':'#C084FC') : (isLight?'rgba(29,78,216,0.15)':'rgba(96,165,250,0.25)');
-    ctx.strokeStyle = isTarget ? (isLight?'#FF6F3C':'#C084FC') : (isLight?'#1d4ed8':'#60A5FA');
-    ctx.lineWidth = isLight ? 1.5 : 0;
-    ctx.shadowColor = isTarget ? (isLight?'#FF6F3C':'#C084FC') : (isLight?'#1d4ed8':'#60A5FA');
-    ctx.shadowBlur = isTarget ? 10 : 4;
-    ctx.beginPath(); ctx.arc(tx, ty, isTarget ? 10 : 7, 0, Math.PI*2); ctx.fill();
-    if (isLight) { ctx.beginPath(); ctx.arc(tx, ty, isTarget ? 10 : 7, 0, Math.PI*2); ctx.stroke(); }
-    ctx.fillStyle = isLight ? (isTarget?'#7c1d00':'#0d3b8c') : 'rgba(255,255,255,0.9)';
-    ctx.shadowBlur = 0; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('T'+t.id, tx, ty);
+    ctx.fillStyle = isTarget ? (isLight?'#7c3aed':'#C084FC') : (isLight?'#1d4ed8':'#60A5FA');
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = isTarget ? 14 : 8;
+    ctx.beginPath(); ctx.arc(tx, ty, isTarget ? 9 : 7, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.fillStyle = isLight ? 'rgba(20,8,0,0.7)' : 'rgba(220,232,248,0.8)';
-    ctx.font = '9px Share Tech Mono,monospace'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('T'+t.id, tx, ty + (isTarget ? 10 : 7) + 12);
+    ctx.font = '10px Share Tech Mono,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('T'+t.id, tx, ty + 20);
     ctx.restore();
   });
 
