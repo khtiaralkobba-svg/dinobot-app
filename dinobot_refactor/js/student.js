@@ -392,7 +392,9 @@ function applyStatusToTimeline(ref, status, tableNum) {
   }
     if (status === 'delivered') {
       markDone('ts-enroute'); markDone('ts-delivered');
-      document.getElementById('pickup-overlay')?.classList.remove('show');
+      if (!window._trayModeActive) {
+        document.getElementById('pickup-overlay')?.classList.remove('show');
+      }
       // Show tray collection button
       const cancelBtn = document.getElementById('cancel-btn-' + ref);
       if (cancelBtn) {
