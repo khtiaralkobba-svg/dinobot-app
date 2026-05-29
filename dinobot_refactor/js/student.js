@@ -467,6 +467,44 @@ function startTrackingPolling(ref) {
         const robotData = await robotRes.json();
         robotX = robotData.x_norm; robotY = robotData.y_norm; robotAngle = robotData.theta;
       }
+
+      // Sync obstacles from manager
+      const obsRes = await fetch(API_BASE + '/api/obstacles/current');
+      if (obsRes.ok) {
+        const obsData = await obsRes.json();
+        obstacles = (obsData.obstacles || []).map(o => ({
+          x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
+        }));
+      }
+
+      // Sync table layout
+      const tableRes = await fetch(API_BASE + '/api/tables/layout');
+      if (tableRes.ok) {
+        const tableData = await tableRes.json();
+        if (tableData.tables && tableData.tables.length > 0) {
+          tables.length = 0;
+          tableData.tables.forEach(t => tables.push(t));
+        }
+      }
+
+      // Sync obstacles from manager
+      const obsRes = await fetch(API_BASE + '/api/obstacles/current');
+      if (obsRes.ok) {
+        const obsData = await obsRes.json();
+        obstacles = (obsData.obstacles || []).map(o => ({
+          x: o.x, y: o.y, type: o.type || 'person', r: o.radius || 0.02
+        }));
+      }
+
+      // Sync table layout
+      const tableRes = await fetch(API_BASE + '/api/tables/layout');
+      if (tableRes.ok) {
+        const tableData = await tableRes.json();
+        if (tableData.tables && tableData.tables.length > 0) {
+          tables.length = 0;
+          tableData.tables.forEach(t => tables.push(t));
+        }
+      }
     } catch {}
   }, 5000);
 }
