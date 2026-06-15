@@ -121,6 +121,7 @@ async function loadHomeStats() {
   }
 }
 
+loadHomeStats();
 setInterval(loadHomeStats, 30000);
 
 /* ── SPEECH HELPERS ──────────────────────────────────────── */
